@@ -18,5 +18,8 @@
     <ClInclude Include="Source\Core\Public\Common\TypeDefinitions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\Public\Common\Compiler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
