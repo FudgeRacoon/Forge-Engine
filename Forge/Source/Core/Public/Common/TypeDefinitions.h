@@ -4,11 +4,11 @@
 namespace Forge
 {
 	/// Byte types
-	using BYTE = unsigned __int8;
+	using BYTE  = unsigned __int8;
 	using CBYTE = const unsigned __int8;
 
 	/// Char types
-	using CHAR = char;
+	using CHAR  = char;
 	using CCHAR = const char;
 
 	/// Unsigned integer types
@@ -32,13 +32,13 @@ namespace Forge
 	using CI64 = const signed __int64;
 	
 	/// Floating-point types
-	using F32 = float;
-	using F64 = double;
+	using F32  = float;
+	using F64  = double;
 	using CF32 = const float;
 	using CF64 = const double;
 
 	/// Void pointer types
-	using PVOID = void*;
+	using PVOID  = void*;
 	using PCVOID = const void*;
 
 	/// Byte pointer types
@@ -70,8 +70,8 @@ namespace Forge
 	using PCI64 = const signed __int64*;
 	
 	/// Floating-point pointer types
-	using PF32 = float*;
-	using PF64 = double*;
+	using PF32  = float*;
+	using PF64  = double*;
 	using PCF32 = const float*;
 	using PCF64 = const double*;
 }
