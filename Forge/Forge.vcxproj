@@ -81,7 +81,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Core\Public\Common\Compiler.h" />
+    <ClInclude Include="Source\Core\Public\Common\Base.h" />
     <ClInclude Include="Source\Core\Public\Common\TypeDefinitions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
