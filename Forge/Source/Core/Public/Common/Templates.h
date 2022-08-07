@@ -2,4 +2,5 @@
 #define TEMPLATES_H
 
 
-#endif
+
+#endif // TEMPLATES_H
