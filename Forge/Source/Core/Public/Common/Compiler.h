@@ -1,8 +1,6 @@
 #ifndef COMPILER_H
 #define COMPILER_H
 
-#include "PreprocessorUtilities.h"
-
 /// Detect plaftorm
 #if defined(__ANDROID__)
 	#define FORGE_PLATFORM_ANDROID
@@ -47,15 +45,6 @@
 	#define FORGE_ARCH_32BIT
 #endif
 
-/// Detect C++ standard
-#if defined(__cplusplus)
-	#if __cplusplus < 201402L
-		#error "C++14 standard support is required to build."
-	#elif __cplusplus < 201703L
-		#define FORGE_STD_CPP_NAME "C++14"	
-	#endif
-#endif
-
 /// Platform name
 #if defined(FORGE_PLATFORM_ANDROID)
 	#define FORGE_PLATFORM_NAME "Android"
@@ -69,23 +58,23 @@
 
 /// Compiler name
 #if defined(FORGE_COMPILER_CLANG)
-	#define FORGE_COMPILER_NAME "Clang "         \
-			FORGE_STRINGIZE(__clang_major__) "." \
-			FORGE_STRINGIZE(__clang_minor__) "." \
-			FORGE_STRINGIZE(__clang_patchlevel__)
+	#define FORGE_COMPILER_NAME "Clang " \
+			#__clang_major__ "."         \
+			#__clang_minor__ "."         \
+			#__clang_patchlevel__
 #elif defined(FORGE_COMPILER_INTEL)
 	#define FORGE_COMPILER_NAME "Intel Compiler " \
-			FORGE_STRINGIZE(__INTEL_COMPILER)
+			#__INTEL_COMPILER
 #elif defined(FORGE_COMPILER_EMSCRIPTEN)
-	#define FORGE_COMPILER_NAME "Emscripten "         \
-			FORGE_STRINGIZE(__EMSCRIPTEN_major__) "." \
-			FORGE_STRINGIZE(__EMSCRIPTEN_minor__) "." \
-			FORGE_STRINGIZE(__EMSCRIPTEN_tiny__)
+	#define FORGE_COMPILER_NAME "Emscripten " \
+			#__EMSCRIPTEN_major__ "."         \
+			#__EMSCRIPTEN_minor__ "."         \
+			#__EMSCRIPTEN_tiny__
 #elif defined(FORGE_COMPILER_GCC)
-	#define FORGE_COMPILER_NAME "GCC "          \
-			FORGE_STRINGIZE(__GNUC__) "."       \
-			FORGE_STRINGIZE(__GNUC_MINOR__) "." \
-			FORGE_STRINGIZE(__GNUC_PATCHLEVEL__)
+	#define FORGE_COMPILER_NAME "GCC " \
+			#__GNUC__ "."              \
+			#__GNUC_MINOR__ "."        \
+			#__GNUC_PATCHLEVEL__
 #elif defined(FORGE_COMPILER_MSVC)
 	#if _MSC_VER >= 1930 /// Visual Studio 2022
 		#define FORGE_COMPILER_NAME "MSVC 17.0"
@@ -117,19 +106,59 @@
 
 /// Compiler specific modifiers
 #if defined(FORGE_COMPILER_CLANG)
+	#define FORGE_CDECL       
+	#define FORGE_STDCALL     
+	#define FORGE_INLINE      
+	#define FORGE_FORCE_INLINE
+	#define FORGE_DEBUG_BREAK 
+	#define FORGE_DLL_EXPORT  
+	#define FORGE_DLL_IMPORT  
+	#define FORGE_NO_INLINE   
+	#define FORGE_NO_RETURN   
+	#define FORGE_DEPRECATED  
 	#error "Clang is not currently supported."
 #elif defined(FORGE_COMPILER_INTEL)
+	#define FORGE_CDECL       
+	#define FORGE_STDCALL     
+	#define FORGE_INLINE      
+	#define FORGE_FORCE_INLINE
+	#define FORGE_DEBUG_BREAK 
+	#define FORGE_DLL_EXPORT  
+	#define FORGE_DLL_IMPORT  
+	#define FORGE_NO_INLINE   
+	#define FORGE_NO_RETURN   
+	#define FORGE_DEPRECATED  
 	#error "Intel compiler is not currently supported."
 #elif defined(FORGE_COMPILER_EMSCRIPTEN)
+	#define FORGE_CDECL       
+	#define FORGE_STDCALL     
+	#define FORGE_INLINE      
+	#define FORGE_FORCE_INLINE
+	#define FORGE_DEBUG_BREAK 
+	#define FORGE_DLL_EXPORT  
+	#define FORGE_DLL_IMPORT  
+	#define FORGE_NO_INLINE   
+	#define FORGE_NO_RETURN   
+	#define FORGE_DEPRECATED  
 	#error "Emscripten is not currently supported."
 #elif defined(FORGE_COMPILER_GCC)
+	#define FORGE_CDECL       
+	#define FORGE_STDCALL     
+	#define FORGE_INLINE      
+	#define FORGE_FORCE_INLINE
+	#define FORGE_DEBUG_BREAK 
+	#define FORGE_DLL_EXPORT  
+	#define FORGE_DLL_IMPORT  
+	#define FORGE_NO_INLINE   
+	#define FORGE_NO_RETURN   
+	#define FORGE_DEPRECATED  
 	#error "GCC is not currently supported."
 #elif defined(FORGE_COMPILER_MSVC) 
 	#define FORGE_CDECL        __cdecl
     #define FORGE_STDCALL      __stdcall
 	#define FORGE_INLINE       __inline
 	#define FORGE_FORCE_INLINE __forceinline
-	#define FORGE_DEBUG_BREAK  __debugbreak()
+	#define FORGE_DEBUG_BREAK  __debugbreak();
 	#define FORGE_DLL_EXPORT   __declspec(dllexport)
 	#define FORGE_DLL_IMPORT   __declspec(dllimport)
 	#define FORGE_NO_INLINE    __declspec(noinline)
@@ -143,4 +172,4 @@
 	#define FORGE_API FORGE_DLL_IMPORT
 #endif
 
-#endif
+#endif // COMPILER_H
