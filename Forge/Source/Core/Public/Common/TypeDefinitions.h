@@ -8,6 +8,9 @@ namespace Forge
 {
 	using VOID = void;
 
+	using BOOL  = bool;
+	using CBOOL = const bool;
+
 	using CHAR = char;
 	using CCHAR = const char;
 
@@ -72,6 +75,9 @@ namespace Forge
 	using PBYTE  = BYTE*;
 	using PCBYTE = CBYTE*;
 
+	using PBOOL  = BOOL*;
+	using PCBOOL = CBOOL*;
+
 	using PSTR  = CHAR*;
 	using PCSTR = CCHAR*;
 
@@ -97,6 +103,8 @@ namespace Forge
 	using PF64  = F64*;
 	using PCF32 = CF32*;
 	using PCF64 = CF64*;
+
+	FORGE_STATIC_ASSERT(sizeof(BOOL) == 1)
 
 	FORGE_STATIC_ASSERT(sizeof(CHAR) == 1)
 
