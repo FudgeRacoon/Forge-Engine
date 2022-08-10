@@ -6,6 +6,8 @@
 namespace Forge {
 	namespace TypeTraits
 	{
+		/// TODO: Implement IsConstructible, IsDestructible and IsCopyable tests
+
 		/// Tests whether the predicate is true, if so returns the typename
 		template<BOOL predicate, typename Result>
 		struct TEnableIf;
