@@ -24,10 +24,13 @@
     <ClInclude Include="Source\Core\Public\Common\PreprocessorUtilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Public\Common\Templates.h">
+    <ClInclude Include="Source\Core\Public\Common\TypeTraits.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Public\Common\Buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\Common\Endianness.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
