@@ -1,5 +1,5 @@
-#ifndef TEMPLATES_H
-#define TEMPLATES_H
+#ifndef TYPETRAITS_H
+#define TYPETRAITS_H
 
 #include "TypeDefinitions.h"
 
@@ -57,6 +57,17 @@ namespace Forge {
 		struct TIsFloatingPoint<const T> { enum { Value = TIsFloatingPoint<T>::Value }; };
 
 
+		/// Tests whether typename is double
+		template<typename T>
+		struct TIsDoublePrecision { enum { Value = false }; };
+
+		template<>
+		struct TIsDoublePrecision<F64> { enum { Value = true }; };
+
+		template<typename T>
+		struct TIsDoublePrecision<const T> { enum { Value = TIsDouble<T>::Value }; };
+
+
 		/// Tests wether typename is signed 
 		template<typename T>
 		struct TIsSigned { enum { Value = false }; };
@@ -102,26 +113,26 @@ namespace Forge {
 
 		/// Removes constant qualifiers from typename
 		template<typename T>
-		struct TRemoveConst { using Type = T};
+		struct TRemoveConst { using Type = T; };
 		template<typename T>
-		struct TRemoveConst<const T> { using Type = T };
+		struct TRemoveConst<const T> { using Type = T; };
 
 
 		/// Removes reference qualifiers from typename
 		template<typename T>
-		struct TRemoveRefernce { using Type = T};
+		struct TRemoveRefernce { using Type = T; };
 		template<typename T>
-		struct TRemoveRefernce<T&> { using Type = T };
+		struct TRemoveRefernce<T&> { using Type = T; };
 		template<typename T>
-		struct TRemoveRefernce<T&&> { using Type = T };
+		struct TRemoveRefernce<T&&> { using Type = T; };
 
 
 		/// Removes pointer qualifier from typename
 		template<typename T>
-		struct TRemovePointer { using Type = T};
+		struct TRemovePointer { using Type = T; };
 		template<typename T>
-		struct TRemovePointer<T*> { using Type = T };
+		struct TRemovePointer<T*> { using Type = T; };
 	}
 }
 
-#endif // TEMPLATES_H
+#endif // TYPETRAITS_H
