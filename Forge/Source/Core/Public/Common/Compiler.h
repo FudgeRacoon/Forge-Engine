@@ -24,8 +24,10 @@
 	#define FORGE_COMPILER_INTEL
 #elif defined(__EMSCRIPTEN__)
 	#define FORGE_COMPILER_EMSCRIPTEN
-#elif defined (__GNUC__)
+#elif defined(__GNUC__)
 	#define FORGE_COMPILER_GCC
+#elif defined(__MINGW32__)
+	#define FORGE_COMPILER_MINGW
 #elif defined(_MSC_VER)
 	#define FORGE_COMPILER_MSVC
 #else
@@ -75,6 +77,10 @@
 			#__GNUC__ "."              \
 			#__GNUC_MINOR__ "."        \
 			#__GNUC_PATCHLEVEL__
+#elif defined(FORGE_COMPILER_MINGW)
+	#define FORGE_COMPILER_NAME "MINGW"  \
+			#__MINGW32_MAJOR_VERSION "." \
+			#__MINGW32_MINOR_VERSION
 #elif defined(FORGE_COMPILER_MSVC)
 	#if _MSC_VER >= 1930 /// Visual Studio 2022
 		#define FORGE_COMPILER_NAME "MSVC 17.0"
