@@ -24,9 +24,6 @@
 #define _FORGE_CONCATENATE_COMMA_VARIADIC(s, ...) s, ## __VA_ARGS__
 #define  FORGE_CONCATENATE_COMMA_VARIADIC(s, ...) _FORGE_CONCATENATE_COMMA_VARIADIC(s, ...)
 
-#define FORGE_BYTESWAP_16_UNSIGNED(x) ((((x) >> 8) & 0x00ff) + (((x) << 8) & 0xff00))
-#define FORGE_BYTESWAP_32_UNSIGNED(x) (((x) >> 24) + (((x) >> 8) & 0x00ff00) + (((x) << 8) & 0xff0000) + ((x) << 24))
-
 #if defined(FORGE_DEBUG)
 	#define FORGE_ASSERT(__EXPR__)                   \
 		if(__EXPR__) {}                              \

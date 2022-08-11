@@ -5,27 +5,39 @@
 #include "TypeDefinitions.h"
 
 namespace Forge {
-	namespace Endian
+	namespace Endianness
 	{
-		template<typename ValueType, SIZE Bytes,
+		template<typename ValueType,
 			BOOL IsFloatingPoint = TypeTraits::TIsFloatingPoint<ValueType>::Value,
 			BOOL IsDoublePrecision = TypeTraits::TIsDoublePrecision<ValueType>::Value>
 		struct Impl_Endian;
 
 		/// Integer Specilization
-		template<typename ValueType, SIZE Bytes>
-		struct Impl_Endian<ValueType, Bytes, false, false>
+		template<typename ValueType>
+		struct Impl_Endian<ValueType, false, false>
 		{
-			static VOID Swap(ValueType& value, PBYTE buffer)
+			static VOID Swap(ValueType& value, PBYTE buffer, SIZE bytes)
 			{
-				Impl_Endian<ValueType, Bytes - 1>::Swap(value, buffer + 1);
+				if (bytes == 1)
+				{
+					*buffer = (value & 0xFF000000) >> 24;
+					return;
+				}
+
+				Impl_Endian<ValueType>::Swap(value, buffer + 1, bytes - 1);
 
 				value = value << 8;
 				*buffer = (value & 0xFF000000) >> 24;
 			}
 
-			static VOID Register(ValueType& value, PBYTE buffer)
+			static VOID Register(ValueType& value, PBYTE buffer, SIZE bytes)
 			{
+				if (bytes == 1)
+				{
+					value |= (ValueType)(*buffer);
+					return;
+				}
+
 				value |= (ValueType)(*buffer);
 				value = value << 8;
 
@@ -34,16 +46,22 @@ namespace Forge {
 		};
 
 		/// Float Specilization
-		template<typename ValueType, SIZE Bytes>
-		struct Impl_Endian<ValueType, Bytes, true, false>
+		template<typename ValueType>
+		struct Impl_Endian<ValueType, true, false>
 		{
-			static VOID Swap(ValueType& value, PBYTE buffer)
+			static VOID Swap(ValueType& value, PBYTE buffer, SIZE bytes)
 			{
 				union
 				{
 					U32 i;
 					F32 f;
-				} &int_float = { value };
+				} int_float = { value };
+
+				if (bytes == 1)
+				{
+					*buffer = (int_float.i & 0xFF000000) >> 24;
+					return;
+				}
 
 				Impl_Endian<ValueType, Bytes - 1>::Swap(value, buffer + 1);
 
@@ -51,13 +69,19 @@ namespace Forge {
 				*buffer = (int_float.i & 0xFF000000) >> 24;
 			}
 
-			static VOID Register(ValueType& value, PBYTE buffer)
+			static VOID Register(ValueType& value, PBYTE buffer, SIZE bytes)
 			{
 				union
 				{
 					U32 i;
 					F32 f;
-				} &int_float = { value };
+				} int_float = { value };
+
+				if (bytes == 1)
+				{
+					int_float.i |= (U32)(*buffer);
+					return;
+				}
 
 				int_float.i |= (U32)(*buffer);
 				int_float.i = int_float.i << 8;
@@ -67,16 +91,22 @@ namespace Forge {
 		};
 
 		/// Double Specilization
-		template<typename ValueType, SIZE Bytes>
-		struct Impl_Endian<ValueType, Bytes, true, true>
+		template<typename ValueType>
+		struct Impl_Endian<ValueType, true, true>
 		{
-			static VOID Swap(ValueType& value, PBYTE buffer)
+			static VOID Swap(ValueType& value, PBYTE buffer, SIZE bytes)
 			{
 				union
 				{
 					U64 i;
 					F64 d;
 				} int_double = { value };
+
+				if (bytes == 1)
+				{
+					*buffer = (int_double.i & 0xFF000000) >> 24;
+					return;
+				}
 
 				Impl_Endian<ValueType, Bytes - 1>::Swap(value, buffer + 1);
 
@@ -84,90 +114,26 @@ namespace Forge {
 				*buffer = (int_double.i & 0xFF000000) >> 24;
 			}
 
-			static VOID Register(ValueType& value, PBYTE buffer)
+			static VOID Register(ValueType& value, PBYTE buffer, SIZE bytes)
 			{
 				union
 				{
 					U64 i;
-					F64 f;
+					F64 d;
 				} int_double = { value };
 
-				int_double.i |= (U64)(*buffer);
+				if (bytes == 1)
+				{
+					int_double.i |= (U32)(*buffer);
+					return;
+				}
+
+				int_double.i |= (U32)(*buffer);
 				int_double.i = int_double.i << 8;
 
 				Impl_Endian<ValueType, Bytes - 1>::Register(value, buffer + 1);
 			}
 		};
-
-		/// Integer Specilization
-		template<typename ValueType>
-		struct Impl_Endian<ValueType, 1, false, false>
-		{
-			static VOID Swap(ValueType& value, PBYTE buffer)
-			{
-				*buffer = (value & 0xFF000000) >> 24;
-			}
-
-			static VOID Register(ValueType& value, PBYTE buffer)
-			{
-				value |= (ValueType)(*buffer);
-			}
-		};
-
-		/// Float Specilization
-		template<typename ValueType>
-		struct Impl_Endian<ValueType, 1, true, false>
-		{
-			static VOID Swap(ValueType& value, PBYTE buffer)
-			{
-				union
-				{
-					U32 i;
-					F32 f;
-				} int_float = { value };
-
-				*buffer = (int_float.i & 0xFF000000) >> 24;
-			}
-
-			static VOID Register(ValueType& value, PBYTE buffer)
-			{
-				union
-				{
-					U32 i;
-					F32 f;
-				} int_float = { value };
-
-				int_float.i |= (U32)(*buffer);
-			}
-		};
-
-		/// Double Specilization
-		template<typename ValueType>
-		struct Impl_Endian<ValueType, 1, true, true>
-		{
-			static VOID Swap(ValueType& value, PBYTE buffer)
-			{
-				union
-				{
-					U64 i;
-					F64 d;
-				} int_double = { value };
-
-				*buffer = (int_double.i & 0xFF000000) >> 24;
-			}
-
-			static VOID Register(ValueType& value, PBYTE buffer)
-			{
-				union
-				{
-					U64 i;
-					F64 d;
-				} int_double = { value };
-
-				int_double.i |= (U64)(*buffer);
-			}
-		};
-
 
 		/// @brief Checks if the current system is big-endian.
 		BOOL IsBigEndian()
@@ -192,7 +158,7 @@ namespace Forge {
 			return *(int_byte.b) == 0x04;
 		}
 
-		template<typename ValueType, SIZE Bytes>
+		template<typename ValueType>
 		struct Utility
 		{
 			/// @brief Swaps between little-endian and big-endian and
@@ -200,18 +166,18 @@ namespace Forge {
 			/// 
 			/// @param[in] value The value to convert.
 			/// @param[out] buffer The buffer which will store conversion result.
-			static VOID Swap(ValueType value, PBYTE buffer)
+			static VOID Swap(ValueType value, PBYTE buffer, SIZE bytes)
 			{
-				Impl_Endian<ValueType, Bytes>::Swap(value, buffer);
+				Impl_Endian<ValueType>::Swap(value, buffer, bytes);
 			}
 
 			/// @brief Registers the conversion result to an arithmetic type.
 			/// 
 			/// @param[out] value The value which will store the conversion result.
 			/// @param[in] buffer The buffer which already has a conversion result.
-			static VOID Register(ValueType& value, PBYTE buffer)
+			static VOID Register(ValueType& value, PBYTE buffer, SIZE bytes)
 			{
-				Impl_Endian<ValueType, Bytes>::Register(value, buffer);
+				Impl_Endian<ValueType>::Register(value, buffer, bytes);
 			}
 		};
 	}
