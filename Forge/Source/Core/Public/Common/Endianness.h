@@ -158,28 +158,26 @@ namespace Forge {
 			return *(int_byte.b) == 0x04;
 		}
 
+		/// @brief Swaps between little-endian and big-endian and
+		/// stores the conversion result in a buffer.
+		/// 
+		/// @param[in] value The value to convert.
+		/// @param[out] buffer The buffer which will store conversion result.
 		template<typename ValueType>
-		struct Utility
-		{
-			/// @brief Swaps between little-endian and big-endian and
-			/// stores the conversion result in a buffer.
-			/// 
-			/// @param[in] value The value to convert.
-			/// @param[out] buffer The buffer which will store conversion result.
-			static VOID Swap(ValueType value, PBYTE buffer, SIZE bytes)
+		VOID SwapEndian(ValueType value, PBYTE buffer, SIZE bytes)
 			{
 				Impl_Endian<ValueType>::Swap(value, buffer, bytes);
 			}
 
-			/// @brief Registers the conversion result to an arithmetic type.
-			/// 
-			/// @param[out] value The value which will store the conversion result.
-			/// @param[in] buffer The buffer which already has a conversion result.
-			static VOID Register(ValueType& value, PBYTE buffer, SIZE bytes)
+		/// @brief Registers the conversion result to an arithmetic type.
+		/// 
+		/// @param[out] value The value which will store the conversion result.
+		/// @param[in] buffer The buffer which already has a conversion result.
+		template<typename ValueType>
+		VOID RegisterEndian(ValueType& value, PBYTE buffer, SIZE bytes)
 			{
 				Impl_Endian<ValueType>::Register(value, buffer, bytes);
 			}
-		};
 	}
 }
 
