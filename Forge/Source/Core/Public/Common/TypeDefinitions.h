@@ -25,6 +25,12 @@ namespace Forge
 	using BYTE  = unsigned __int8;
 	using CBYTE = const unsigned __int8;
 
+#if defined(FORGE_ARCH_64BIT)
+	using INTPTR = int* __ptr64;
+#else
+	using INTPTR = int* __ptr32;
+#endif
+
 	using U8   = unsigned __int8;
 	using U16  = unsigned __int16;
 	using U32  = unsigned __int32;
@@ -45,28 +51,30 @@ namespace Forge
 #elif
 	#include<stdint>
 
-	using SIZE  = std::uint64_t;
+	using SIZE  = uint64_t;
 
-	using BYTE  = std::uint8_t;
-	using CBYTE = const std::uint8_t;
+	using BYTE  = uint8_t;
+	using CBYTE = const uint8_t;
 
-	using U8   = std::uint8_t;
-	using U16  = std::uint16_t;
-	using U32  = std::uint32_t;
-	using U64  = std::uint64_t;
-	using CU8  = const std::uint8_t;
-	using CU16 = const std::uint16_t;
-	using CU32 = const std::uint32_t;
-	using CU64 = const std::uint64_t;
+	using INTPTR = intptr_t;
 
-	using I8   = std::int8_t;
-	using I16  = std::int16_t;
-	using I32  = std::int32_t;
-	using I64  = std::int64_t;
-	using CI8  = const std::int8_t;
-	using CI16 = const std::int16_t;
-	using CI32 = const std::int32_t;
-	using CI64 = const std::int64_t;
+	using U8   = uint8_t;
+	using U16  = uint16_t;
+	using U32  = uint32_t;
+	using U64  = uint64_t;
+	using CU8  = const uint8_t;
+	using CU16 = const uint16_t;
+	using CU32 = const uint32_t;
+	using CU64 = const uint64_t;
+
+	using I8   = int8_t;
+	using I16  = int16_t;
+	using I32  = int32_t;
+	using I64  = int64_t;
+	using CI8  = const int8_t;
+	using CI16 = const int16_t;
+	using CI32 = const int32_t;
+	using CI64 = const int64_t;
 #endif
 
 	using PVOID  = VOID*;
@@ -107,6 +115,8 @@ namespace Forge
 	FORGE_STATIC_ASSERT(sizeof(BOOL) == 1)
 
 	FORGE_STATIC_ASSERT(sizeof(CHAR) == 1)
+
+	FORGE_STATIC_ASSERT(sizeof(INTPTR) == 8)
 
 	FORGE_STATIC_ASSERT(sizeof(U8)  == 1)
 	FORGE_STATIC_ASSERT(sizeof(U16) == 2)
