@@ -96,6 +96,13 @@
     <ClInclude Include="Source\Core\Public\Common\PreprocessorUtilities.h" />
     <ClInclude Include="Source\Core\Public\Common\TypeTraits.h" />
     <ClInclude Include="Source\Core\Public\Common\TypeDefinitions.h" />
+    <ClInclude Include="Source\Core\Public\Memory\AbstractAllocator.h" />
+    <ClInclude Include="Source\Core\Public\Memory\CAllocator.h" />
+    <ClInclude Include="Source\Core\Public\Memory\FreeListAllocator.h" />
+    <ClInclude Include="Source\Core\Public\Memory\LinearAllocator.h" />
+    <ClInclude Include="Source\Core\Public\Memory\MemorySystem.h" />
+    <ClInclude Include="Source\Core\Public\Memory\PoolAllocator.h" />
+    <ClInclude Include="Source\Core\Public\Memory\StackAllocator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Core\Private\Common\Buffer.cpp" />
