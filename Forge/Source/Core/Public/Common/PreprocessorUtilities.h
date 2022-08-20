@@ -12,28 +12,30 @@
 #define FORGE_SAFE_DELETE_UNIT(mem) if(mem != nullptr) {delete mem; mem = nullptr;}
 #define FORGE_SAFE_DELETE_BLOCK(mem) if(mem != nullptr) {delete[] mem; mem = nullptr;}
 
-#define _FORGE_STRINGIZE(s) #s
-#define  FORGE_STRINGIZE(s) _FORGE_STRINGIZE(s)
+#define IMPL_FORGE_STRINGIZE(s) #s
+#define FORGE_STRINGIZE(s) IMPL_FORGE_STRINGIZE(s)
 
-#define _FORGE_CONCATENATE(s1, s2) s1 ## s2
-#define  FORGE_CONCATENATE(s1, s2) _FORGE_CONCATENATE(s1, s2)
+#define IMPL_FORGE_CONCATENATE(s1, s2) s1 ## s2
+#define FORGE_CONCATENATE(s1, s2) IMPL_FORGE_CONCATENATE(s1, s2)
 
-#define _FORGE_CONCATENATE_VARIADIC(s, ...) s ## __VA_ARGS__
-#define  FORGE_CONCATENATE_VARIADIC(s, ...) _FORGE_CONCATENATE_VARIADIC(s, ...)
+#define IMPL_FORGE_CONCATENATE_VARIADIC(s, ...) s ## __VA_ARGS__
+#define FORGE_CONCATENATE_VARIADIC(s, ...) IMPL_FORGE_CONCATENATE_VARIADIC(s, ...)
 
-#define _FORGE_CONCATENATE_COMMA_VARIADIC(s, ...) s, ## __VA_ARGS__
-#define  FORGE_CONCATENATE_COMMA_VARIADIC(s, ...) _FORGE_CONCATENATE_COMMA_VARIADIC(s, ...)
+#define IMPL_FORGE_CONCATENATE_COMMA_VARIADIC(s, ...) s, ## __VA_ARGS__
+#define FORGE_CONCATENATE_COMMA_VARIADIC(s, ...) IMPL_FORGE_CONCATENATE_COMMA_VARIADIC(s, ...)
 
 #if defined(FORGE_DEBUG)
-	#define FORGE_ASSERT(__EXPR__)                   \
-		if(__EXPR__) {}                              \
-		else                                         \
-		{                                            \
-			fprintf(stderr, "File: %s ", __FILE__);  \
-			fprintf(stderr, "Line: %d ", __LINE__);  \
-			fprintf(stderr, "Expr: %s ", #__EXPR__); \
-			FORGE_DEBUG_BREAK                        \
-		}                                            \
+	#define FORGE_ASSERT(__EXPR__, __MSG__)           \
+		if(__EXPR__) {}                               \
+		else                                          \
+		{                                             \
+			fprintf(stderr, "Assertion failed: ");    \
+			fprintf(stderr, "File [%s] ", __FILE__);  \
+			fprintf(stderr, "Line [%d] ", __LINE__);  \
+			fprintf(stderr, "Expr [%s] ", #__EXPR__); \
+			fprintf(stderr, "Msg [%s]\n", #__MSG__);  \
+			FORGE_DEBUG_BREAK                         \
+		}                                             \
 
 	#define FORGE_STATIC_ASSERT(__EXPR__)            \
 		enum                                         \
@@ -46,18 +48,14 @@
 	#define FORGE_STATIC_ASSERT(__EXPR__)
 #endif
 
-#define FORGE_CLASS_NONCOPYABLE(TypeName)                \
-	public: TypeName(Typename&& rhs) = delete            \
-	public: Typename(const Typename& rhs) = delete       \
-	public: Typename& operator=(Typename&& rhs) = delete \
-	public: Typename& operator=(const Typename& rhs) = delete
+#define FORGE_CLASS_NONCOPYABLE(Typename)                  \
+	public:                                                \
+		Typename(Typename&& rhs) = delete;                 \
+		Typename(const Typename& rhs) = delete;            \
+		Typename& operator=(Typename&& rhs) = delete;      \
+		Typename& operator=(const Typename& rhs) = delete; \
 
-#define FORGE_CLASS_ALLOCATOR(TypeName)        \
-	public: void* operator new(size_t size);   \
-	public: void* operator new[](size_t size); \
-	public: void  operator delete(void* ptr);  \
-	public: void  operator delete[](void* ptr)
-	
+
 #define FORGE_FILE_LINE_LITERAL "[" __FILE__ "][" __LINE__ "]: "
 
 #endif // PREPROCESSOR_UTILITIES_H
