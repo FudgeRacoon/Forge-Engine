@@ -20,16 +20,12 @@ namespace Forge
 	using CF64 = const double;
 
 #if defined(FORGE_COMPILER_MSVC)
-	using SIZE  = unsigned __int64;
+	using SIZE = unsigned __int64;
 
 	using BYTE  = unsigned __int8;
 	using CBYTE = const unsigned __int8;
 
-#if defined(FORGE_ARCH_64BIT)
-	using INTPTR = int* __ptr64;
-#else
-	using INTPTR = int* __ptr32;
-#endif
+	using INTPTR = unsigned __int64;
 
 	using U8   = unsigned __int8;
 	using U16  = unsigned __int16;
@@ -51,7 +47,7 @@ namespace Forge
 #elif
 	#include<stdint>
 
-	using SIZE  = uint64_t;
+	using SIZE = uint64_t;
 
 	using BYTE  = uint8_t;
 	using CBYTE = const uint8_t;
