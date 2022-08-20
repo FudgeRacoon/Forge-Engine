@@ -7,6 +7,9 @@
 namespace Forge {
 	namespace Endianness
 	{
+		/// TODO: Fix float and double swap
+		/// TODO: Check whether value type is arithmatic
+
 		template<typename ValueType,
 			BOOL IsFloatingPoint = TypeTraits::TIsFloatingPoint<ValueType>::Value,
 			BOOL IsDoublePrecision = TypeTraits::TIsDoublePrecision<ValueType>::Value>
@@ -41,7 +44,7 @@ namespace Forge {
 				value |= (ValueType)(*buffer);
 				value = value << 8;
 
-				Impl_Endian<ValueType, Bytes - 1>::Register(value, buffer + 1);
+				Impl_Endian<ValueType>::Register(value, buffer + 1, bytes - 1);
 			}
 		};
 
@@ -63,7 +66,7 @@ namespace Forge {
 					return;
 				}
 
-				Impl_Endian<ValueType, Bytes - 1>::Swap(value, buffer + 1);
+				Impl_Endian<ValueType>::Swap(value, buffer + 1, bytes - 1);
 
 				int_float.i = int_float.i << 8;
 				*buffer = (int_float.i & 0xFF000000) >> 24;
@@ -86,7 +89,7 @@ namespace Forge {
 				int_float.i |= (U32)(*buffer);
 				int_float.i = int_float.i << 8;
 
-				Impl_Endian<ValueType, Bytes - 1>::Register(value, buffer + 1);
+				Impl_Endian<ValueType>::Register(value, buffer + 1, bytes - 1);
 			}
 		};
 
@@ -108,7 +111,7 @@ namespace Forge {
 					return;
 				}
 
-				Impl_Endian<ValueType, Bytes - 1>::Swap(value, buffer + 1);
+				Impl_Endian<ValueType>::Swap(value, buffer + 1, bytes - 1);
 
 				int_double.i = int_double.i << 8;
 				*buffer = (int_double.i & 0xFF000000) >> 24;
@@ -131,7 +134,7 @@ namespace Forge {
 				int_double.i |= (U32)(*buffer);
 				int_double.i = int_double.i << 8;
 
-				Impl_Endian<ValueType, Bytes - 1>::Register(value, buffer + 1);
+				Impl_Endian<ValueType>::Register(value, buffer + 1, bytes - 1);
 			}
 		};
 
