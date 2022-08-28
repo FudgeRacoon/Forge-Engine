@@ -44,12 +44,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)$(ProjectName)\Binaries\$(Configuration)-$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)Testbed\Binaries\$(Configuration)-$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)$(ProjectName)\Intermediates\$(Configuration)-$(Platform)\</IntDir>
     <TargetName>$(ProjectName)API</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)$(ProjectName)\Binaries\$(Configuration)-$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)Testbed\Binaries\$(Configuration)-$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)$(ProjectName)\Intermediates\$(Configuration)-$(Platform)\</IntDir>
     <TargetName>$(ProjectName)API</TargetName>
   </PropertyGroup>
@@ -91,16 +91,30 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\Public\Common\Buffer.h" />
+    <ClInclude Include="Source\Core\Public\Common\Common.h" />
     <ClInclude Include="Source\Core\Public\Common\Compiler.h" />
     <ClInclude Include="Source\Core\Public\Common\Endianness.h" />
     <ClInclude Include="Source\Core\Public\Common\PreprocessorUtilities.h" />
     <ClInclude Include="Source\Core\Public\Common\TypeTraits.h" />
     <ClInclude Include="Source\Core\Public\Common\TypeDefinitions.h" />
+    <ClInclude Include="Source\Core\Public\Debug\Exception\ArgumentException.h" />
+    <ClInclude Include="Source\Core\Public\Debug\Exception\ArgumentNullException.h" />
+    <ClInclude Include="Source\Core\Public\Debug\Exception\BadAllocationException.h" />
+    <ClInclude Include="Source\Core\Public\Debug\Exception\DivideByZeroException.h" />
+    <ClInclude Include="Source\Core\Public\Debug\Exception\Exception.h" />
+    <ClInclude Include="Source\Core\Public\Debug\Exception\ExceptionFactory.h" />
+    <ClInclude Include="Source\Core\Public\Debug\Exception\Exceptions.h" />
+    <ClInclude Include="Source\Core\Public\Debug\Exception\FileNotFoundException.h" />
+    <ClInclude Include="Source\Core\Public\Debug\Exception\IndexOutOfRangeException.h" />
+    <ClInclude Include="Source\Core\Public\Debug\Exception\InvalidOperationException.h" />
+    <ClInclude Include="Source\Core\Public\Debug\Exception\IOException.h" />
+    <ClInclude Include="Source\Core\Public\Debug\Exception\TimeoutException.h" />
     <ClInclude Include="Source\Core\Public\ISystem.h" />
     <ClInclude Include="Source\Core\Public\Memory\AbstractAllocator.h" />
     <ClInclude Include="Source\Core\Public\Memory\CAllocator.h" />
     <ClInclude Include="Source\Core\Public\Memory\FreeListAllocator.h" />
     <ClInclude Include="Source\Core\Public\Memory\LinearAllocator.h" />
+    <ClInclude Include="Source\Core\Public\Memory\Memory.h" />
     <ClInclude Include="Source\Core\Public\Memory\MemorySystem.h" />
     <ClInclude Include="Source\Core\Public\Memory\MemoryUtilities.h" />
     <ClInclude Include="Source\Core\Public\Memory\PoolAllocator.h" />
@@ -109,7 +123,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Core\Private\Common\Buffer.cpp" />
+    <ClCompile Include="Source\Core\Private\Debug\Exception.cpp" />
+    <ClCompile Include="Source\Core\Private\Debug\ExceptionFactory.cpp" />
     <ClCompile Include="Source\Core\Private\Memory\LinearAllocator.cpp" />
+    <ClCompile Include="Source\Core\Private\Memory\StackAllocator.cpp" />
+    <ClCompile Include="Source\Core\Public\Debug\Exception\MemoryOutOfBoundsException.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
