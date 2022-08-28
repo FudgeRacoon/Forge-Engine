@@ -6,12 +6,12 @@
 namespace Forge
 {
 	template<typename T>
-	class FORGE_API Singleton
+	class Singleton
 	{
 	protected:
 		Singleton() = default;
 
-	public:
+	protected:
 		Singleton(Singleton<T>&& rhs) = delete;
 		Singleton(const Singleton<T>& rhs) = delete;
 		Singleton& operator=(Singleton<T>&& rhs) = delete;
