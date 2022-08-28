@@ -7,6 +7,7 @@ namespace Forge {
 			: AbstractAllocator(nullptr, total_size)
 		{
 			m_is_mem_owned = true;
+
 			m_start_ptr = malloc(total_size);
 			m_offset_ptr = m_start_ptr;
 		}
@@ -14,6 +15,7 @@ namespace Forge {
 			: AbstractAllocator(start, total_size)
 		{
 			m_is_mem_owned = false;
+
 			m_offset_ptr = m_start_ptr;
 		}
 		LinearAllocator::~LinearAllocator()
@@ -27,8 +29,14 @@ namespace Forge {
 
 			if ((m_stats.m_used_memory + size + adjustment) > m_stats.m_total_size)
 			{
-				/// TODO: Instead of returing a nullptr throw an exception
-				return nullptr;
+				static Debug::ExceptionFactory e;
+				e.ThrowException(
+					Debug::Exception::ERR_BAD_ALLOCATION_EXCEPTION,
+					FORGE_LINE_LITERAL,
+					FORGE_FUNC_LITERAL,
+					FORGE_FILE_LITERAL,
+					"No sufficent space for required size"
+				);
 			}
 
 			PVOID aligned_address = AddAddress(m_offset_ptr, adjustment);
@@ -41,13 +49,36 @@ namespace Forge {
 
 			return aligned_address;
 		}
+		PVOID LinearAllocator::Reallocate(PVOID address, SIZE size, BYTE alignment)
+		{
+			static Debug::ExceptionFactory e;
+			e.ThrowException(
+				Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION,
+				FORGE_LINE_LITERAL,
+				FORGE_FUNC_LITERAL,
+				FORGE_FILE_LITERAL,
+				"Linear allocator does not support reallocation of memory addresses"
+			);
+
+			return nullptr;
+		}
 		VOID  LinearAllocator::Deallocate(PVOID address)
 		{
-			/// Throw an exception if user tried to deallocate
+			static Debug::ExceptionFactory e;
+			e.ThrowException(
+				Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION,
+				FORGE_LINE_LITERAL,
+				FORGE_FUNC_LITERAL,
+				FORGE_FILE_LITERAL,
+				"Linear allocator does not support deallocation of memory addresses"
+			);
 		}
-		VOID  LinearAllocator::Clear()
+
+		VOID  LinearAllocator::Reset()
 		{
 			m_offset_ptr = m_start_ptr;
+
+			m_stats.m_peak_size = 0;
 			m_stats.m_used_memory = 0;
 			m_stats.m_num_of_allocs = 0;
 		}
