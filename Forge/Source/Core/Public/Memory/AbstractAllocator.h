@@ -5,9 +5,12 @@
 #include "Core/Public/Common/TypeDefinitions.h"
 #include "Core/Public/Common/PreprocessorUtilities.h"
 
+#include "Core/Public/Debug/Exception/ExceptionFactory.h"
+
 namespace Forge {
 	namespace Memory
 	{
+		/// @brief Base class for all custom allocators.
 		class FORGE_API AbstractAllocator
 		{
 		FORGE_CLASS_NONCOPYABLE(AbstractAllocator)
@@ -29,8 +32,7 @@ namespace Forge {
 			BOOL m_is_mem_owned;
 
 		public:
-			AbstractAllocator(PVOID start, SIZE total_size)
-				: m_start_ptr(start), m_stats({0, total_size, 0, 0, 0}), m_is_mem_owned(false) {}
+			AbstractAllocator(PVOID start, SIZE total_size);
 			virtual ~AbstractAllocator() = default;
 		
 		public:
@@ -51,20 +53,46 @@ namespace Forge {
 
 		public:
 			/// @brief Retrieves properly aligned memory address from pre-allocated memory pool.
+			/// 
 			/// @param[in] size The size of memory to allocate in bytes.
 			/// @param[in] alignment The Alignment requirment of the memory, must be power of two.
-			/// @return Void pointer to the start of the allocated memory.
-			/// @throw Will throw an error if the size requested is larger than the memory pool.
+			/// 
+			/// @returns Address to the start of the allocated memory.
+			/// 
+			/// @throw Will throw a bad allocation error if the size requested is larger
+			/// than the memory pool.
 			virtual PVOID Allocate(SIZE size, BYTE alignment = 4) = 0;
 
+			/// @brief Resizes an allocated address to a new size and copies its content
+			/// to the new chunk.
+			/// 
+			/// @param[in] address The address to resize.
+			/// @param[in] size The new size of memory to reallocate in bytes.
+			/// @param[in] alignment The Alignment requirment of the memory, must be power of two.
+			/// 
+			/// @returns Address to the start of the reallocated memory.
+			/// 
+			// @throw Will throw memory out of bounds error if the address is out of bounds, 
+			/// bad allocation error if not allocated or an invalid operation error if 
+			/// address is not the most recently allocated.
+			virtual PVOID Reallocate(PVOID address, SIZE size, BYTE alignment = 4) = 0;
+
 			/// @brief Frees the address present in the pre-allocated memory pool.
+			/// 
 			/// @param[in] address The address to deallocate.
-			/// @throw Will throw an error if the address is out of bounds or not allocated.
+			/// 
+			// @throw Will throw memory out of bounds error if the address is out of bounds, 
+			/// bad allocation error if not allocated or an invalid operation error if 
+			/// address is not the most recently allocated.
 			virtual VOID  Deallocate(PVOID address) = 0;
 			
+		public:
 			/// @brief Completely erases the whole memory pool.
-			virtual VOID  Clear() = 0;
+			virtual VOID  Reset() = 0;
 		};
+
+		AbstractAllocator::AbstractAllocator(PVOID start, SIZE total_size)
+			: m_start_ptr(start), m_stats({ 0, total_size, 0, 0, 0 }), m_is_mem_owned(false) {}
 
 		FORGE_FORCE_INLINE PVOID AbstractAllocator::GetStartAddress() { return m_start_ptr; }
 		FORGE_FORCE_INLINE SIZE  AbstractAllocator::GetPeakSize() { return m_stats.m_peak_size; }
