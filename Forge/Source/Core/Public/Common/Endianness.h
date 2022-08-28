@@ -4,20 +4,20 @@
 #include "TypeTraits.h"
 #include "TypeDefinitions.h"
 
-namespace Forge {
-	namespace Endianness
-	{
-		/// TODO: Fix float and double swap
-		/// TODO: Check whether value type is arithmatic
+namespace Forge 
+{
+	/// TODO: Fix float and double swap.
+	/// TODO: Check whether value type is arithmatic.
+	/// TODO: Get rid of Impl_Endian and implement function in SwapEndina/RegisterEndian.
 
-		template<typename ValueType,
-			BOOL IsFloatingPoint = TypeTraits::TIsFloatingPoint<ValueType>::Value,
-			BOOL IsDoublePrecision = TypeTraits::TIsDoublePrecision<ValueType>::Value>
-		struct Impl_Endian;
+	template<typename ValueType,
+		BOOL IsFloatingPoint = TypeTraits::TIsFloatingPoint<ValueType>::Value,
+		BOOL IsDoublePrecision = TypeTraits::TIsDoublePrecision<ValueType>::Value>
+	struct Impl_Endian;
 
-		/// Integer Specilization
-		template<typename ValueType>
-		struct Impl_Endian<ValueType, false, false>
+	/// Integer Specilization
+	template<typename ValueType>
+	struct Impl_Endian<ValueType, false, false>
 		{
 			static VOID Swap(ValueType& value, PBYTE buffer, SIZE bytes)
 			{
@@ -48,9 +48,9 @@ namespace Forge {
 			}
 		};
 
-		/// Float Specilization
-		template<typename ValueType>
-		struct Impl_Endian<ValueType, true, false>
+	/// Float Specilization
+	template<typename ValueType>
+	struct Impl_Endian<ValueType, true, false>
 		{
 			static VOID Swap(ValueType& value, PBYTE buffer, SIZE bytes)
 			{
@@ -93,9 +93,9 @@ namespace Forge {
 			}
 		};
 
-		/// Double Specilization
-		template<typename ValueType>
-		struct Impl_Endian<ValueType, true, true>
+	/// Double Specilization
+	template<typename ValueType>
+	struct Impl_Endian<ValueType, true, true>
 		{
 			static VOID Swap(ValueType& value, PBYTE buffer, SIZE bytes)
 			{
@@ -138,8 +138,8 @@ namespace Forge {
 			}
 		};
 
-		/// @brief Checks if the current system is big-endian.
-		BOOL IsBigEndian()
+	/// @brief Checks if the current system is big-endian.
+	BOOL IsBigEndian()
 		{
 			union
 			{
@@ -149,8 +149,8 @@ namespace Forge {
 
 			return *(int_byte.b) == 0x01;
 		}
-		/// @brief Checks if the current system is little-endian.
-		BOOL IsLittleEndian()
+	/// @brief Checks if the current system is little-endian.
+	BOOL IsLittleEndian()
 		{
 			union
 			{
@@ -161,27 +161,24 @@ namespace Forge {
 			return *(int_byte.b) == 0x04;
 		}
 
-		/// @brief Swaps between little-endian and big-endian and
-		/// stores the conversion result in a buffer.
-		/// 
-		/// @param[in] value The value to convert.
-		/// @param[out] buffer The buffer which will store conversion result.
-		template<typename ValueType>
-		VOID SwapEndian(ValueType value, PBYTE buffer, SIZE bytes)
-			{
-				Impl_Endian<ValueType>::Swap(value, buffer, bytes);
-			}
+	/// @brief Swaps between little-endian and big-endian and
+	/// stores the conversion result in a buffer.
+	/// @param[in] value The value to convert.
+	/// @param[out] buffer The buffer which will store conversion result.
+	template<typename ValueType>
+	VOID SwapEndian(ValueType value, PBYTE buffer, SIZE bytes)
+		{
+			Impl_Endian<ValueType>::Swap(value, buffer, bytes);
+		}
 
-		/// @brief Registers the conversion result to an arithmetic type.
-		/// 
-		/// @param[out] value The value which will store the conversion result.
-		/// @param[in] buffer The buffer which already has a conversion result.
-		template<typename ValueType>
-		VOID RegisterEndian(ValueType& value, PBYTE buffer, SIZE bytes)
-			{
-				Impl_Endian<ValueType>::Register(value, buffer, bytes);
-			}
-	}
+	/// @brief Registers the conversion result to an arithmetic type.
+	/// @param[out] value The value which will store the conversion result.
+	/// @param[in] buffer The buffer which already has a conversion result.
+	template<typename ValueType>
+	VOID RegisterEndian(ValueType& value, PBYTE buffer, SIZE bytes)
+		{
+			Impl_Endian<ValueType>::Register(value, buffer, bytes);
+		}
 }
 
 #endif // ENDIANNESS_H

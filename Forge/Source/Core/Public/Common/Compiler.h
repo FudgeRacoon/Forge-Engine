@@ -82,7 +82,7 @@
 			#__MINGW32_MAJOR_VERSION "." \
 			#__MINGW32_MINOR_VERSION
 #elif defined(FORGE_COMPILER_MSVC)
-	#if _MSC_VER >= 1930 /// Visual Studio 2022
+	#if _MSC_VER >= 1930   /// Visual Studio 2022
 		#define FORGE_COMPILER_NAME "MSVC 17.0"
 	#elif _MSV_VER >= 1920 /// Visual Studio 2019
 		#define FORGE_COMPILER_NAME "MSVC 16.0"

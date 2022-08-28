@@ -6,107 +6,75 @@
 
 namespace Forge
 {
-	using VOID = void;
+	typedef void		 VOID, *PVOID;
+	typedef const void         *PCVOID;
 
-	using BOOL  = bool;
-	using CBOOL = const bool;
+	typedef bool         BOOL,  *PBOOL;
+	typedef const bool   CBOOL, *PCBOOL;
 
-	using CHAR = char;
-	using CCHAR = const char;
+	typedef char         CHAR,  *PCHAR;
+	typedef const char   CCHAR, *PCCHAR;
 
-	using F32  = float;
-	using F64  = double;
-	using CF32 = const float;
-	using CF64 = const double;
+	typedef float        F32,  *PF32;
+	typedef double       F64,  *PF64;
+	typedef const float  CF32, *PCF32;
+	typedef const double CF64, *PCF64;
 
 #if defined(FORGE_COMPILER_MSVC)
-	using SIZE = unsigned __int64;
-
-	using BYTE  = unsigned __int8;
-	using CBYTE = const unsigned __int8;
-
-	using INTPTR = unsigned __int64;
-
-	using U8   = unsigned __int8;
-	using U16  = unsigned __int16;
-	using U32  = unsigned __int32;
-	using U64  = unsigned __int64;
-	using CU8  = const unsigned __int8;
-	using CU16 = const unsigned __int16;
-	using CU32 = const unsigned __int32;
-	using CU64 = const unsigned __int64;
-
-	using I8   = signed __int8;
-	using I16  = signed __int16;
-	using I32  = signed __int32;
-	using I64  = signed __int64;
-	using CI8  = signed __int8;
-	using CI16 = const signed __int16;
-	using CI32 = const signed __int32;
-	using CI64 = const signed __int64;
-#elif
-	#include<stdint>
-
-	using SIZE = uint64_t;
-
-	using BYTE  = uint8_t;
-	using CBYTE = const uint8_t;
-
-	using INTPTR = intptr_t;
-
-	using U8   = uint8_t;
-	using U16  = uint16_t;
-	using U32  = uint32_t;
-	using U64  = uint64_t;
-	using CU8  = const uint8_t;
-	using CU16 = const uint16_t;
-	using CU32 = const uint32_t;
-	using CU64 = const uint64_t;
-
-	using I8   = int8_t;
-	using I16  = int16_t;
-	using I32  = int32_t;
-	using I64  = int64_t;
-	using CI8  = const int8_t;
-	using CI16 = const int16_t;
-	using CI32 = const int32_t;
-	using CI64 = const int64_t;
-#endif
-
-	using PVOID  = VOID*;
-	using PCVOID = const VOID*;
-
-	using PBYTE  = BYTE*;
-	using PCBYTE = CBYTE*;
-
-	using PBOOL  = BOOL*;
-	using PCBOOL = CBOOL*;
-
-	using PSTR  = CHAR*;
-	using PCSTR = CCHAR*;
-
-	using PU8   = U8*;
-	using PU16  = U16*;
-	using PU32  = U32*;
-	using PU64  = U64*;
-	using PCU8  = CU8*;
-	using PCU16 = CU16*;
-	using PCU32 = CU32*;
-	using PCU64 = CU64*;
-
-	using PI8   = I8*;
-	using PI16  = I16*;
-	using PI32  = I32*;
-	using PI64  = I64*;
-	using PCI8  = CI8*;
-	using PCI16 = CI16*;
-	using PCI32 = CI32*;
-	using PCI64 = CI64*;
+	typedef unsigned __int64	   SIZE;
 	
-	using PF32  = F32*;
-	using PF64  = F64*;
-	using PCF32 = CF32*;
-	using PCF64 = CF64*;
+	typedef signed __int8	       I8,   *PI8;
+	typedef signed __int16	       I16,  *PI16;
+	typedef signed __int32	       I32,  *PI32;
+	typedef signed __int64	       I64,  *PI64;
+	typedef const signed __int8	   CI8,  *PCI8;
+	typedef const signed __int16   CI16, *PCI16;
+	typedef const signed __int32   CI32, *PCI32;
+	typedef const signed __int64   CI64, *PCI64;
+
+	typedef unsigned __int8	       U8,   *PU8;
+	typedef unsigned __int16       U16,  *PU16;
+	typedef unsigned __int32       U32,  *PU32;
+	typedef unsigned __int64       U64,  *PU64;
+	typedef const unsigned __int8  CU8,  *PCU8;
+	typedef const unsigned __int16 CU16, *PCU16;
+	typedef const unsigned __int32 CU32, *PCU32;
+	typedef const unsigned __int64 CU64, *PCU64;
+
+	typedef unsigned __int8        BYTE,  *PBYTE;
+	typedef const unsigned __int8  CBYTE, *PCBYTE;
+
+	typedef unsigned __int64       INTPTR,  *PINTPTR;
+	typedef const unsigned __int64 CINTPTR, *PCINTPTR;
+#elif
+	#include<stdint.h>
+
+	typedef uint64_t SIZE;
+
+	typedef int8_t	       I8,   *PI8;
+	typedef int16_t	       I16,  *PI16;
+	typedef int32_t	       I32,  *PI32;
+	typedef int64_t	       I64,  *PI64;
+	typedef const int8_t   CI8,  *PCI8;
+	typedef const int16_t  CI16, *PCI16;
+	typedef const int32_t  CI32, *PCI32;
+	typedef const int64_t  CI64, *PCI64;
+
+	typedef uint8_t	       U8,   *PU8;
+	typedef uint16_t       U16,  *PU16;
+	typedef uint32_t       U32,  *PU32;
+	typedef uint64_t       U64,  *PU64;
+	typedef const uint8_t  CU8,  *PCU8;
+	typedef const uint16_t CU16, *PCU16;
+	typedef const uint32_t CU32, *PCU32;
+	typedef const uint64_t CU64, *PCU64;
+
+	typedef uint8_t        BYTE,  *PBYTE;
+	typedef const uint8_t  CBYTE, *PCBYTE;
+
+	typedef uint64_t       INTPTR,  *PINTPTR;
+	typedef const uint64_t CINTPTR, *PCINTPTR;
+#endif
 
 	FORGE_STATIC_ASSERT(sizeof(BOOL) == 1)
 
@@ -128,4 +96,4 @@ namespace Forge
 	FORGE_STATIC_ASSERT(sizeof(F64) == 8)
 }
 
-#endif
+#endif // TYPE_DEFINITIONS_H

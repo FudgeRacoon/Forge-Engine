@@ -10,11 +10,9 @@ namespace Forge {
 
 		/// Tests whether the predicate is true, if so returns the typename
 		template<BOOL predicate, typename Result>
-		struct TEnableIf;
+		struct TEnableIf { };
 		template<typename Result>
 		struct TEnableIf<true, Result> { using Type = Result; };
-		template<typename Result>
-		struct TEnableIf<false, Result> { };
 
 		/// Tests whether two typenames are the same
 		template<typename A, typename B>
@@ -28,11 +26,11 @@ namespace Forge {
 		template<typename T>
 		struct TIsConst<const T> { enum { Value = true }; };
 
-		/// Tests whether typename is rvalue reference
+		/// Tests whether typename is lvalue reference
 		template<typename T>
 		struct TIsLValueReference { enum { Value = false }; };
 		template<typename T>
-		struct TIsLValueReference<T&&> { enum { Value = true }; };
+		struct TIsLValueReference<T&> { enum { Value = true }; };
 
 		/// Tests whether typename is rvalue reference
 		template<typename T>
@@ -70,7 +68,6 @@ namespace Forge {
 		/// Test whether typename is arithmetic
 		template<typename T>
 		struct TIsArithmetic { enum { Value = false }; };
-		template<> struct TIsArithmetic<BOOL> { enum { Value = true }; };
 		template<> struct TIsArithmetic<CHAR> { enum { Value = true }; };
 		template<> struct TIsArithmetic<U8>   { enum { Value = true }; };
 		template<> struct TIsArithmetic<U16>  { enum { Value = true }; };

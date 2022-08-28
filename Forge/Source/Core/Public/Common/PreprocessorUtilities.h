@@ -5,8 +5,6 @@
 
 #include "Compiler.h"
 
-#define FORGE_INVALID_INDEX (-1)
-
 #define FORGE_BIT(x) (1 << x)
 
 #define FORGE_SAFE_DELETE_UNIT(mem) if(mem != nullptr) {delete mem; mem = nullptr;}
@@ -23,6 +21,22 @@
 
 #define IMPL_FORGE_CONCATENATE_COMMA_VARIADIC(s, ...) s, ## __VA_ARGS__
 #define FORGE_CONCATENATE_COMMA_VARIADIC(s, ...) IMPL_FORGE_CONCATENATE_COMMA_VARIADIC(s, ...)
+
+#define FORGE_FUNC_LITERAL __FUNCTION__
+#define FORGE_LINE_LITERAL FORGE_STRINGIZE(__LINE__)
+#define FORGE_FILE_LITERAL FORGE_STRINGIZE(__FILE__)
+
+#define FORGE_CLASS_SINGLETON(Typename) \
+	private:							\
+		Typename() = default;			\
+	friend Forge::Singleton<Typename>;  \
+
+#define FORGE_CLASS_NONCOPYABLE(Typename)                  \
+	public:                                                \
+		Typename(Typename&& rhs) = delete;                 \
+		Typename(const Typename& rhs) = delete;            \
+		Typename& operator=(Typename&& rhs) = delete;      \
+		Typename& operator=(const Typename& rhs) = delete; \
 
 #if defined(FORGE_DEBUG)
 	#define FORGE_ASSERT(__EXPR__, __MSG__)           \
@@ -47,15 +61,5 @@
 	#define FORGE_ASSERT(__EXPR__)
 	#define FORGE_STATIC_ASSERT(__EXPR__)
 #endif
-
-#define FORGE_CLASS_NONCOPYABLE(Typename)                  \
-	public:                                                \
-		Typename(Typename&& rhs) = delete;                 \
-		Typename(const Typename& rhs) = delete;            \
-		Typename& operator=(Typename&& rhs) = delete;      \
-		Typename& operator=(const Typename& rhs) = delete; \
-
-
-#define FORGE_FILE_LINE_LITERAL "[" __FILE__ "][" __LINE__ "]: "
 
 #endif // PREPROCESSOR_UTILITIES_H
