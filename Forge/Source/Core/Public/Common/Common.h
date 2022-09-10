@@ -3,9 +3,10 @@
 
 #include "Buffer.h"
 #include "Compiler.h"
-#include "TypeTraits.h"
 #include "Endianness.h"
 #include "TypeDefinitions.h"
 #include "PreprocessorUtilities.h"
+
+#include "TypeTraits/TypeTraits.h"
 
 #endif // COMMON_H

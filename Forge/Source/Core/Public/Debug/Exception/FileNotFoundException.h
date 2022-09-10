@@ -9,10 +9,9 @@ namespace Forge {
 		class FileNotFoundException : public Exception
 		{
 		public:
-			FileNotFoundException(PCCHAR line, PCCHAR func, PCCHAR file)
+			FileNotFoundException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file)
 				: Exception(line, func, file, "Failed to find file") {}
-
-			FileNotFoundException(PCCHAR line, PCCHAR func, PCCHAR file, PCCHAR add_info)
+			FileNotFoundException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file, ConstCharPtr add_info)
 				: Exception(line, func, file, "Failed to find file", add_info) {}
 		};
 	}

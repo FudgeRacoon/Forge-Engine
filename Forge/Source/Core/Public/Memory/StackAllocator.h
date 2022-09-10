@@ -6,8 +6,7 @@
 #include "MemoryUtilities.h"
 #include "AbstractAllocator.h"
 
-#include "Core/Public/Common/Compiler.h"
-#include "Core/Public/Common/TypeDefinitions.h"
+#include "Core/Public/Common/Common.h"
 
 namespace Forge {
 	namespace Memory
@@ -18,45 +17,45 @@ namespace Forge {
 		class FORGE_API StackAllocator : public AbstractAllocator
 		{
 		private:
-			PVOID m_offset_ptr;
+			VoidPtr m_offset_ptr;
+			VoidPtr m_prev_address;
 
 		private:
 			struct AllocationHeader
 			{
-				BYTE  m_padding;
-				PVOID m_prev_address;
+				Byte m_padding;
 			};
 
 		public:
-			StackAllocator(SIZE total_size);
-			StackAllocator(PVOID start, SIZE total_size);
+			StackAllocator(Size total_size);
+			StackAllocator(VoidPtr start, Size total_size);
 		   ~StackAllocator();
 
 		public:
 			/// @brief Retrieves properly aligned memory address from pre-allocated memory pool.
 			/// 
-			/// @param[in] size The size of memory to allocate in bytes.
+			/// @param[in] size      The size of memory to allocate in Bytes.
 			/// @param[in] alignment The Alignment requirment of the memory, must be power of two.
 			/// 
 			/// @returns Address to the start of the allocated memory.
 			/// 
-			/// @throw Will throw a bad allocation error if the size requested is larger
+			/// @throw Will throw a bad allocation error if the Size requested is larger
 			/// than the memory pool.
-			PVOID Allocate(SIZE size, BYTE alignment = 4) override;
+			VoidPtr Allocate(Size size, Byte alignment = 4) override;
 
-			/// @brief Resizes an the most recently allocated address to a 
-			/// new size and copies its content to the new chunk.
+			/// @brief ReSizes an the most recently allocated address to a 
+			/// new Size and copies its content to the new chunk.
 			/// 
-			/// @param[in] address The address to resize.
-			/// @param[in] size The new size of memory to reallocate in bytes.
+			/// @param[in] address   The address to reSize.
+			/// @param[in] size      The new Size of memory to reallocate in Bytes.
 			/// @param[in] alignment The Alignment requirment of the memory, must be power of two.
 			/// 
 			/// @returns Address to the start of the reallocated memory.
 			/// 
-			// @throw Will throw memory out of bounds error if the address is out of bounds,
+			//  @throw Will throw memory out of bounds error if the address is out of bounds,
 			/// bad allocation error if not allocated or an invalid operation error if
 			/// address is not the most recently allocated.
-			PVOID Reallocate(PVOID address, SIZE size, BYTE alignment = 4) override;
+			VoidPtr Reallocate(VoidPtr address, Size size, Byte alignment = 4) override;
 
 			/// @brief Frees the the most recently allocated address present
 			/// in the pre-allocated memory pool.
@@ -66,11 +65,11 @@ namespace Forge {
 			/// @throw Will throw memory out of bounds error if the address is out of bounds,
 			/// bad allocation error if not allocated or an invalid operation error if
 			/// address is not the most recently allocated.
-			VOID  Deallocate(PVOID address) override;
+			Void  Deallocate(VoidPtr address) override;
 
 		public:
 			/// @brief Completely erases the whole memory pool.
-			VOID  Reset() override;
+			Void  Reset() override;
 		};
 	}
 }

@@ -9,10 +9,9 @@ namespace Forge {
 		class TimeoutException : public Exception
 		{
 		public:
-			TimeoutException(PCCHAR line, PCCHAR func, PCCHAR file)
+			TimeoutException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file)
 				: Exception(line, func, file, "Current operation has timed out") {}
-
-			TimeoutException(PCCHAR line, PCCHAR func, PCCHAR file, PCCHAR add_info)
+			TimeoutException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file, ConstCharPtr add_info)
 				: Exception(line, func, file, "Current operation has timed out", add_info) {}
 		};
 	}

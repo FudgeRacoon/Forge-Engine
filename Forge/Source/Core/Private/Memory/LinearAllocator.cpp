@@ -3,43 +3,41 @@
 namespace Forge {
 	namespace Memory
 	{
-		LinearAllocator::LinearAllocator(SIZE total_size)
+		LinearAllocator::LinearAllocator(Size total_size)
 			: AbstractAllocator(nullptr, total_size)
 		{
 			m_is_mem_owned = true;
-
 			m_start_ptr = malloc(total_size);
 			m_offset_ptr = m_start_ptr;
+
+			MemorySet(m_start_ptr, 0, m_stats.m_total_size);
 		}
-		LinearAllocator::LinearAllocator(PVOID start, SIZE total_size)
+		LinearAllocator::LinearAllocator(VoidPtr start, Size total_size)
 			: AbstractAllocator(start, total_size)
 		{
 			m_is_mem_owned = false;
-
 			m_offset_ptr = m_start_ptr;
+
+			MemorySet(m_start_ptr, 0, m_stats.m_total_size);
 		}
 		LinearAllocator::~LinearAllocator()
 		{
-			if (m_is_mem_owned) { free(m_start_ptr); }
+			if (m_is_mem_owned)
+				free(m_start_ptr);
+			else
+				MemorySet(m_start_ptr, 0, m_stats.m_total_size);
 		}
 
-		PVOID LinearAllocator::Allocate(SIZE size, BYTE alignment)
+		VoidPtr LinearAllocator::Allocate(Size size, Byte alignment)
 		{
-			BYTE adjustment = AlignAddressUpwardAdjustment(m_offset_ptr, alignment);
+			Byte adjustment = AlignAddressUpwardAdjustment(m_offset_ptr, alignment);
 
 			if ((m_stats.m_used_memory + size + adjustment) > m_stats.m_total_size)
 			{
-				static Debug::ExceptionFactory e;
-				e.ThrowException(
-					Debug::Exception::ERR_BAD_ALLOCATION_EXCEPTION,
-					FORGE_LINE_LITERAL,
-					FORGE_FUNC_LITERAL,
-					FORGE_FILE_LITERAL,
-					"No sufficent space for required size"
-				);
+				FORGE_EXCEPT(Debug::Exception::ERR_BAD_ALLOCATION_EXCEPTION, "No sufficent space for required Size")
 			}
 
-			PVOID aligned_address = AddAddress(m_offset_ptr, adjustment);
+			VoidPtr aligned_address = AddAddress(m_offset_ptr, adjustment);
 			m_offset_ptr = AddAddress(aligned_address, size);
 
 			if (m_stats.m_peak_size < size) { m_stats.m_peak_size = size; }
@@ -49,38 +47,26 @@ namespace Forge {
 
 			return aligned_address;
 		}
-		PVOID LinearAllocator::Reallocate(PVOID address, SIZE size, BYTE alignment)
+		VoidPtr LinearAllocator::Reallocate(VoidPtr address, Size size, Byte alignment)
 		{
-			static Debug::ExceptionFactory e;
-			e.ThrowException(
-				Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION,
-				FORGE_LINE_LITERAL,
-				FORGE_FUNC_LITERAL,
-				FORGE_FILE_LITERAL,
-				"Linear allocator does not support reallocation of memory addresses"
-			);
+			FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "Linear allocator does not support reallocation of memory addresses")
 
 			return nullptr;
 		}
-		VOID  LinearAllocator::Deallocate(PVOID address)
+		Void    LinearAllocator::Deallocate(VoidPtr address)
 		{
-			static Debug::ExceptionFactory e;
-			e.ThrowException(
-				Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION,
-				FORGE_LINE_LITERAL,
-				FORGE_FUNC_LITERAL,
-				FORGE_FILE_LITERAL,
-				"Linear allocator does not support deallocation of memory addresses"
-			);
+			FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION,"Linear allocator does not support deallocation of memory addresses")
 		}
 
-		VOID  LinearAllocator::Reset()
+		Void  LinearAllocator::Reset()
 		{
 			m_offset_ptr = m_start_ptr;
 
 			m_stats.m_peak_size = 0;
 			m_stats.m_used_memory = 0;
 			m_stats.m_num_of_allocs = 0;
+
+			MemorySet(m_start_ptr, 0, m_stats.m_total_size);
 		}
 	}
 }

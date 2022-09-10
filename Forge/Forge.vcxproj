@@ -95,8 +95,21 @@
     <ClInclude Include="Source\Core\Public\Common\Compiler.h" />
     <ClInclude Include="Source\Core\Public\Common\Endianness.h" />
     <ClInclude Include="Source\Core\Public\Common\PreprocessorUtilities.h" />
-    <ClInclude Include="Source\Core\Public\Common\TypeTraits.h" />
     <ClInclude Include="Source\Core\Public\Common\TypeDefinitions.h" />
+    <ClInclude Include="Source\Core\Public\Common\TypeTraits\AreSameType.h" />
+    <ClInclude Include="Source\Core\Public\Common\TypeTraits\EnableIf.h" />
+    <ClInclude Include="Source\Core\Public\Common\TypeTraits\IsArithmetic.h" />
+    <ClInclude Include="Source\Core\Public\Common\TypeTraits\IsBaseOf.h" />
+    <ClInclude Include="Source\Core\Public\Common\TypeTraits\IsConst.h" />
+    <ClInclude Include="Source\Core\Public\Common\TypeTraits\IsDoublePrecision.h" />
+    <ClInclude Include="Source\Core\Public\Common\TypeTraits\IsFloatingPoint.h" />
+    <ClInclude Include="Source\Core\Public\Common\TypeTraits\IsPointer.h" />
+    <ClInclude Include="Source\Core\Public\Common\TypeTraits\IsReference.h" />
+    <ClInclude Include="Source\Core\Public\Common\TypeTraits\IsSigned.h" />
+    <ClInclude Include="Source\Core\Public\Common\TypeTraits\RemoveConst.h" />
+    <ClInclude Include="Source\Core\Public\Common\TypeTraits\RemovePointer.h" />
+    <ClInclude Include="Source\Core\Public\Common\TypeTraits\RemoveReference.h" />
+    <ClInclude Include="Source\Core\Public\Common\TypeTraits\TypeTraits.h" />
     <ClInclude Include="Source\Core\Public\Debug\Exception\ArgumentException.h" />
     <ClInclude Include="Source\Core\Public\Debug\Exception\ArgumentNullException.h" />
     <ClInclude Include="Source\Core\Public\Debug\Exception\BadAllocationException.h" />
@@ -109,7 +122,8 @@
     <ClInclude Include="Source\Core\Public\Debug\Exception\InvalidOperationException.h" />
     <ClInclude Include="Source\Core\Public\Debug\Exception\IOException.h" />
     <ClInclude Include="Source\Core\Public\Debug\Exception\TimeoutException.h" />
-    <ClInclude Include="Source\Core\Public\ISystem.h" />
+    <ClInclude Include="Source\Core\Public\Math\Hash\AbstractHash.h" />
+    <ClInclude Include="Source\Core\Public\Math\StringHash.h" />
     <ClInclude Include="Source\Core\Public\Memory\AbstractAllocator.h" />
     <ClInclude Include="Source\Core\Public\Memory\CAllocator.h" />
     <ClInclude Include="Source\Core\Public\Memory\FreeListAllocator.h" />
@@ -119,14 +133,22 @@
     <ClInclude Include="Source\Core\Public\Memory\MemoryUtilities.h" />
     <ClInclude Include="Source\Core\Public\Memory\PoolAllocator.h" />
     <ClInclude Include="Source\Core\Public\Memory\StackAllocator.h" />
+    <ClInclude Include="Source\Core\Public\RTTI\Object.h" />
+    <ClInclude Include="Source\Core\Public\RTTI\RefCounter.h" />
+    <ClInclude Include="Source\Core\Public\RTTI\SmartPointer.h" />
+    <ClInclude Include="Source\Core\Public\RTTI\TypeInfo.h" />
     <ClInclude Include="Source\Core\Public\Singleton.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Core\Private\Common\Buffer.cpp" />
     <ClCompile Include="Source\Core\Private\Debug\Exception.cpp" />
     <ClCompile Include="Source\Core\Private\Debug\ExceptionFactory.cpp" />
+    <ClCompile Include="Source\Core\Private\Memory\CAllocator.cpp" />
     <ClCompile Include="Source\Core\Private\Memory\LinearAllocator.cpp" />
+    <ClCompile Include="Source\Core\Private\Memory\PoolAllocator.cpp" />
     <ClCompile Include="Source\Core\Private\Memory\StackAllocator.cpp" />
+    <ClCompile Include="Source\Core\Private\RTTI\RefCounter.cpp" />
+    <ClCompile Include="Source\Core\Private\RTTI\TypeInfo.cpp" />
     <ClCompile Include="Source\Core\Public\Debug\Exception\MemoryOutOfBoundsException.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

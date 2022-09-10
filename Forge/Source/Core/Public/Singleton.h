@@ -6,16 +6,17 @@
 namespace Forge
 {
 	template<typename T>
-	class Singleton
+	class TSingleton
 	{
 	protected:
-		Singleton() = default;
+		TSingleton() = default;
+	   ~TSingleton() = default;
 
 	protected:
-		Singleton(Singleton<T>&& rhs) = delete;
-		Singleton(const Singleton<T>& rhs) = delete;
-		Singleton& operator=(Singleton<T>&& rhs) = delete;
-		Singleton& operator=(const Singleton<T>&& rhs) = delete;
+		TSingleton(Singleton<T>&& rhs) = delete;
+		TSingleton(const Singleton<T>& rhs) = delete;
+		TSingleton& operator=(Singleton<T>&& rhs) = delete;
+		TSingleton& operator=(const Singleton<T>&& rhs) = delete;
 	
 	public:
 		static T& GetInstance()
@@ -24,6 +25,11 @@ namespace Forge
 			return instance;
 		}
 	};
+
+	#define FORGE_CLASS_SINGLETON(Typename) \
+		private:							\
+			Typename() = default;			\
+		friend Forge::Singleton<Typename>;  \
 }
 
 #endif // SINGLETON_H

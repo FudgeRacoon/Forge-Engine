@@ -9,10 +9,9 @@ namespace Forge {
 		class DivideByZeroException : public Exception
 		{
 		public:
-			DivideByZeroException(PCCHAR line, PCCHAR func, PCCHAR file)
+			DivideByZeroException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file)
 				: Exception(line, func, file, "Cannot divide by zero") {}
-
-			DivideByZeroException(PCCHAR line, PCCHAR func, PCCHAR file, PCCHAR add_info)
+			DivideByZeroException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file, ConstCharPtr add_info)
 				: Exception(line, func, file, "Cannot divide by zero", add_info) {}
 		};
 	}

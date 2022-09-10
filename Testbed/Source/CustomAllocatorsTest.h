@@ -12,7 +12,7 @@ using namespace Forge::Memory;
 class AllocatorBenchmark
 {
 private:
-	using Milliseconds = std::chrono::nanoseconds;
+	using Milliseconds = std::chrono::milliseconds;
 	using HighResClock = std::chrono::high_resolution_clock;
 	using Timepoint    = std::chrono::time_point<HighResClock>;
 
@@ -39,16 +39,6 @@ public:
 	};
 
 public:
-	enum ALLOCATOR_TYPE
-	{
-		C_ALLOCATOR = 0x1,
-		LINEAR_ALLOCATOR,
-		STACK_ALLOCATOR,
-		POOL_ALLOCATOR,
-		FREELIST_ALLOCATOR
-	};
-
-public:
 	AllocatorBenchmark() = default;
    ~AllocatorBenchmark() = default;
 
@@ -61,7 +51,7 @@ public:
 	BenchmarkResults BuildResults(Milliseconds elapsed_time);
 
 public:
-	VOID InitializeAllocator(ALLOCATOR_TYPE type, SIZE total_size);
+	VOID SetAllocator(AbstractAllocator* allocator);
 
 public:
 	VOID SingleAllocation(SIZE size, BYTE alignment);
@@ -102,16 +92,9 @@ public:
 		return results;
 	}
 	
-	VOID AllocatorBenchmark::InitializeAllocator(ALLOCATOR_TYPE type, SIZE total_size)
+	VOID AllocatorBenchmark::SetAllocator(AbstractAllocator* allocator)
 	{
-		switch (type)
-		{
-			/// case C_ALLOCATOR:        m_allocator = new LinearAllocator(total_size);
-			case LINEAR_ALLOCATOR:   m_allocator = new LinearAllocator(total_size);
-			case STACK_ALLOCATOR:    m_allocator = new StackAllocator(total_size);
-			/// case POOL_ALLOCATOR:     m_allocator = new LinearAllocator(total_size);
-			/// case FREELIST_ALLOCATOR: m_allocator = new LinearAllocator(total_size);
-		}
+		m_allocator = allocator;
 	}
 	
 	VOID AllocatorBenchmark::SingleAllocation(SIZE size, BYTE alignment)

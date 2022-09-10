@@ -9,10 +9,9 @@ namespace Forge {
 		class InvalidOperationException : public Exception
 		{
 		public:
-			InvalidOperationException(PCCHAR line, PCCHAR func, PCCHAR file)
+			InvalidOperationException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file)
 				: Exception(line, func, file, "Failed to perform operation on object") {}
-
-			InvalidOperationException(PCCHAR line, PCCHAR func, PCCHAR file, PCCHAR add_info)
+			InvalidOperationException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file, ConstCharPtr add_info)
 				: Exception(line, func, file, "Failed to perform operation on object", add_info) {}
 		};
 	}

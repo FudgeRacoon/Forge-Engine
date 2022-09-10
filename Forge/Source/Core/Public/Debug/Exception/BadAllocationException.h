@@ -9,10 +9,9 @@ namespace Forge {
 		class BadAllocationException : public Exception
 		{
 		public:
-			BadAllocationException(PCCHAR line, PCCHAR func, PCCHAR file)
+			BadAllocationException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file)
 				: Exception(line, func, file, "Failed to perform allocation storage") {}
-
-			BadAllocationException(PCCHAR line, PCCHAR func, PCCHAR file, PCCHAR add_info)
+			BadAllocationException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file, ConstCharPtr add_info)
 				: Exception(line, func, file, "Failed to perform allocation storage", add_info) {}
 		};
 	}

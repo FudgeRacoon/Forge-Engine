@@ -3,7 +3,7 @@
 namespace Forge {
 	namespace Debug
 	{
-		VOID ExceptionFactory::ThrowException(Exception::EXCEPTION_CODE code, PCCHAR line, PCCHAR func, PCCHAR file)
+		Void ExceptionFactory::ThrowException(Exception::EXCEPTION_CODE code, ConstCharPtr line, ConstCharPtr func, ConstCharPtr file)
 		{
 			switch (code)
 			{
@@ -20,7 +20,7 @@ namespace Forge {
 				default:                                            throw Exception(line, func, file, "An exception has occured");
 			}
 		}
-		VOID ExceptionFactory::ThrowException(Exception::EXCEPTION_CODE code, PCCHAR line, PCCHAR func, PCCHAR file, PCCHAR add_info)
+		Void ExceptionFactory::ThrowException(Exception::EXCEPTION_CODE code, ConstCharPtr line, ConstCharPtr func, ConstCharPtr file, ConstCharPtr add_info)
 		{
 			switch (code)
 			{

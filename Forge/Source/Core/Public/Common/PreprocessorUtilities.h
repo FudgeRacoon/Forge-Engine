@@ -7,8 +7,8 @@
 
 #define FORGE_BIT(x) (1 << x)
 
-#define FORGE_SAFE_DELETE_UNIT(mem) if(mem != nullptr) {delete mem; mem = nullptr;}
-#define FORGE_SAFE_DELETE_BLOCK(mem) if(mem != nullptr) {delete[] mem; mem = nullptr;}
+#define FORGE_SAFE_DELETE_UNIT(mem) if( mem != nullptr ) { delete mem; mem = nullptr; }
+#define FORGE_SAFE_DELETE_BLOCK(mem) if( mem != nullptr ) { delete[] mem; mem = nullptr; }
 
 #define IMPL_FORGE_STRINGIZE(s) #s
 #define FORGE_STRINGIZE(s) IMPL_FORGE_STRINGIZE(s)
@@ -25,11 +25,6 @@
 #define FORGE_FUNC_LITERAL __FUNCTION__
 #define FORGE_LINE_LITERAL FORGE_STRINGIZE(__LINE__)
 #define FORGE_FILE_LITERAL FORGE_STRINGIZE(__FILE__)
-
-#define FORGE_CLASS_SINGLETON(Typename) \
-	private:							\
-		Typename() = default;			\
-	friend Forge::Singleton<Typename>;  \
 
 #define FORGE_CLASS_NONCOPYABLE(Typename)                  \
 	public:                                                \

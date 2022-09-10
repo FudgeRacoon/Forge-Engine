@@ -9,10 +9,9 @@ namespace Forge {
 		class IndexOutOfRangeException : public Exception
 		{
 		public:
-			IndexOutOfRangeException(PCCHAR line, PCCHAR func, PCCHAR file)
+			IndexOutOfRangeException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file)
 				: Exception(line, func, file, "Index is out of range of the array") {}
-
-			IndexOutOfRangeException(PCCHAR line, PCCHAR func, PCCHAR file, PCCHAR add_info)
+			IndexOutOfRangeException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file, ConstCharPtr add_info)
 				: Exception(line, func, file, "Index is out of range of the array", add_info) {}
 		};
 	}

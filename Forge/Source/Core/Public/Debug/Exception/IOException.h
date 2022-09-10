@@ -9,10 +9,9 @@ namespace Forge {
 		class IOException : public Exception
 		{
 		public:
-			IOException(PCCHAR line, PCCHAR func, PCCHAR file) 
+			IOException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file) 
 				: Exception(line, func, file, "Failed to perform I/O operation") {}
-
-			IOException(PCCHAR line, PCCHAR func, PCCHAR file, PCCHAR add_info)
+			IOException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file, ConstCharPtr add_info)
 				: Exception(line, func, file, "Failed to perform I/O operation", add_info) {}
 		};
 	}

@@ -9,10 +9,9 @@ namespace Forge {
 		class MemoryOutOfBoundsException : public Exception
 		{
 		public:
-			MemoryOutOfBoundsException(PCCHAR line, PCCHAR func, PCCHAR file)
+			MemoryOutOfBoundsException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file)
 				: Exception(line, func, file, "Memory address is out of bounds") {}
-
-			MemoryOutOfBoundsException(PCCHAR line, PCCHAR func, PCCHAR file, PCCHAR add_info)
+			MemoryOutOfBoundsException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file, ConstCharPtr add_info)
 				: Exception(line, func, file, "Memory address is out of bounds", add_info) {}
 		};
 	}

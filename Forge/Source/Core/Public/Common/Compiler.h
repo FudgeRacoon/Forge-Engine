@@ -112,64 +112,25 @@
 
 /// Compiler specific modifiers
 #if defined(FORGE_COMPILER_CLANG)
-	#define FORGE_CDECL       
-	#define FORGE_STDCALL     
-	#define FORGE_INLINE      
-	#define FORGE_FORCE_INLINE
-	#define FORGE_DEBUG_BREAK 
-	#define FORGE_DLL_EXPORT  
-	#define FORGE_DLL_IMPORT  
-	#define FORGE_NO_INLINE   
-	#define FORGE_NO_RETURN   
-	#define FORGE_DEPRECATED  
 	#error "Clang is not currently supported."
 #elif defined(FORGE_COMPILER_INTEL)
-	#define FORGE_CDECL       
-	#define FORGE_STDCALL     
-	#define FORGE_INLINE      
-	#define FORGE_FORCE_INLINE
-	#define FORGE_DEBUG_BREAK 
-	#define FORGE_DLL_EXPORT  
-	#define FORGE_DLL_IMPORT  
-	#define FORGE_NO_INLINE   
-	#define FORGE_NO_RETURN   
-	#define FORGE_DEPRECATED  
 	#error "Intel compiler is not currently supported."
 #elif defined(FORGE_COMPILER_EMSCRIPTEN)
-	#define FORGE_CDECL       
-	#define FORGE_STDCALL     
-	#define FORGE_INLINE      
-	#define FORGE_FORCE_INLINE
-	#define FORGE_DEBUG_BREAK 
-	#define FORGE_DLL_EXPORT  
-	#define FORGE_DLL_IMPORT  
-	#define FORGE_NO_INLINE   
-	#define FORGE_NO_RETURN   
-	#define FORGE_DEPRECATED  
 	#error "Emscripten is not currently supported."
 #elif defined(FORGE_COMPILER_GCC)
-	#define FORGE_CDECL       
-	#define FORGE_STDCALL     
-	#define FORGE_INLINE      
-	#define FORGE_FORCE_INLINE
-	#define FORGE_DEBUG_BREAK 
-	#define FORGE_DLL_EXPORT  
-	#define FORGE_DLL_IMPORT  
-	#define FORGE_NO_INLINE   
-	#define FORGE_NO_RETURN   
-	#define FORGE_DEPRECATED  
 	#error "GCC is not currently supported."
 #elif defined(FORGE_COMPILER_MSVC) 
-	#define FORGE_CDECL        __cdecl
-    #define FORGE_STDCALL      __stdcall
-	#define FORGE_INLINE       __inline
-	#define FORGE_FORCE_INLINE __forceinline
-	#define FORGE_DEBUG_BREAK  __debugbreak();
-	#define FORGE_DLL_EXPORT   __declspec(dllexport)
-	#define FORGE_DLL_IMPORT   __declspec(dllimport)
-	#define FORGE_NO_INLINE    __declspec(noinline)
-	#define FORGE_NO_RETURN    __declspec(noreturn)
-	#define FORGE_DEPRECATED   __declspec(deprecated)
+	#define FORGE_CDECL               __cdecl
+    #define FORGE_STDCALL             __stdcall
+	#define FORGE_INLINE              __inline
+	#define FORGE_FORCE_INLINE        __forceinline
+	#define FORGE_DEBUG_BREAK         __debugbreak();
+	#define FORGE_DLL_EXPORT          __declspec(dllexport)
+	#define FORGE_DLL_IMPORT          __declspec(dllimport)
+	#define FORGE_NO_INLINE           __declspec(noinline)
+	#define FORGE_NO_RETURN           __declspec(noreturn)
+	#define FORGE_ALIGN(__ALIGN__)    __declspec(align(__ALIGN__))
+	#define FORGE_DEPRECATED(__MSG__) __declspec(deprecated(__MSG__))
 #endif
 
 #if defined(FORGE_EXPORT)

@@ -14,18 +14,18 @@ namespace Forge {
 		class FORGE_API Exception
 		{
 		protected:
-			PCCHAR m_line;
-			PCCHAR m_func;
-			PCCHAR m_file;
-			PCCHAR m_additional_info;
+			ConstCharPtr m_line;
+			ConstCharPtr m_func;
+			ConstCharPtr m_file;
+			ConstCharPtr m_additional_info;
 
 		protected:
-			CHAR m_description[256] = { 0 };
+			Char m_description[256] = { 0 };
 
 		public:
 			enum EXCEPTION_CODE
 			{
-				ERR_IO_EXCEPTION = 0x0,
+				ERR_IO_EXCEPTION,
 				ERR_TIMEOUT_EXCEPTION,
 				ERR_ARGUMENT_EXCEPTION,
 				ERR_ARGUMENT_NULL_EXCEPTION,
@@ -38,22 +38,22 @@ namespace Forge {
 			};
 
 		public:
-			Exception(PCCHAR line, PCCHAR func, PCCHAR file, PCCHAR desc);
-			Exception(PCCHAR line, PCCHAR func, PCCHAR file, PCCHAR desc, PCCHAR add_info);
+			Exception(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file, ConstCharPtr desc);
+			Exception(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file, ConstCharPtr desc, ConstCharPtr add_info);
 			virtual ~Exception() = default;
 
 		public:
 			/// @brief Gets the source line number.
-			PCCHAR GetLine();
+			ConstCharPtr GetLine();
 
 			/// @brief Gets the source function name.
-			PCCHAR GetFunc();
+			ConstCharPtr GetFunc();
 
 			/// @brief Gets the source file name.
-			PCCHAR GetFile();
+			ConstCharPtr GetFile();
 
 			/// @brief Gets additional information about the exception.
-			PCCHAR GetAdditionalInfo();
+			ConstCharPtr GetAdditionalInfo();
 
 		public:
 			/// @brief Gets the description of the exception.
@@ -61,15 +61,15 @@ namespace Forge {
 			/// The description contains the cause, the line number, 
 			/// file name, what function threw the error and additional
 			/// information if provided by the user.
-			PCCHAR GetDescripton();
+			ConstCharPtr GetDescripton();
 		};
 
-		FORGE_FORCE_INLINE PCCHAR Exception::GetLine() { return m_line; }
-		FORGE_FORCE_INLINE PCCHAR Exception::GetFunc() { return m_func; }
-		FORGE_FORCE_INLINE PCCHAR Exception::GetFile() { return m_file; }
-		FORGE_FORCE_INLINE PCCHAR Exception::GetAdditionalInfo() { return m_additional_info; }
+		FORGE_FORCE_INLINE ConstCharPtr Exception::GetLine()           { return m_line; }
+		FORGE_FORCE_INLINE ConstCharPtr Exception::GetFunc()           { return m_func; }
+		FORGE_FORCE_INLINE ConstCharPtr Exception::GetFile()           { return m_file; }
+		FORGE_FORCE_INLINE ConstCharPtr Exception::GetAdditionalInfo() { return m_additional_info; }
 
-		FORGE_FORCE_INLINE PCCHAR Exception::GetDescripton() { return m_description; }
+		FORGE_FORCE_INLINE ConstCharPtr Exception::GetDescripton() { return m_description; }
 	}
 }
 
