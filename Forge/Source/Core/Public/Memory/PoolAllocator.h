@@ -6,13 +6,17 @@
 #include "MemoryUtilities.h"
 #include "AbstractAllocator.h"
 
-#include "Core/Public/Common/Common.h"
+#include "Core/Public/Common/Compiler.h"
+#include "Core/Public/Common/TypeDefinitions.h"
 
 namespace Forge {
 	namespace Memory
 	{
-		/// @brief A pool allocator that is used to allocate memory in
-		/// fixed Sizes and does not enforce any constrains on deallocation.
+		/**
+		 * @brief Manages memory in fixed-size chunks and doest not impose any
+		 * constraints 
+		 * 
+		 */
 		class FORGE_API PoolAllocator : public AbstractAllocator
 		{
 		private:
@@ -24,38 +28,64 @@ namespace Forge {
 		public:
 			PoolAllocator(Size object_size, Size total_size);
 			PoolAllocator(VoidPtr start, Size object_size, Size total_size);
+
+		public:
 		   ~PoolAllocator();
 
 		public:
-			/// @brief Retrieves properly aligned memory address from pre-allocated memory pool.
-			/// 
-			/// @param[in] size      The size of memory to allocate in Bytes.
-			/// @param[in] alignment The Alignment requirment of the memory, must be power of two.
-			/// 
-			/// @returns Address to the start of the allocated memory.
-			/// 
-			/// @throw Will throw a bad allocation error if the Size requested is not
-			/// equal to the object Size supported by the allocator.
-			VoidPtr Allocate(Size size, Byte alignment = 4) override;
-
-			/// @brief The pool allocator does not allow reallocation to previously
-			/// allocated memory blocks, thus this function should not be used at all.
-			/// 
-			/// @throw Will throw invalid operation error if attempted to reallocate an address.
-			VoidPtr Reallocate(VoidPtr address, Size size, Byte alignment = 4) override;
-
-			/// @brief Frees the address present in the pre-allocated memory pool.
-			/// 
-			/// @param[in] address The address to deallocate.
-			/// 
-			// @throw Will throw memory out of bounds error if the address is out of bounds, 
-			/// bad allocation error if not allocated.
-			Void  Deallocate(VoidPtr address) override;
+			/**
+			 * @brief Gets the object size the allocator object supports allocation.
+			 * 
+			 * @return Size storing the object size.
+			 */
+			Size GetObjectSize(void);
 
 		public:
-			/// @brief Completely erases the whole memory pool.
-			Void  Reset() override;
+			/**
+			 * @brief Retrieves a properly aligned memory address from the
+			 * pre-allocated memory pool.
+			 *
+			 * @param[in] size      The size of chunk to retrieve in bytes.
+			 * @param[in] alignment The alignment of memory, must be power of two.
+			 *
+			 * @return VoidPtr storing the address to start of the allocated chunk.
+			 *
+			 * @throws BadAllocationException if size requsted is larger than the
+			 * memory pool.
+			 */
+			VoidPtr Allocate(Size size, Byte alignment = 4) override;
+
+			/**
+			 * @brief The pool allocator does not allow reallocations to previously
+			 * allocated memory chunks.
+			 *
+			 * @throws InvalidOperationException if attempted to reallocate an
+			 * address.
+			 */
+			VoidPtr Reallocate(VoidPtr address, Size size, Byte alignment = 4) override;
+
+			/**
+			 * @brief Frees the address previously allocated from the pre-allocated 
+			 * memory pool.
+			 *
+			 * @param[in] address The address of the chunk to free.
+			 *
+			 * @throws BadAllocationException if the address was not previously
+			 * allocated.
+			 *
+			 * @throws MemoryOutOfBoundsException if the address provided is out
+			 * of the memory pool bounds.
+			 */
+			Void Deallocate(VoidPtr address) override;
+
+		public:
+			/**
+			 * @brief Resets the whole memory pool.
+			 */
+			Void  Reset(void) override;
 		};
+
+		FORGE_FORCE_INLINE Size PoolAllocator::GetObjectSize(void) { return m_object_size; }
 	}
 }
 

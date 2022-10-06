@@ -1,54 +1,159 @@
 #ifndef SMART_POINTER_H
 #define SMART_POINTER_H
 
-#include "Object.h"
+#include "RefCounter.h"
 
-#include "Core/Public/Common/Common.h"
+#include "Core/Public/CoreFwd.h"
 
-#include "Core/Public/Memory/Memory.h"
+#include "Core/Public/Debug/Debug.h"
 
-#include "Core/Public/Debug/Exception/ExceptionFactory.h"
+#include "Core/Public/Common/Compiler.h"
+#include "Core/Public/Common/TypeDefinitions.h"
+
+using namespace Forge::Common;
 
 namespace Forge {
 	namespace RTTI
 	{
-		template<typename T, Bool IsObject = Common::IsBaseOf<T, Object>::Value>
-		class FORGE_API TSharedPtr {};
-
+		/**
+		 * @brief Manages the storage of raw pointers, provides garbage-collection,
+		 * and allows multiple TSharedPtr to share management of the same pointer.
+		 * This ultimatly prevents accidental memory leaks and helps in monitoring
+		 * shared memory locations.
+		 * 
+		 * Objects of TSharedPtr have the ability of taking ownership of a pointer
+		 * and sharing that ownership. Upon taking ownership, a reference counter 
+		 * is incremented indicating the number of TSharedPtr objects managing the
+		 * pointer. 
+		 * 
+		 * When a TSharedPtr is destroyed the reference counter is decremented.
+		 * A TSharedPtr becomes responsible for the deletion of the stored pointer
+		 * when it is the last object to release ownership.
+		 * 
+		 * @author Karim Hisham
+		 */
 		template<typename T>
-		class FORGE_API TSharedPtr<T, true>
+		class TSharedPtr
 		{
 		private:
-			using ObjectType         = T;
-			using ObjectTypeRef      = T&;
-			using ObjectTypePtr      = T*;
-			using ConstObjectType    = const T;
-			using ConstObjectTypeRef = const T&;
- 			using ConstObjectTypePtr = const T*;
+			using ValueType         = T;
+			using ValueTypeRef      = T&;
+			using ValueTypePtr      = T*;
+			using ConstValueType    = const T;
+			using ConstValueTypeRef = const T&;
+ 			using ConstValueTypePtr = const T*;
 
 		private:
-			using DeleterCallback = Void(*)(ObjectTypePtr);
+			using DeleterCallback = Void(*)(ValueTypePtr);
 
 		private:
-			ObjectTypePtr   m_raw_ptr;
+			ValueTypePtr    m_raw_ptr;
 			DeleterCallback m_deleter_callback;
 
 		public:
-			TSharedPtr(void);
-			TSharedPtr(ObjectTypePtr ptr);
-			TSharedPtr(ObjectTypePtr ptr, DeleterCallback del);
+			TSharedPtr(void)
+				: m_raw_ptr(nullptr) 
+			{
+				FORGE_STATIC_ASSERT((IsBaseOf<ValueType, RefCounted>::Value))
+
+				m_deleter_callback = [](ValueTypePtr ptr) -> Void
+				{
+					// delete ptr;
+					return;
+				};
+			}
+			TSharedPtr(ValueTypePtr ptr)
+				: m_raw_ptr(ptr)
+			{
+				FORGE_STATIC_ASSERT((IsBaseOf<ValueType, RefCounted>::Value))
+
+				m_deleter_callback = [](ValueTypePtr ptr) -> Void
+				{
+					// delete ptr;
+					return;
+				};
+			}
+			TSharedPtr(ValueTypePtr ptr, DeleterCallback del)
+				: m_raw_ptr(nullptr), m_deleter_callback(del) 
+			{
+				FORGE_STATIC_ASSERT((IsBaseOf<ValueType, RefCounted>::Value))
+			}
 		   
 		public:
-			TSharedPtr(TWeakPtr<ObjectType>&& rhs);
-			TSharedPtr(TSharedPtr<ObjectType>&& rhs);
-			TSharedPtr(const TWeakPtr<ObjectType>& rhs);
-			TSharedPtr(const TSharedPtr<ObjectType>& rhs);
+			TSharedPtr(TWeakPtr<ValueType>&& rhs)
+			{
+				if (m_raw_ptr == rhs.m_raw_ptr)
+					return;
+
+				if (rhs.m_raw_ptr)
+					rhs.m_raw_ptr->IncrementRef();
+
+				m_raw_ptr->DecrementRef();
+
+				if (!m_raw_ptr->GetRefCount())
+					m_deleter_callback(m_raw_ptr);
+
+				m_raw_ptr = rhs.m_raw_ptr;
+				rhs.m_raw_ptr = nullptr;
+			}
+			TSharedPtr(TSharedPtr<ValueType>&& rhs)
+			{
+				if (m_raw_ptr == rhs.m_raw_ptr)
+					return;
+
+				if (rhs.m_raw_ptr)
+					rhs.m_raw_ptr->IncrementRef();
+
+				m_raw_ptr->DecrementRef();
+
+				if (!m_raw_ptr->GetRefCount())
+					m_deleter_callback(m_raw_ptr);
+
+				m_raw_ptr = rhs.m_raw_ptr;
+				rhs.m_raw_ptr = nullptr;
+			}
+			TSharedPtr(const TWeakPtr<ValueType>& rhs)
+			{
+				if (m_raw_ptr == rhs.m_raw_ptr)
+					return;
+
+				if (rhs.m_raw_ptr)
+					rhs.m_raw_ptr->IncrementRef();
+
+				m_raw_ptr->DecrementRef();
+
+				if (!m_raw_ptr->GetRefCount())
+					m_deleter_callback(m_raw_ptr);
+
+				m_raw_ptr = rhs.m_raw_ptr;
+			}
+			TSharedPtr(const TSharedPtr<ValueType>& rhs)
+			{
+				if (m_raw_ptr == rhs.m_raw_ptr)
+					return;
+
+				if (rhs.m_raw_ptr)
+					rhs.m_raw_ptr->IncrementRef();
+
+				m_raw_ptr->DecrementRef();
+
+				if (!m_raw_ptr->GetRefCount())
+					m_deleter_callback(m_raw_ptr);
+
+				m_raw_ptr = rhs.m_raw_ptr;
+			}
 
 		public:
-			~TSharedPtr();
+			~TSharedPtr()
+			{
+				m_raw_ptr->DecrementRef();
+
+				if (!m_raw_ptr->GetRefCount())
+					m_deleter_callback(m_raw_ptr);
+			}
 
 		public:
-			TSharedPtr<ObjectType>& operator =(ObjectTypePtr ptr)
+			TSharedPtr<ValueType>& operator =(ValueTypePtr ptr)
 			{
 				if (m_raw_ptr == ptr)
 					return *this;
@@ -65,28 +170,7 @@ namespace Forge {
 
 				return *this;
 			}
-			TSharedPtr<ObjectType>& operator =(TWeakPtr<ObjectType>&& rhs)
-			{
-				if (m_raw_ptr == rhs.m_raw_ptr)
-					return *this;
-
-				if (rhs.m_raw_ptr)
-				{
-					rhs.m_raw_ptr->IncrementRef();
-					rhs.m_raw_ptr->DecrementWeakRef();
-				}
-
-				m_raw_ptr->DecrementRef();
-
-				if (!m_raw_ptr->GetRefCount())
-					m_deleter_callback(m_raw_ptr);
-
-				m_raw_ptr = rhs.m_raw_ptr;
-				rhs.m_raw_ptr = nullptr;
-
-				return *this;
-			}
-			TSharedPtr<ObjectType>& operator =(TSharedPtr<ObjectType>&& rhs)
+			TSharedPtr<ValueType>& operator =(TWeakPtr<ValueType>&& rhs)
 			{
 				if (m_raw_ptr == rhs.m_raw_ptr)
 					return *this;
@@ -104,16 +188,31 @@ namespace Forge {
 
 				return *this;
 			}
-			TSharedPtr<ObjectType>& operator =(const TWeakPtr<ObjectType>& rhs)
+			TSharedPtr<ValueType>& operator =(TSharedPtr<ValueType>&& rhs)
 			{
 				if (m_raw_ptr == rhs.m_raw_ptr)
 					return *this;
 
 				if (rhs.m_raw_ptr)
-				{
 					rhs.m_raw_ptr->IncrementRef();
-					rhs.m_raw_ptr->DecrementWeakRef();
-				}
+
+				m_raw_ptr->DecrementRef();
+
+				if (!m_raw_ptr->GetRefCount())
+					m_deleter_callback(m_raw_ptr);
+
+				m_raw_ptr = rhs.m_raw_ptr;
+				rhs.m_raw_ptr = nullptr;
+
+				return *this;
+			}
+			TSharedPtr<ValueType>& operator =(const TWeakPtr<ValueType>& rhs)
+			{
+				if (m_raw_ptr == rhs.m_raw_ptr)
+					return *this;
+
+				if (rhs.m_raw_ptr)
+					rhs.m_raw_ptr->IncrementRef();
 
 				m_raw_ptr->DecrementRef();
 
@@ -124,7 +223,7 @@ namespace Forge {
 
 				return *this;
 			}
-			TSharedPtr<ObjectType>& operator =(const TSharedPtr<ObjectType>& rhs)
+			TSharedPtr<ValueType>& operator =(const TSharedPtr<ValueType>& rhs)
 			{
 				if (m_raw_ptr == rhs.m_raw_ptr)
 					return *this;
@@ -143,82 +242,221 @@ namespace Forge {
 			}
 
 		public:
-			ObjectTypeRef operator *()
+			ValueTypeRef operator *()
 			{
-				if (!m_raw_ptr)
-					FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "Shared pointer is storing a null pointer")
+				/*if (!m_raw_ptr)
+					FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "Shared pointer is storing a null pointer")*/
 
 				return *m_raw_ptr;
 			}
-			ObjectTypePtr operator ->()
+
+		public:
+			ValueTypePtr operator ->()
 			{
-				if (!m_raw_ptr)
-					FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "Shared pointer is storing a null pointer")
+				/*if (!m_raw_ptr)
+					FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "Shared pointer is storing a null pointer")*/
 
 				return m_raw_ptr;
 			}
 		
 		public:
-			/// @brief Returns the number of shared pointers that share 
-			/// ownership over the same stored pointer including itself.
-			ConstSize GetRefCount(void);
+			/**
+			 * @brief Gets the number of TSharedPtr objects that share ownership
+			 * over the same stored pointer including itself.
+			 * 
+			 * @return Number of refrences to the stored pointer.
+			 * 
+			 * @throws InvalidOperationException if the stored pointer is null.
+			 */
+			ConstSize GetRefCount(void)
+			{
+				/*if (!m_raw_ptr)
+					FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "Shared pointer is storing a null pointer")*/
+				
+				return m_raw_ptr->GetRefCount();
+			}
 
-			/// @brief Gets the stored pointer owned by the shared pointer.
-			ObjectTypePtr GetRawPtr(void);
+			/**
+			 * @brief Gets the stored pointer owned by the TSharedPtr object. Avoid
+			 * manually deleting the stored pointer as this will causes errors. 
+			 * 
+			 * @return Address of the stored pointer.
+			 * 
+			 * @throws InvalidOperationException if the stored pointer is null.
+			 */
+			ValueTypePtr GetRawPtr(void)
+			{
+				/*if (!m_raw_ptr)
+					FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "Shared pointer is storing a null pointer")*/
+
+				return m_raw_ptr;
+			}
 
 		public:
-			/// @brief Checks whether the shared pointer does not share ownership 
-			/// over its pointer with other shared pointers.
-			Bool IsUnique(void);
+			/**
+			 * @brief Checks whether the shared pointer does not share ownership
+			 * over its pointer with other shared pointers.
+			 *
+			 * @return True if the TShartedPtr object is unique.
+			 * 
+			 * @throws InvalidOperationException if the stored pointer is null.
+			 */
+			Bool IsUnique(void)
+			{
+				/*if (!m_raw_ptr)
+					FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "Shared pointer is storing a null pointer")*/
 
-			/// @brief Checks whether the stored pointer is not anull pointer.
-			Bool IsNotNull(void);
+				return true ? m_raw_ptr->GetRefCount() == 1 : false;
+			}
+
+			/**
+			 * @brief Checks whether the stored pointer is not a null pointer.
+			 * 
+			 * @return True if the stored pointer is not null.
+			 */
+			Bool IsNotNull(void)
+			{
+				if (m_raw_ptr)
+					return true;
+
+				return false;
+			}
 
 		public:
-			/// @brief Exchanges the contents of the shared pointer with the other,
-			/// without altering the reference count of either.
-			Void Swap(TSharedPtr<ObjectType>& other);
+			/**
+			 * @brief Exchanges the contents of the TSharedPtr object with the other,
+			 * without altering the reference count of either or destroying them.
+			 * 
+			 * @param[in] other The TSharedPtr object to swap content with.
+			 */
+			Void Swap(TSharedPtr<ValueType>& other)
+			{
+				ValueTypePtr temp = other.m_raw_ptr;
+				other.m_raw_ptr = m_raw_ptr;
+				m_raw_ptr = temp;
+			}
 
-			/// @brief Resets the raw pointer to null by default, or sets a new
-			/// ownership of the pointer passed and deletes reference to the old pointer.
-			Void Reset(ObjectTypePtr ptr = nullptr);
+			/**
+			 * @brief Resets the raw pointer to null by default, or sets a new ownership of 
+			 * the pointer passed and releases ownership of the old pointer.
+			 * 
+			 * @param[in] ptr The new pointer that will be owned by the TSharedPtr object.
+			 */
+			Void Reset(ValueTypePtr ptr = nullptr)
+			{
+				if (ptr)
+					ptr->IncrementRef();
+
+				m_raw_ptr->DecrementRef();
+
+				if (!m_raw_ptr->GetRefCount())
+					m_deleter_callback(m_raw_ptr);
+
+				m_raw_ptr = ptr;
+			}
 		};
 
-		template<typename T, Bool IsObject = Common::IsBaseOf<T, Object>::Value>
-		class FORGE_API TWeakPtr {};
-
+		/**
+		 * @brief Manages the storage of raw pointers, by holding non-owning 
+		 * "weak" references to data managed by TSharedPtr. Unlike TSharedPtr it 
+		 * does not provide garabge-collection. 
+		 * 
+		 * TWeakPtr models temporary ownership, allowing data to be accessed only 
+		 * if it exists, and may be deleted at any time. 
+		 * 
+		 * TWeakPtr is used to track the object, and is converted to TSharedPtr 
+		 * to assume temporary ownership and access the data. If the original 
+		 * TSharedPtr object is destroyed at this time, the object's lifetime 
+		 * is extended until the temporary TSharedPtr is destroyed as well.
+		 * 
+		 * @author Karim Hisham
+		 */
 		template<typename T>
-		class FORGE_API TWeakPtr<T, true>
+		class TWeakPtr
 		{
 		private:
-			using ObjectType = T;
-			using ObjectTypeRef = T&;
-			using ObjectTypePtr = T*;
-			using ConstObjectType = const T;
-			using ConstObjectTypeRef = const T&;
-			using ConstObjectTypePtr = const T*;
+			using ValueType         = T;
+			using ValueTypeRef      = T&;
+			using ValueTypePtr      = T*;
+			using ConstValueType    = const T;
+			using ConstValueTypeRef = const T&;
+			using ConstValueTypePtr = const T*;
 
 		private:
-			using DeleterCallback = Void(*)(ObjectTypePtr);
-
-		private:
-			ObjectTypePtr m_raw_ptr;
+			ValueTypePtr m_raw_ptr;
 
 		public:
-			TWeakPtr(void);
-			TWeakPtr(ObjectTypePtr ptr);
+			TWeakPtr(void)
+				: m_raw_ptr(nullptr) 
+			{
+				FORGE_STATIC_ASSERT((IsBaseOf<ValueType, RefCounted>::Value))
+			}
+			TWeakPtr(ValueTypePtr ptr)
+				: m_raw_ptr(ptr) 
+			{
+				FORGE_STATIC_ASSERT((IsBaseOf<ValueType, RefCounted>::Value))
+			}
 
 		public:
-			TWeakPtr(TWeakPtr<ObjectType>&& rhs);
-			TWeakPtr(TSharedPtr<ObjectType>&& rhs);
-			TWeakPtr(const TWeakPtr<ObjectType>& rhs);
-			TWeakPtr(const TSharedPtr<ObjectType>& rhs);
+			TWeakPtr(TWeakPtr<ValueType>&& rhs)
+			{
+				if (m_raw_ptr == rhs.m_raw_ptr)
+					return;
+
+				if (rhs.m_raw_ptr)
+					rhs.m_raw_ptr->IncrementWeakRef();
+
+				m_raw_ptr->DecrementWeakRef();
+
+				m_raw_ptr = rhs.m_raw_ptr;
+				rhs.m_raw_ptr = nullptr;
+			}
+			TWeakPtr(TSharedPtr<ValueType>&& rhs)
+			{
+				if (m_raw_ptr == rhs.m_raw_ptr)
+					return;
+
+				if (rhs.m_raw_ptr)
+					rhs.m_raw_ptr->IncrementWeakRef();
+
+				m_raw_ptr->DecrementWeakRef();
+
+				m_raw_ptr = rhs.m_raw_ptr;
+				rhs.m_raw_ptr = nullptr;
+			}
+			TWeakPtr(const TWeakPtr<ValueType>& rhs)
+			{
+				if (m_raw_ptr == rhs.m_raw_ptr)
+					return;
+
+				if (rhs.m_raw_ptr)
+					rhs.m_raw_ptr->IncrementWeakRef();
+
+				m_raw_ptr->DecrementWeakRef();
+
+				m_raw_ptr = rhs.m_raw_ptr;
+			}
+			TWeakPtr(const TSharedPtr<ValueType>& rhs)
+			{
+				if (m_raw_ptr == rhs.m_raw_ptr)
+					return;
+
+				if (rhs.m_raw_ptr)
+					rhs.m_raw_ptr->IncrementWeakRef();
+
+				m_raw_ptr->DecrementWeakRef();
+
+				m_raw_ptr = rhs.m_raw_ptr;
+			}
 
 		public:
-			~TWeakPtr();
+			~TWeakPtr()
+			{
+				m_raw_ptr->DecrementWeakRef();
+			}
 
 		public:
-			TWeakPtr<ObjectType>& operator =(ObjectTypePtr ptr)
+			TWeakPtr<ValueType>& operator =(ValueTypePtr ptr)
 			{
 				if (m_raw_ptr == ptr)
 					return *this;
@@ -232,7 +470,7 @@ namespace Forge {
 
 				return *this;
 			}
-			TWeakPtr<ObjectType>& operator =(TWeakPtr<ObjectType>&& rhs)
+			TWeakPtr<ValueType>& operator =(TWeakPtr<ValueType>&& rhs)
 			{
 				if (m_raw_ptr == rhs.m_raw_ptr)
 					return *this;
@@ -247,7 +485,7 @@ namespace Forge {
 
 				return *this;
 			}
-			TWeakPtr<ObjectType>& operator =(TSharedPtr<ObjectType>&& rhs)
+			TWeakPtr<ValueType>& operator =(TSharedPtr<ValueType>&& rhs)
 			{
 				if (m_raw_ptr == rhs.m_raw_ptr)
 					return *this;
@@ -262,7 +500,7 @@ namespace Forge {
 
 				return *this;
 			}
-			TWeakPtr<ObjectType>& operator =(const TWeakPtr<ObjectType>& rhs)
+			TWeakPtr<ValueType>& operator =(const TWeakPtr<ValueType>& rhs)
 			{
 				if (m_raw_ptr == rhs.m_raw_ptr)
 					return *this;
@@ -276,7 +514,7 @@ namespace Forge {
 
 				return *this;
 			}
-			TWeakPtr<ObjectType>& operator =(const TSharedPtr<ObjectType>& rhs)
+			TWeakPtr<ValueType>& operator =(const TSharedPtr<ValueType>& rhs)
 			{
 				if (m_raw_ptr == rhs.m_raw_ptr)
 					return *this;
@@ -292,42 +530,85 @@ namespace Forge {
 			}
 
 		public:
-			ObjectTypeRef operator *()
+			/**
+			 * @brief Gets the number of TSharedPtr objects that share ownership
+			 * over the same stored pointer. TWeakPtr objects are not counted.
+			 *
+			 * @return Number of refrences to the stored pointer.
+			 * 
+			 * @throws InvalidOperationException if the stored pointer is null.
+			 */
+			ConstSize GetRefCount(void)
 			{
-				if (!m_raw_ptr)
-					FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "Shared pointer is storing a null pointer")
+				/*if (!m_raw_ptr)
+					FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "Shared pointer is storing a null pointer")*/
 
-				return *m_raw_ptr;
+				return m_raw_ptr->GetRefCount();
 			}
-			ObjectTypePtr operator ->()
+
+		public:
+			/**
+			 * @brief Checks whether the TWeakPtr object is either empty or there
+			 * are no more TSharedPtr referencing the stored pointer.
+			 * 
+			 * @return True if no more TSharedPtr are referencing the stored 
+			 * pointer and has been deallocated or the TWeakPtr object is empty.
+			 */
+			Bool IsExpired(void)
 			{
-				if (!m_raw_ptr)
-					FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "Shared pointer is storing a null pointer")
+				return !m_raw_ptr || GetRefCount() == 0;
+			}
 
-				return m_raw_ptr;
+			/**
+			 * @brief Checks whether the stored pointer is not a null pointer.
+			 *
+			 * @return True if the stored pointer is not null.
+			 */
+			Bool IsNotNull(void)
+			{
+				if (m_raw_ptr)
+					return true;
+
+				return false;
 			}
 
 		public:
-			/// @brief Returns the number of weak pointers that share 
-			/// ownership over the same stored pointer including itself.
-			ConstSize GetRefCount(void);
+			/**
+			 * @brief Locks the stored pointer and prevents it from being released.
+			 * 
+			 * @return TSharedPtr with the information preserved by the TWeakPtr
+			 * object if it is not expired. If the TWeakPtr object has expired, 
+			 * the function returns an empty TSharedPtr.
+			 */
+			TSharedPtr<ValueType> Lock(void)
+			{
+				if (IsExpired())
+					return TSharedPtr<ValueType>();
+				
+				return TSharedPtr<ValueType>(m_raw_ptr);
+			}
 
 		public:
-			/// @brief Checks whether no shared pointer share ownership 
-			/// over the stored pointer anymore.
-			Bool IsExpired(void);
+			/**
+			 * @brief Exchanges the contents of the TWeakPtr object with the other,
+			 * without altering the weak reference count of either or destroying them.
+			 *
+			 * @param[in] other The TWeakPtr object to swap content with.
+			 */
+			Void Swap(TWeakPtr<ValueType>& other)
+			{
+				ValueTypePtr temp = other.m_raw_ptr;
+				other.m_raw_ptr = m_raw_ptr;
+				m_raw_ptr = temp;
+			}
 
-			/// @brief Checks whether the stored pointer is not a null pointer.
-			Bool IsNotNull(void);
-
-		public:
-			/// @brief Exchanges the contents of the shared pointer with the other,
-			/// without altering the reference count of either.
-			Void Swap(TSharedPtr<ObjectType>& other);
-
-			/// @brief Resets the stored pointer to null by default, or sets a new
-			/// ownership of the pointer passed and deletes reference to the old pointer.
-			Void Reset(ObjectTypePtr ptr = nullptr);
+			/**
+			 * @brief Resets the TWeakPtr and makes it empty.
+			 */
+			Void Reset()
+			{
+				m_raw_ptr = nullptr;
+			}
 		};
 	}
 }

@@ -98,6 +98,15 @@ namespace Forge {
 		{
 			return (VoidPtr)(reinterpret_cast<U64>(lh_address) - reinterpret_cast<U64>(rh_address));
 		}
+
+		/// @brief Performs subtraction on a constant Void pointer.
+		/// 
+		/// @param[in] lh_address The left-hand address to perform addition on.
+		/// @param[in] rh_address The right-hand address to perform addition on.
+		FORGE_FORCE_INLINE ConstVoidPtr SubAddress(ConstVoidPtr lh_address, ConstVoidPtr rh_address)
+		{
+			return (ConstVoidPtr)(reinterpret_cast<U64>(lh_address) - reinterpret_cast<U64>(rh_address));
+		}
 		
 		/// @brief Checks whether the marker address is within bounds of the allocated memory.
 		/// 

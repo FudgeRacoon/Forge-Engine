@@ -1,15 +1,32 @@
 #ifndef ABSTRACT_ALLOCATOR_H
 #define ABSTRACT_ALLOCATOR_H
 
-#include "Core/Public/Common/Common.h"
+#include "Core/Public/Debug/Debug.h"
 
-#include "Core/Public/Debug/Exception/ExceptionFactory.h"
+#include "Core/Public/Common/Compiler.h"
+#include "Core/Public/Common/TypeDefinitions.h"
 
 namespace Forge {
 	namespace Memory
 	{
-		/// @brief Base class for all custom allocators.
-		class FORGE_API AbstractAllocator
+		/**
+		 * @brief Base class for memory allocators that define memory access
+		 * patterns to be used within the engine.
+		 * 
+		 * Memory allocators work by pre-allocating a large memory pool usually
+		 * at initilization time and manages this pool using certain policies
+		 * specific to the type of the allocator. This ensures that allocation
+		 * is actually perfomed once at program start.
+		 * 
+		 * It is advised to always depend on the memory allocators provided by
+		 * the engine for allocation and deallocation of memory addresses, and
+		 * completely avoid the usage of the standard heap allocation operators
+		 * new/malloc() and delete/free() as they greatly impact perfomance if
+		 * used frequently.
+		 * 
+		 * @author Karim Hisham
+		 */
+		class AbstractAllocator
 		{
 		FORGE_CLASS_NONCOPYABLE(AbstractAllocator)
 
@@ -30,57 +47,128 @@ namespace Forge {
 
 		public:
 			AbstractAllocator(VoidPtr start, Size total_size)
-				: m_start_ptr(start), m_stats({ 0, total_size, 0, 0 }), m_is_mem_owned(false) {}
+				: m_start_ptr(start), m_stats({ 0, total_size, 0, 0 }) {}
 			virtual ~AbstractAllocator() = default;
 		
 		public:
-			/// @brief Get the starting address of the memory pool.
+			/**
+			 * @brief Gets the starting address of the memory pool.
+			 * 
+			 * @return VoidPtr storing the starting address.
+			 */
 			virtual VoidPtr GetStartAddress(void);
 
-			/// @brief Get the maximum Size allocated during lifetime of the allocator.
+		public:
+			/**
+			 * @brief Gets the maximum size allocated during lifetime of the 
+			 * allocator.
+			 * 
+			 * @return Size storing the peak size allocated in bytes.
+			 */
 			virtual Size GetPeakSize(void);
 
-			/// @brief Get the total Size allocated for the memory pool.
+			/**
+			 * @brief Gets the total size allocated for the memory pool.
+			 * 
+			 * @return Size storing the total size allocated in bytes.
+			 */
 			virtual Size GetTotalSize(void);
 
-			/// @brief Get the currently occupied memory.
+			/**
+			 * @brief Gets the currently occupied space in the memory pool.
+			 * 
+			 * @return Size storing the occupied space in bytes.
+			 */
 			virtual Size GetUsedMemory(void);
 
-			/// @brief Get the number of allocations made during lifetime of the allocator.
+			/**
+			 * @brief Gets the number of allocations made by the allocator object
+			 * during its lifetime.
+			 * 
+			 * @return Size storting the number of allocations made.
+			 */
 			virtual Size GetNumOfAllocs(void);
 
 		public:
-			/// @brief Retrieves properly aligned memory address from pre-allocated memory pool.
-			/// 
-			/// @param[in] size      The size of memory to allocate in nytes.
-			/// @param[in] alignment The Alignment requirment of the memory, must be power of two.
-			/// 
-			/// @returns Address to the start of the allocated memory.
+			/**
+			 * @brief Checks wether the memory pool is owned by this allocator or
+			 * provided by another allocator that owns it.
+			 * 
+			 * @return True if this allocator owns the memory pool.
+			 */
+			Bool IsMemoryOwned(void);
+
+		public:
+			/**
+			 * @brief Retrieves a properly aligned memory address from the
+			 * pre-allocated memory pool.
+			 * 
+			 * @param[in] size      The size of chunk to retrieve in bytes.
+			 * @param[in] alignment The alignment of memory, must be power of two.
+			 * 
+			 * @return VoidPtr storing the address to start of the allocated chunk.
+			 * 
+			 * @throws InvalidOperationException if not supported by the allocator.
+			 * 
+			 * @throws BadAllocationException if size requsted is larger than the
+			 * memory pool.
+			 */
 			virtual VoidPtr Allocate(Size size, Byte alignment = 4) = 0;
 
-			/// @brief Resizes an allocated address to a new size and copies its content
-			/// to the new chunk.
-			/// 
-			/// @param[in] address   The address to resize.
-			/// @param[in] size      The new size of memory to reallocate in bytes.
-			/// @param[in] alignment The Alignment requirment of the memory, must be power of two.
-			/// 
-			/// @returns Address to the start of the reallocated memory.
+			/**
+			 * @brief Resizes an allocated address to a new size and copies its 
+			 * content to the new chunk.
+			 *  
+			 * @param[in] address   The address of the chunk to resize.
+			 * @param[in] size      The new size of the chunk to reallocate in bytes.
+			 * @param[in] alignment The Alignment of memory, must be power of two.
+			 *
+			 * @returns VoidPtr storing the address to the start of the reallocated
+			 * chunk.
+			 * 
+			 * @throws InvalidOperationException if operation is not supported by
+			 * the allocator.
+			 * 
+			 * @throws BadAllocationException if size requsted is larger than the
+			 * memory pool.
+			 * 
+			 * @throws MemoryOutOfBoundsException if the address provided is out 
+			 * of the memory pool bounds.
+			 */
 			virtual VoidPtr Reallocate(VoidPtr address, Size size, Byte alignment = 4) = 0;
 
-			/// @brief Frees the address present in the pre-allocated memory pool.
+			/**
+			 * @brief Frees the address previously allocated from the pre-allocated
+			 * memory pool.
+			 * 
+			 * @param[in] address The address of the chunk to free.
+			 * 
+			 * @throws InvalidOperationException if operation is not supported by
+			 * the allocator.
+			 * 
+			 * @throws BadAllocationException if the address was not previously 
+			 * allocated.
+			 * 
+			 * @throws MemoryOutOfBoundsException if the address provided is out
+			 * of the memory pool bounds.
+			 */
 			virtual Void Deallocate(VoidPtr address) = 0;
 			
 		public:
-			/// @brief Completely erases the whole memory pool.
+			/**
+			 * @brief Resets the whole memory pool.
+			 */
 			virtual Void Reset(void) = 0;
 		};
 
 		FORGE_FORCE_INLINE VoidPtr AbstractAllocator::GetStartAddress(void) { return m_start_ptr;             }
-		FORGE_FORCE_INLINE Size    AbstractAllocator::GetPeakSize(void)     { return m_stats.m_peak_size;     }
-		FORGE_FORCE_INLINE Size    AbstractAllocator::GetTotalSize(void)    { return m_stats.m_total_size;    }
-		FORGE_FORCE_INLINE Size    AbstractAllocator::GetUsedMemory(void)   { return m_stats.m_used_memory;   }
-		FORGE_FORCE_INLINE Size    AbstractAllocator::GetNumOfAllocs(void)  { return m_stats.m_num_of_allocs; }
+
+		FORGE_FORCE_INLINE Size    AbstractAllocator::GetPeakSize(void)    { return m_stats.m_peak_size;     }
+		FORGE_FORCE_INLINE Size    AbstractAllocator::GetTotalSize(void)   { return m_stats.m_total_size;    }
+		FORGE_FORCE_INLINE Size    AbstractAllocator::GetUsedMemory(void)  { return m_stats.m_used_memory;   }
+		FORGE_FORCE_INLINE Size    AbstractAllocator::GetNumOfAllocs(void) { return m_stats.m_num_of_allocs; }
+
+		FORGE_FORCE_INLINE Bool AbstractAllocator::IsMemoryOwned(void) { return m_is_mem_owned; }
 	}
 }
 

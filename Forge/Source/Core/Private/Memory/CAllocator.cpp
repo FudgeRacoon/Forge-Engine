@@ -8,25 +8,25 @@ namespace Forge {
 
 		VoidPtr CAllocator::GetStartAddress()
 		{
-			FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "C allocator does not track starting address")
+			/*FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "C allocator does not track starting address")*/
 
 			return nullptr;
 		}
 		Size  CAllocator::GetPeakSize()
 		{
-			FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "C allocator does not track peak Size")
+			/*FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "C allocator does not track peak Size")*/
 
 			return 0;
 		}
 		Size  CAllocator::GetTotalSize()
 		{
-			FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "C allocator does not track total memory Size")
+			/*FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "C allocator does not track total memory Size")*/
 
 			return 0;
 		}
 		Size  CAllocator::GetUsedMemory()
 		{
-			FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "C allocator does not track used memory")
+			/*FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "C allocator does not track used memory")*/
 
 			return 0;
 		}
@@ -48,7 +48,7 @@ namespace Forge {
 
 		Void  CAllocator::Reset()
 		{
-			FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "C allocator does not support reseting of memory pool")
+			/*FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "C allocator does not support reseting of memory pool")*/
 		}
 	}
 }

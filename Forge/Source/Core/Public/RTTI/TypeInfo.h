@@ -1,9 +1,12 @@
 #ifndef TYPE_INFO_H
 #define TYPE_INFO_H
 
-#include "Core/Public/Common/Common.h"
+#include "Core/Public/CoreFwd.h"
 
 #include "Core/Public/Math/StringHash.h"
+
+#include "Core/Public/Common/Compiler.h"
+#include "Core/Public/Common/TypeDefinitions.h"
 
 using namespace Forge::Math;
 
@@ -16,7 +19,11 @@ namespace Forge {
 		using ConstTypeInfoRef = const TypeInfo&;
 		using ConstTypeInfoPtr = const TypeInfo*;
 
-		/// @brief The type info class stores meta-information about classes.
+		/**
+		 * @brief Stores run-time meta-information about classes.
+		 * 
+		 * @author Karim Hisham
+		 */
 		class FORGE_API TypeInfo
 		{
 		private:
@@ -26,40 +33,98 @@ namespace Forge {
 			ConstTypeInfoPtr  m_base_type_info;
 		
 		public:
-			TypeInfo(ConstCharPtr type_name, Size type_Size, TypeInfoPtr base_type_info);
+			TypeInfo(ConstCharPtr type_name, ConstSize type_Size, ConstTypeInfoPtr base_type_info);
+
+		public:
 		   ~TypeInfo() = default;
 
 		public:
-			/// @brief Get the Size of the type in bytes.
-			ConstSize GetTypeSize(void);
+			/**
+			 * @brief Get the size of the type in bytes.
+			 * 
+			 * @return ConstSize  storing the size of the type in bytes.
+			 */
+			ConstSize GetTypeSize(void) const;
 
-			/// @brief Get the name of the type.
-			ConstCharPtr GetTypeName(void);
+			/**
+			 * @brief Get the name of the type.
+			 *
+			 * @return ConstCharPtr storing the name of the type.
+			 */
+			ConstCharPtr GetTypeName(void) const;
 
-			/// @brief Get the ID of the type.
-			ConstStringHash GetTypeId(void);
-
-			/// @brief Get the base type of the type, nullptr if has no base type.
-			ConstTypeInfoPtr GetBaseTypeInfo(void);
+			/**
+			 * @brief Get the ID of the type.
+			 *
+			 * @return ConstStringHash storing the ID of the type.
+			 */
+			ConstStringHash GetTypeId(void) const;
+ 
+			/**
+			 * @brief Get the base type of the type.
+			 *
+			 * @return ConstTypeInfoPtr storing the type info of the type, nullptr
+			 * if it has no base class.
+			 */
+			ConstTypeInfoPtr GetBaseTypeInfo(void) const;
 
 		public:
-			/// @brief Check whether the current type is of specified type.
-			Bool IsSameAs(ConstStringHash& type_id);
+			/**
+			 * @brief Checks wether the type is an abstract class.
+			 *
+			 * @return True if the type is an abstract class.
+			 */
+			Bool IsAbstract() const;
 
-			/// @brief Check wether the current type is derived from the specified type.
-			Bool IsDerivedFrom(ConstStringHash& type_id);
+		public:
+			/**
+			 * @brief Checks whether the current type is same as a specified type ID.
+			 * 
+			 * @param[in] type_id The type ID to check whether its same as the
+			 * object.
+			 * 
+			 * @return True if the object is same as the type ID.
+			 */
+			Bool IsSameAs(ConstStringHash& type_id) const;
+	 
+			/**
+			 * @brief Checks wether the current type is derived from a specified 
+			 * type ID.
+			 *
+			 * @param[in] type_id The type ID to check whether the object is
+			 * derived from it.
+			 * 
+			 * @return True if the object is derived from the type ID.
+			 */
+			Bool IsDerivedFrom(ConstStringHash& type_id) const;
 			
-			/// @brief Check whether the current type is of specified type.
-			Bool IsSameAs(ConstTypeInfoPtr type_info);
+			/**
+			 * @brief Checks whether the current type is same as a specified type 
+			 * info.
+			 *
+			 * @param[in] type_info The type info to check whether its same as the
+			 * object.
+			 *
+			 * @return True if the object is same as the type info.
+			 */
+			Bool IsSameAs(ConstTypeInfoPtr type_info) const;
 
-			/// @brief Check wether the current type is derived from the specified type.
-			Bool IsDerivedFrom(ConstTypeInfoPtr type_info);
+			/**
+			 * @brief Checks wether the current type is derived from a specified
+			 * type info.
+			 *
+			 * @param[in] type_info The type info to check whether the object is
+			 * derived from it.
+			 *
+			 * @return True if the object is derived from the type info.
+			 */
+			Bool IsDerivedFrom(ConstTypeInfoPtr type_info) const;
 		};
 
-		FORGE_FORCE_INLINE ConstSize TypeInfo::GetTypeSize(void)            { return m_type_size; }
-		FORGE_FORCE_INLINE ConstCharPtr TypeInfo::GetTypeName(void)         { return m_type_name; }
-		FORGE_FORCE_INLINE ConstStringHash TypeInfo::GetTypeId(void)		{ return m_type_hash_id; }
-		FORGE_FORCE_INLINE ConstTypeInfoPtr TypeInfo::GetBaseTypeInfo(void) { return m_base_type_info; }
+		FORGE_FORCE_INLINE ConstSize TypeInfo::GetTypeSize(void) const            { return m_type_size; }
+		FORGE_FORCE_INLINE ConstCharPtr TypeInfo::GetTypeName(void) const         { return m_type_name; }
+		FORGE_FORCE_INLINE ConstStringHash TypeInfo::GetTypeId(void) const		  { return m_type_hash_id; }
+		FORGE_FORCE_INLINE ConstTypeInfoPtr TypeInfo::GetBaseTypeInfo(void) const { return m_base_type_info; }
 	}
 }
 

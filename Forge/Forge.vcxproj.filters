@@ -24,9 +24,6 @@
     <ClInclude Include="Source\Core\Public\Common\PreprocessorUtilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Public\Common\Buffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\Public\Common\Endianness.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -63,34 +60,25 @@
     <ClInclude Include="Source\Core\Public\Debug\Exception\ExceptionFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Public\Debug\Exception\IOException.h">
+    <ClInclude Include="Source\Core\Public\Debug\Exception\Exceptions\IOException.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Public\Debug\Exception\IndexOutOfRangeException.h">
+    <ClInclude Include="Source\Core\Public\Debug\Exception\Exceptions\IndexOutOfRangeException.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Public\Debug\Exception\InvalidOperationException.h">
+    <ClInclude Include="Source\Core\Public\Debug\Exception\Exceptions\InvalidOperationException.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Public\Debug\Exception\BadAllocationException.h">
+    <ClInclude Include="Source\Core\Public\Debug\Exception\Exceptions\BadAllocationException.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Public\Debug\Exception\DivideByZeroException.h">
+    <ClInclude Include="Source\Core\Public\Debug\Exception\Exceptions\DivideByZeroException.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Public\Debug\Exception\ArgumentNullException.h">
+    <ClInclude Include="Source\Core\Public\Debug\Exception\Exceptions\FileNotFoundException.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Public\Debug\Exception\FileNotFoundException.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\Public\Debug\Exception\TimeoutException.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\Public\Debug\Exception\ArgumentException.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\Public\Debug\Exception\Exceptions.h">
+    <ClInclude Include="Source\Core\Public\Debug\Exception\Exceptions\TimeoutException.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Public\Memory\Memory.h">
@@ -159,11 +147,32 @@
     <ClInclude Include="Source\Core\Public\Math\Hash\AbstractHash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\Public\Debug\Debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\RTTI\ObjectManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\CoreFwd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\Containers\AbstractCollection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\Containers\AbstractList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\Containers\IIterable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\Containers\AbstractIterator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\Containers\TStaticArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Core\Private\Common\Buffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Core\Private\Memory\LinearAllocator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -176,7 +185,7 @@
     <ClCompile Include="Source\Core\Private\Memory\StackAllocator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Public\Debug\Exception\MemoryOutOfBoundsException.h">
+    <ClCompile Include="Source\Core\Public\Debug\Exception\Exceptions\MemoryOutOfBoundsException.h">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\Private\Memory\CAllocator.cpp">
@@ -189,6 +198,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Core\Private\RTTI\RefCounter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Private\RTTI\Object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Private\Common\Endianness.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,54 +1,66 @@
 #ifndef REF_COUNTER_H
 #define REF_COUNTER_H
 
-#include "Core/Public/Common/Common.h"
-#include "Core/Public/Memory/Memory.h"
+#include "Core/Public/Common/Compiler.h"
+#include "Core/Public/Common/TypeDefinitions.h"
 
 namespace Forge {
 	namespace RTTI
 	{
-		using RefCounterRef      = RefCounter&;
-		using RefCounterPtr      = RefCounter*;
-		using ConstRefCounter    = const RefCounter;
-		using ConstRefCounterRef = const RefCounter&;
-		using ConstRefCounterPtr = const RefCounter*;
-
-		struct RefCounter
-		{
-			Size m_ref = 0;
-			Size m_weak_ref = 0;
-		};
-
-		/// @brief Base class for reference-counted objects. These are non-copyable.
+		/**
+		 * @brief Manages reference-counting on objects and prevents copying.
+		 * 
+		 * @author Karim Hisham
+		 */
 		class FORGE_API RefCounted
 		{
 		FORGE_CLASS_NONCOPYABLE(RefCounted)
 
 		private:
-			RefCounterPtr m_ref_counter;
+			struct RefCounter
+			{
+				Size m_ref;
+				Size m_weak_ref;
+			} *m_ref_counter;
 
 		public:
 			RefCounted();
 			virtual ~RefCounted();
 
 		public:
-			/// @brief Gets number of object references.
+			/**
+			 * @brief Gets number of object references.
+			 * 
+			 * @return ConstSize storing number of references. 
+			 */
 			ConstSize GetRefCount(void) const;
 
-			/// @brief Gets number of object weak references.
+			/**
+			 * @brief Gets number of object weak references.
+			 *
+			 * @return ConstSize storing number of weak references. 
+			 */
 			ConstSize GetWeakRefCount(void) const;
 
 		public:
-			/// @brief Increments number of object references.
+			/**
+			 * @brief Increments number of object references.
+			 */
 			Void IncrementRef(void);
 
-			/// @brief Decrements number of object references. If zero, deletes itself.
+			/**
+			 * @brief Decrements number of object references.
+			 */
 			Void DecrementRef(void);
 
-			/// @brief Increments number of object weak references.
+			/**
+			 * @brief Increments number of object weak references.
+			 */
 			Void IncrementWeakRef(void);
 
-			/// @brief Decrements number of object weak references.
+			/**
+			 * @brief Decrements number of object weak references.
+			 */
 			Void DecrementWeakRef(void);
 		};
 	}

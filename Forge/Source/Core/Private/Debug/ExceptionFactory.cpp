@@ -1,5 +1,7 @@
 #include "Core/Public/Debug/Exception/ExceptionFactory.h"
 
+#include "Core/Public/RTTI/SmartPointer.h"
+
 namespace Forge {
 	namespace Debug
 	{
@@ -9,8 +11,6 @@ namespace Forge {
 			{
 				case Exception::ERR_IO_EXCEPTION:				    throw IOException(line, func, file);
 				case Exception::ERR_TIMEOUT_EXCEPTION:              throw TimeoutException(line, func, file);
-				/// case ERR_ARGUMENT_EXCEPTION:		            throw ArgumentException(line, func, file);
-				/// case ERR_ARGUMENT_NULL_EXCEPTION:               throw ArgumentNullException(line, func, file);
 				case Exception::ERR_DIVIDE_BY_ZERO_EXCEPTION:       throw DivideByZeroException(line, func, file);
 				case Exception::ERR_FILE_NOT_FOUND_EXCEPTION:	    throw FileNotFoundException(line, func, file);
 				case Exception::ERR_BAD_ALLOCATION_EXCEPTION:       throw BadAllocationException(line, func, file);
@@ -26,8 +26,6 @@ namespace Forge {
 			{
 				case Exception::ERR_IO_EXCEPTION:				    throw IOException(line, func, file, add_info);
 				case Exception::ERR_TIMEOUT_EXCEPTION:              throw TimeoutException(line, func, file, add_info);
-				/// case ERR_ARGUMENT_EXCEPTION:		            throw ArgumentException(line, func, file);
-				/// case ERR_ARGUMENT_NULL_EXCEPTION:               throw ArgumentNullException(line, func, file);
 				case Exception::ERR_DIVIDE_BY_ZERO_EXCEPTION:       throw DivideByZeroException(line, func, file, add_info);
 				case Exception::ERR_FILE_NOT_FOUND_EXCEPTION:	    throw FileNotFoundException(line, func, file, add_info);
 				case Exception::ERR_BAD_ALLOCATION_EXCEPTION:       throw BadAllocationException(line, func, file, add_info);

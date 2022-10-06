@@ -1,7 +1,6 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include "Buffer.h"
 #include "Compiler.h"
 #include "Endianness.h"
 #include "TypeDefinitions.h"

@@ -4,10 +4,12 @@
 namespace Forge {
 	namespace Math
 	{
+		class StringHash;
+
 		using StringHashRef      = StringHash&;
 		using StringHashPtr      = StringHash*;
 		using ConstStringHash    = const StringHash;
-		using StringHashPtr      = const StringHash&;
+		using ConstStringHashRef = const StringHash&;
 		using ConstStringHashPtr = const StringHash*;
 
 		class StringHash
