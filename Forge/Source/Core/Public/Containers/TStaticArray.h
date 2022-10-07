@@ -14,6 +14,17 @@
 namespace Forge {
 	namespace Containers
 	{
+		/**
+		 * @brief A fixed-size linear container that holds a specific number of
+		 * elements in a contigous memory block.
+		 * 
+		 * The static array has a fixed-size and does not manage the allocation of
+		 * its elements through the memory allocators, instead the memory block is
+		 * constructed at compile time. Therefore, it cannot be expanded dynamiclly
+		 * at run-time.
+		 * 
+		 *  @author Karim Hisham
+		 */
 		template<typename InElementType, Size InMaxSize>
 		class TStaticArray : public AbstractList<InElementType>
 		{
