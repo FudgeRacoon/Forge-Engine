@@ -654,16 +654,14 @@ namespace Forge {
 			 */
 			Bool InsertAll(const AbstractCollection<ElementType>& collection) override
 			{
-				/*if (m_size - collection.GetSize() < 0)
+				if (m_size - collection.GetSize() < 0)
 					return false;
 
-				AbstractIterator<ElementType>& start_itr = collection.GetForwardStartItr();
-				AbstractIterator<ElementType>& end_itr = collection.GetForwardEndItr();
+				ForwardIterator start_itr = collection.GetForwardStartItr();
+				ForwardIterator end_itr = collection.GetForwardEndItr();
 
 				for (; start_itr != end_itr; start_itr++)
 					InsertAt(start_itr, *start_itr);
-
-				return true;*/
 
 				return true;
 			}
