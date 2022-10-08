@@ -34,17 +34,13 @@
 		Typename& operator=(const Typename& rhs) = delete; \
 
 #if defined(FORGE_DEBUG)
-	#define FORGE_ASSERT(__EXPR__, __MSG__)           \
-		if(__EXPR__) {}                               \
-		else                                          \
-		{                                             \
-			fprintf(stderr, "Assertion failed: ");    \
-			fprintf(stderr, "File [%s] ", __FILE__);  \
-			fprintf(stderr, "Line [%d] ", __LINE__);  \
-			fprintf(stderr, "Expr [%s] ", #__EXPR__); \
-			fprintf(stderr, "Msg [%s]\n", #__MSG__);  \
-			FORGE_DEBUG_BREAK                         \
-		}                                             \
+	#define FORGE_ASSERT(__EXPR__, __MSG__)                                                                      \
+		if(__EXPR__) {}                                                                                          \
+		else                                                                                                     \
+		{                                                                                                        \
+			fprintf(stderr, "%s:%s: assertion failed: %s\n", FORGE_FILE_LITERAL, FORGE_LINE_LITERAL, #__EXPR__); \
+			fprintf(stderr, "assertion message: %s", #__MSG__);                                                  \
+		}											                                                             \
 
 	#define FORGE_STATIC_ASSERT(__EXPR__)            \
 		enum                                         \

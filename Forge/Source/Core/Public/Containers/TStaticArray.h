@@ -6,7 +6,6 @@
 #include "AbstractList.h"
 
 #include "Core/Public/Common/TypeDefinitions.h"
-#include "Core/Public/Common/TypeTraits/TypeTraits.h"
 #include "Core/Public/Common/PreprocessorUtilities.h"
 
 #include "Core/Public/Memory/MemoryUtilities.h"
@@ -113,13 +112,24 @@ namespace Forge {
 			};
 
 		public:
+			/**
+			 * @brief Constructs an empty array with no elements.
+			 */
 			TStaticArray() 
 				: AbstractList<ElementType>(0, InMaxSize)
 			{
-				FORGE_ASSERT(InMaxSize != 0 && this->m_size <= InMaxSize, "Array size is not large enough to store the data.")
+				FORGE_ASSERT(this->m_capacity != 0 && this->m_size <= this->m_capacity, "Array size is not large enough to store the data.")
 
 				Memory::MemorySet(m_mem_block, 0, sizeof(ElementType) * this->m_capacity);
 			}
+			
+			/**
+			 * @brief Constructs an array filled with the elements inside the
+			 * memory block.
+			 * 
+			 * @param[in] data_ptr The memory block containing the elements to fill.
+			 * @param[in] size     The number of elements inside the memory block.
+			 */
 			TStaticArray(ElementTypePtr data_ptr, Size size)
 				: AbstractList<ElementType>(size, InMaxSize)
 			{
@@ -127,6 +137,14 @@ namespace Forge {
 
 				Memory::MemoryCopy(m_mem_block, data_ptr, sizeof(ElementType) * this->m_size);
 			}
+			
+			/**
+			 * @brief Constructs an array filled with the elements inside a C++
+			 * standard initializer list.
+			 * 
+			 * @param[in] init_list The initializer list containing the elements
+			 * to fill.
+			 */
 			TStaticArray(std::initializer_list<ElementType> init_list)
 				: AbstractList<ElementType>(init_list.size(), InMaxSize)
 			{
@@ -240,7 +258,7 @@ namespace Forge {
 			 * @brief Gets a direct pointer to the memory array managed by this
 			 * collection.
 			 *
-			 * Elements in the memory array are guranteed to stored in contiguous
+			 * Elements in the memory array are guranteed to be stored in contiguous
 			 * memory locations. This allows the pointer to be offsetted to access
 			 * different elements.
 			 *
@@ -272,27 +290,44 @@ namespace Forge {
 
 		public:
 			/**
-			 * @brief The static array does not support conversion to an array as
-			 * it is already storing data in an array.
+			 * @brief Returns an array containing all the elements stored in the
+			 * static array.
 			 *
-			 * @throws InvalidOperationException if attempted to convert to an 
-			 * array.
+			 * The length of the array is equal to the number of elements stored in
+			 * the static array. The array returned also stores the elements in the 
+			 * same order that it is stored in the static array and contains deep 
+			 * copies of the elements.
+			 *
+			 * @return ElementTypePtr storing the address of the new array.
 			 */
 			ElementTypePtr ToArray(void) const override
 			{
-				return nullptr;
+				ElementTypePtr array_ptr = new ElementType[this->m_size];
+
+				Memory::MemoryCopy(array_ptr, const_cast<ElementTypePtr>(m_mem_block), sizeof(ElementType) * this->m_size);
+
+				return array_ptr;
 			}
 
 			/**
-			 * @brief The static array does not support conversion to an array as
-			 * it is already storing data in an array.
+			 * @brief Fills the passed array with all the elements stored in the
+			 * static array.
 			 *
-			 * @throws InvalidOperationException if attempted to convert to an 
-			 * array.
+			 * The length of the passed array must be equal to the number of 
+			 * elements stored in the static array. The array passed will store the
+			 * elements in the same order that it is stored in the static array and
+			 * will contain deep copies of the elements.
+			 *
+			 * @param[out] array_ptr The array to fill with elements from this 
+			 * array's memory block.
+			 * 
+			 * @return ElementTypePtr storing the address of the passed array.
 			 */
-			ElementTypePtr ToArray(ElementTypePtr array) const override
+			ElementTypePtr ToArray(ElementTypePtr array_ptr) const override
 			{
-				return nullptr;
+				Memory::MemoryCopy(array_ptr, const_cast<ElementTypePtr>(m_mem_block), sizeof(ElementType) * this->m_size);
+
+				return array_ptr;
 			}
 
 		public:
@@ -312,7 +347,7 @@ namespace Forge {
 				if (this->m_capacity > 0)
 				{
 					ConstElementTypePtr start = this->m_mem_block;
-					ConstElementTypePtr end = start + InMaxSize;
+					ConstElementTypePtr end = start + this->m_capacity;
 
 					for (ConstElementTypePtr ptr = start; ptr != end; ptr++)
 					{

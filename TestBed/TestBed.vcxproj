@@ -37,6 +37,7 @@
     <IntDir>$(SolutionDir)$(ProjectName)\Intermediates\$(Configuration)-$(Platform)\</IntDir>
   </PropertyGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Core\Containers\TDynamicStack.cpp" />
     <ClCompile Include="Source\Core\Containers\TStaticArrayTest.cpp" />
     <ClCompile Include="Source\main.cpp" />
   </ItemGroup>

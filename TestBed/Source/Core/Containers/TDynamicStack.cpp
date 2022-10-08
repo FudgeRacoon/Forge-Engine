@@ -32,6 +32,7 @@ namespace UnitTest
 			EXPECT_EQ(dynamic_stack_array_1[i], dynamic_stack_array_2[i]);
 	}
 
+
 	TEST(TDynamicStackOperatorTest, AssignmentOperatorTest)
 	{
 		TDynamicStack<I32> dynamic_stack_1;
@@ -49,6 +50,7 @@ namespace UnitTest
 		for (int i = 0; i < 3; i++)
 			EXPECT_EQ(dynamic_stack_array_1[i], dynamic_stack_array_2[i]);
 	}
+
 
 	TEST(TDynamicStackModifierTest, PushModifierTest)
 	{
@@ -68,7 +70,7 @@ namespace UnitTest
 
 		EXPECT_EQ(6, dynamic_stack.GetSize());
 
-		EXPECT_NE(true, dynamic_stack.IsEmpty());
+		EXPECT_EQ(false, dynamic_stack.IsEmpty());
 	}
 
 	TEST(TDynamicStackModifierTest, PopModifierTest)
@@ -91,7 +93,7 @@ namespace UnitTest
 
 		EXPECT_EQ(5, dynamic_stack.GetSize());
 
-		EXPECT_NE(true, dynamic_stack.IsEmpty());
+		EXPECT_EQ(false, dynamic_stack.IsEmpty());
 	}
 
 	TEST(TDynamicStackModifierTest, PeekModifierTest)
@@ -135,7 +137,7 @@ namespace UnitTest
 
 		dynamic_stack.Clear();
 
-		EXPECT_LT(1, dynamic_stack.GetSize());
+		EXPECT_EQ(0, dynamic_stack.GetSize());
 
 		EXPECT_EQ(true, dynamic_stack.IsEmpty());
 	}

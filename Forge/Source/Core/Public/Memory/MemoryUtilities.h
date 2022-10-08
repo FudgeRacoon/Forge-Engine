@@ -122,11 +122,13 @@ namespace Forge {
 				return true;
 		}
 	
-		/// @brief Copies a block of data from source address to destination address.
-		///
-		/// @param[out] dst The destination address where data will be copied to.
-		/// @param[in]  src  The source address where data is stored.
-		/// @param[in]  Size The number of Bytes to copy.
+		/**
+		 * @brief Copies a block of data from source address to destination address.
+		 * 
+		 * @param[out] dst The destination address where data will be copied to.
+		 * @param[in]  src  The source address where data is stored.
+		 * @param[in]  Size The number of Bytes to copy.
+		 */
 		FORGE_FORCE_INLINE Void MemoryCopy(VoidPtr dst, VoidPtr src, Size size)
 		{
 			BytePtr temp_dst = reinterpret_cast<BytePtr>(dst);
@@ -136,11 +138,13 @@ namespace Forge {
 				*(temp_dst + i) = *(temp_src + i);
 		}
 		
-		/// @brief Sets a block of data to the value specified.
-		///
-		/// @param[out] dst   The destination address where data will be set.
-		/// @param[in]  value The value the memory block will be set to.
-		/// @param[in]  Size  The number of Bytes to set.
+		/**
+		 * @brief Sets a block of data to the value specified.
+		 * 
+		 * @param[out] dst   The destination address where data will be set.
+		 * @param[in]  value The value the memory block will be set to.
+		 * @param[in]  Size  The number of Bytes to set.
+		 */
 		FORGE_FORCE_INLINE Void MemorySet(VoidPtr dst, int value, Size size)
 		{
 			BytePtr temp_dst = reinterpret_cast<BytePtr>(dst);
