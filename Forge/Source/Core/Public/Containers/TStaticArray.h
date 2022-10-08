@@ -39,21 +39,55 @@ namespace Forge {
 			ElementType m_mem_block[InMaxSize];
 		
 		public:
-			class ForwardIterator : public AbstractIterator<ElementType>
+			class ForwardIterator
 			{
+			private:
+				using ElementType         = InElementType;
+				using ElementTypeRef      = InElementType&;
+				using ElementTypePtr      = InElementType*;
+				using ConstElementType    = const InElementType;
+				using ConstElementTypeRef = const InElementType&;
+				using ConstElementTypePtr = const InElementType*;
+
+			protected:
+				ElementTypePtr m_raw_ptr;
+
 			public:
 				ForwardIterator(ElementTypePtr ptr)
-					: AbstractIterator<ElementType>(ptr) {}
+					: m_raw_ptr(ptr) {}
 
 			public:
-				ForwardIterator& operator ++(void) override
+				ForwardIterator(ForwardIterator&& rhs)
 				{
-					++this->m_raw_ptr;
+					m_raw_ptr = rhs.m_raw_ptr;
+					rhs.m_raw_ptr = nullptr;
+				}
+				ForwardIterator(const ForwardIterator& rhs)
+				{
+					m_raw_ptr = rhs.m_raw_ptr;
+				}
 
-					ForwardIterator itr(this->m_raw_ptr);
+			public:
+				ForwardIterator& operator =(ForwardIterator&& rhs)
+				{
+					m_raw_ptr = rhs.m_raw_ptr;
+					rhs.m_raw_ptr = nullptr;
+				}
+				ForwardIterator& operator =(const ForwardIterator& rhs)
+				{
+					m_raw_ptr = rhs.m_raw_ptr;
+				}
+
+			public:
+				virtual ~ForwardIterator() = default;
+
+			public:
+				ForwardIterator operator ++(void) override
+				{
+					ForwardIterator itr(++this->m_raw_ptr);
 					return itr;
 				}
-				ForwardIterator& operator ++(I32 junk) override
+				ForwardIterator operator ++(I32 junk) override
 				{
 					ElementTypePtr temp = this->m_raw_ptr++;
 
@@ -62,33 +96,88 @@ namespace Forge {
 				}
 
 			public:
-				ForwardIterator& operator --(void) override
+				ForwardIterator operator --(void) override
 				{
 					ForwardIterator itr(--this->m_raw_ptr);
 					return itr;
 				}
-				ForwardIterator& operator --(I32 junk) override
+				ForwardIterator operator --(I32 junk) override
 				{
 					ElementTypePtr temp = this->m_raw_ptr--;
 
 					ForwardIterator itr(temp);
 					return itr;
 				}
-			};
-			
-			class BackwardIterator : public AbstractIterator<ElementType>
-			{
-			public:
-				BackwardIterator(ElementTypePtr ptr)
-					: AbstractIterator<ElementType>(ptr) {}
 
 			public:
-				BackwardIterator& operator ++(void) override
+				Bool operator ==(const ForwardIterator& itr)
+				{
+					return m_raw_ptr == itr.m_raw_ptr;
+				}
+				Bool operator !=(const ForwardIterator >& itr)
+				{
+					return m_raw_ptr != itr.m_raw_ptr;
+				}
+
+			public:
+				ElementTypeRef operator *(void)
+				{
+					return *m_raw_ptr;
+				}
+				ElementTypePtr operator ->(void)
+				{
+					return m_raw_ptr;
+				}
+			};
+			class BackwardIterator
+			{
+			private:
+				using ElementType         = InElementType;
+				using ElementTypeRef      = InElementType&;
+				using ElementTypePtr      = InElementType*;
+				using ConstElementType    = const InElementType;
+				using ConstElementTypeRef = const InElementType&;
+				using ConstElementTypePtr = const InElementType*;
+
+			protected:
+				ElementTypePtr m_raw_ptr;
+
+			public:
+				BackwardIterator(ElementTypePtr ptr)
+					: m_raw_ptr(ptr) {}
+
+			public:
+				BackwardIterator(BackwardIterator&& rhs)
+				{
+					m_raw_ptr = rhs.m_raw_ptr;
+					rhs.m_raw_ptr = nullptr;
+				}
+				BackwardIterator(const BackwardIterator& rhs)
+				{
+					m_raw_ptr = rhs.m_raw_ptr;
+				}
+
+			public:
+				BackwardIterator& operator =(BackwardIterator&& rhs)
+				{
+					m_raw_ptr = rhs.m_raw_ptr;
+					rhs.m_raw_ptr = nullptr;
+				}
+				BackwardIterator& operator =(const BackwardIterator& rhs)
+				{
+					m_raw_ptr = rhs.m_raw_ptr;
+				}
+
+			public:
+				virtual ~BackwardIterator() = default;
+
+			public:
+				BackwardIterator operator ++(void) override
 				{
 					BackwardIterator itr(--this->m_raw_ptr);
 					return itr;
 				}
-				BackwardIterator& operator ++(I32 junk) override
+				BackwardIterator operator ++(I32 junk) override
 				{
 					ElementTypePtr temp = this->m_raw_ptr--;
 
@@ -97,20 +186,40 @@ namespace Forge {
 				}
 
 			public:
-				BackwardIterator& operator --(void) override
+				BackwardIterator operator --(void) override
 				{
 					BackwardIterator itr(++this->m_raw_ptr);
 					return itr;
 				}
-				BackwardIterator& operator --(I32 junk) override
+				BackwardIterator operator --(I32 junk) override
 				{
 					ElementTypePtr temp = this->m_raw_ptr++;
 
 					BackwardIterator itr(temp);
 					return itr;
 				}
-			};
 
+			public:
+				Bool operator ==(const AbstractIterator<ElementType>& itr)
+				{
+					return m_raw_ptr == itr.m_raw_ptr;
+				}
+				Bool operator !=(const AbstractIterator<ElementType>& itr)
+				{
+					return m_raw_ptr != itr.m_raw_ptr;
+				}
+
+			public:
+				ElementTypeRef operator *(void)
+				{
+					return *m_raw_ptr;
+				}
+				ElementTypePtr operator ->(void)
+				{
+					return m_raw_ptr;
+				}
+			};
+		
 		public:
 			/**
 			 * @brief Constructs an empty array with no elements.
@@ -207,10 +316,9 @@ namespace Forge {
 			 *
 			 * @return ForwardIterator pointing to the first element.
 			 */
-			ForwardIterator& GetForwardStartItr(void) override
+			ForwardIterator GetForwardStartItr(void) override
 			{
-				static ForwardIterator itr(this->m_mem_block);
-				return itr;
+				return ForwardIterator(this->m_mem_block);
 			}
 
 			/**
@@ -219,10 +327,9 @@ namespace Forge {
 			 *
 			 * @return ForwardIterator pointing to the past-end element element.
 			 */
-			ForwardIterator& GetForwardEndItr(void) override
+			ForwardIterator GetForwardEndItr(void) override
 			{
-				static ForwardIterator itr(this->m_mem_block + InMaxSize);
-				return itr;
+				return ForwardIterator(this->m_mem_block + this->m_capacity);
 			}
 
 			/**
@@ -233,10 +340,9 @@ namespace Forge {
 			 *
 			 * @return BackwardIterator pointing to the last element.
 			 */
-			BackwardIterator& GetBackwardStartItr(void) override
+			BackwardIterator GetBackwardStartItr(void) override
 			{
-				static BackwardIterator itr(this->m_mem_block + InMaxSize - 1);
-				return itr;
+				return BackwardIterator(this->m_mem_block + this->m_capacity - 1);
 			}
 
 			/**
@@ -247,10 +353,9 @@ namespace Forge {
 			 *
 			 * @return BackwardIterator pointing to the first element.
 			 */
-			BackwardIterator& GetBackwardEndItr(void) override
+			BackwardIterator GetBackwardEndItr(void) override
 			{
-				static BackwardIterator itr(this->m_mem_block);
-				return itr;
+				return BackwardIterator(this->m_mem_block);
 			}
 
 		public:
@@ -375,7 +480,7 @@ namespace Forge {
 				if (this->m_capacity > 0)
 				{
 					ConstElementTypePtr start = this->m_mem_block - 1;
-					ConstElementTypePtr end = start + InMaxSize;
+					ConstElementTypePtr end = start + this->m_capacity;
 
 					for (ConstElementTypePtr ptr = end; ptr != start; ptr--)
 					{
@@ -403,7 +508,7 @@ namespace Forge {
 			*/
 			Void InsertAt(Size index, ElementType element) override
 			{
-				FORGE_ASSERT(index >= 0 && index < InMaxSize, "Index is out of range.")
+				FORGE_ASSERT(index >= 0 && index < this->m_capacity, "Index is out of range.")
 
 				this->m_size++;
 
@@ -487,7 +592,7 @@ namespace Forge {
 			 */
 			Bool Insert(ElementType element) override
 			{
-				if (this->m_index_ptr >= InMaxSize)
+				if (this->m_index_ptr >= this->m_capacity)
 					return false;
 
 				this->m_size++;
@@ -549,6 +654,17 @@ namespace Forge {
 			 */
 			Bool InsertAll(const AbstractCollection<ElementType>& collection) override
 			{
+				/*if (m_size - collection.GetSize() < 0)
+					return false;
+
+				AbstractIterator<ElementType>& start_itr = collection.GetForwardStartItr();
+				AbstractIterator<ElementType>& end_itr = collection.GetForwardEndItr();
+
+				for (; start_itr != end_itr; start_itr++)
+					InsertAt(start_itr, *start_itr);
+
+				return true;*/
+
 				return true;
 			}
 

@@ -162,12 +162,6 @@
     <ClInclude Include="Source\Core\Public\Containers\AbstractList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Public\Containers\IIterable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\Public\Containers\AbstractIterator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\Public\Containers\TStaticArray.h">
       <Filter>Header Files</Filter>
     </ClInclude>

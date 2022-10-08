@@ -1,8 +1,6 @@
 #ifndef ABSTRACT_COLLECTION_H
 #define ABSTRACT_COLLECTION_H
 
-#include "IIterable.h"
-
 #include "Core/Public/Common/Compiler.h"
 #include "Core/Public/Common/TypeDefinitions.h"
 
@@ -10,7 +8,7 @@ namespace Forge {
 	namespace Containers
 	{
 		template<typename InElementType>
-		class AbstractCollection : public IIterable<InElementType>
+		class AbstractCollection
 		{
 		protected:
 			using ElementType         = InElementType;
@@ -23,6 +21,10 @@ namespace Forge {
 		protected:
 			Size m_size;
 			Size m_capacity;
+		
+		public:
+			class ForwardIterator;
+			class BackwardIterator;
 
 		public:
 			AbstractCollection(Size size, Size capacity)
@@ -36,6 +38,43 @@ namespace Forge {
 			 * @return Size storing the number of elements.
 			 */
 			virtual Size GetSize(void) const;
+
+		public:
+			/**
+			 * @brief Returns a forward iterator pointing to the first element in
+			 * the collection.
+			 *
+			 * @return ForwardIterator pointing to the first element.
+			 */
+			virtual ForwardIterator GetForwardStartItr(void) = 0;
+
+			/**
+			 * @brief Returns a forward iterator pointing to the past-end element
+			 * in the collection.
+			 *
+			 * @return ForwardIterator pointing to the past-end element element.
+			 */
+			virtual ForwardIterator GetForwardEndItr(void) = 0;
+
+			/**
+			 * @brief Returns a backward iterator pointing to the last element in
+			 * the collection.
+			 *
+			 * The backward iterator moves in the reverse direction.
+			 *
+			 * @return BackwardIterator pointing to the last element.
+			 */
+			virtual BackwardIterator GetBackwardStartItr(void) = 0;
+
+			/**
+			 * @brief Returns a backward iterator pointing to the first element in
+			 * the collection.
+			 *
+			 * The backward iterator moves in the reverse direction.
+			 *
+			 * @return BackwardIterator pointing to the first element.
+			 */
+			virtual BackwardIterator GetBackwardEndItr(void) = 0;
 
 		public:
 			/**

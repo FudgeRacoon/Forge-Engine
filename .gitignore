@@ -1,6 +1,7 @@
 #Visual Studio files and folders
 .vs/
 *.vcxproj.user
+packages/*
 
 #Directories
 */Binaries/
