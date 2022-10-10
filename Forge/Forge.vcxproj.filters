@@ -165,6 +165,9 @@
     <ClInclude Include="Source\Core\Public\Containers\TStaticArray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\Public\Containers\TDynamicArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Core\Private\Memory\LinearAllocator.cpp">

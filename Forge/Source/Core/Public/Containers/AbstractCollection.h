@@ -10,7 +10,7 @@ namespace Forge {
 		template<typename InElementType>
 		class AbstractCollection
 		{
-		protected:
+		private:
 			using ElementType         = InElementType;
 			using ElementTypeRef      = InElementType&;
 			using ElementTypePtr      = InElementType*;
@@ -23,8 +23,8 @@ namespace Forge {
 			Size m_capacity;
 		
 		public:
-			class ForwardIterator;
-			class BackwardIterator;
+			class Iterator;
+			using ConstIterator = const Iterator;
 
 		public:
 			AbstractCollection(Size size, Size capacity)
@@ -41,40 +41,36 @@ namespace Forge {
 
 		public:
 			/**
-			 * @brief Returns a forward iterator pointing to the first element in
-			 * the collection.
+			 * @brief Returns an iterator pointing to the first element in the
+			 * collection.
 			 *
-			 * @return ForwardIterator pointing to the first element.
+			 * @return Iterator pointing to the first element.
 			 */
-			virtual ForwardIterator GetForwardStartItr(void) = 0;
+			virtual Iterator GetStartItr(void) = 0;
 
 			/**
-			 * @brief Returns a forward iterator pointing to the past-end element
+			 * @brief Returns an iterator pointing to the past-end element in the
+			 * collection.
+			 *
+			 * @return Iterator pointing to the past-end element element.
+			 */
+			virtual Iterator GetEndItr(void) = 0;
+
+			/**
+			 * @brief Returns a constant iterator pointing to the first element in
+			 * the collection.
+			 *
+			 * @return ConstIterator pointing to the first element.
+			 */
+			virtual ConstIterator GetStartConstItr(void) = 0;
+
+			/**
+			 * @brief Returns a constant iterator pointing to the past-end element
 			 * in the collection.
 			 *
-			 * @return ForwardIterator pointing to the past-end element element.
+			 * @return Iterator pointing to the past-end element element.
 			 */
-			virtual ForwardIterator GetForwardEndItr(void) = 0;
-
-			/**
-			 * @brief Returns a backward iterator pointing to the last element in
-			 * the collection.
-			 *
-			 * The backward iterator moves in the reverse direction.
-			 *
-			 * @return BackwardIterator pointing to the last element.
-			 */
-			virtual BackwardIterator GetBackwardStartItr(void) = 0;
-
-			/**
-			 * @brief Returns a backward iterator pointing to the first element in
-			 * the collection.
-			 *
-			 * The backward iterator moves in the reverse direction.
-			 *
-			 * @return BackwardIterator pointing to the first element.
-			 */
-			virtual BackwardIterator GetBackwardEndItr(void) = 0;
+			virtual ConstIterator GetEndConstItr(void) = 0;
 
 		public:
 			/**

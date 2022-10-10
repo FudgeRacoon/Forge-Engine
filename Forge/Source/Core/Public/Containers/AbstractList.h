@@ -23,6 +23,10 @@ namespace Forge {
 			Size m_index_ptr;
 
 		public:
+			class Iterator;
+			using ConstIterator = const Iterator;
+
+		public:
 			AbstractList(Size size, Size max_size)
 				: m_index_ptr(0), AbstractCollection<ElementType>(size, max_size) {}
 			virtual ~AbstractList() = default;
@@ -126,7 +130,7 @@ namespace Forge {
 			 * @throw InvalidOperationException if operation not supported by
 			 * this collection.
 			 */
-			virtual Void InsertAt(AbstractIterator<ElementType>& index, ElementType element) = 0;
+			virtual Void InsertAt(Iterator& index, ElementType element) = 0;
 
 			/**
 			 * @brief Removes the specified element after the element in the
@@ -156,11 +160,11 @@ namespace Forge {
 			 * @throw InvalidOperationException if operation not supported by
 			 * this collection.
 			 */
-			virtual Void RemoveAt(AbstractIterator<ElementType>& index) = 0;
+			virtual Void RemoveAt(Iterator& index) = 0;
 		};
 
 		template<typename T>
-		FORGE_FORCE_INLINE Size AbstractList<T>::GetCapacity() const { return m_capacity; }
+		FORGE_FORCE_INLINE Size AbstractList<T>::GetCapacity() const { return this->m_capacity; }
 	}
 }
 

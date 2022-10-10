@@ -111,6 +111,7 @@
     <ClInclude Include="Source\Core\Public\Common\TypeTraits\TypeTraits.h" />
     <ClInclude Include="Source\Core\Public\Containers\AbstractCollection.h" />
     <ClInclude Include="Source\Core\Public\Containers\AbstractList.h" />
+    <ClInclude Include="Source\Core\Public\Containers\TDynamicArray.h" />
     <ClInclude Include="Source\Core\Public\Containers\TStaticArray.h" />
     <ClInclude Include="Source\Core\Public\Debug\Debug.h" />
     <ClInclude Include="Source\Core\Public\Debug\Exception\Exceptions\BadAllocationException.h" />
