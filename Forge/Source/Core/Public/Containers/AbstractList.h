@@ -19,20 +19,14 @@ namespace Forge {
 			using ConstElementTypeRef = const InElementType&;
 			using ConstElementTypePtr = const InElementType*;
 
-		protected:
-			Size m_index_ptr;
-
 		public:
 			class Iterator;
-			using ConstIterator = const Iterator;
+			class ConstIterator;
 
 		public:
-			AbstractList(Size size, Size max_size)
-				: m_index_ptr(0), AbstractCollection<ElementType>(size, max_size) {}
+			AbstractList(Size size, Size capacity)
+				: AbstractCollection<ElementType>(size, capacity) {}
 			virtual ~AbstractList() = default;
-
-		public:
-			virtual ElementTypeRef operator [](Size index) = 0;
 
 		public:
 			/**
@@ -79,7 +73,7 @@ namespace Forge {
 			 * @throws InvalidOperationException if operation not supported by
 			 * this collection.
 			 */
-			virtual I64 FirstIndexOf(ElementType value) const = 0;
+			virtual I64 FirstIndexOf(ConstElementTypeRef value) const = 0;
 
 			/**
 			 * @brief Returns the index of the last occurence of the specified
@@ -93,74 +87,116 @@ namespace Forge {
 			 * @throws InvalidOperationException if operation not supported by
 			 * this collection.
 			 */
-			virtual I64 LastIndexOf(ElementType value) const = 0;
+			virtual I64 LastIndexOf(ConstElementTypeRef value) const = 0;
 
 		public:
 			/**
-			 * @brief Inserts the specified element after the element in the
-			 * specified position in the list.
-			 * 
-			 * This effectively increases the list size by one, and causes a new
-			 * reallocation if the size of the list surpasses the current capacity.
-			 * Inserting elements at a position past the capacity bounds, will
-			 * reposition all element after the specified position to their new
-			 * positions after reallocation.
-			 * 
-			 * @param[in] index   The numerical index to insert the element at.
-			 * @param[in] element The element to insert in the list.
-			 * 
+			 * @brief Inserts the specified element in the specified index.
+			 *
+			 * This function will increase count size by one and shift all elements
+			 * that preceed the newly inserted element. If the number of elements
+			 * overflow the capacity of the collection, a reallocation will occur
+			 * to accomodate for the increased size if supported.
+			 *
+			 * @param[in] ui_index The numerical index to insert the element at.
+			 * @param[in] element  The element to insert in the list.
+			 *
+			 * @throw IndexOutOfRangeException if index to insert element is out
+			 * of range.
+			 *
 			 * @throw InvalidOperationException if operation not supported by
-			 * this collection.
+			 * this list.
 			 */
-			virtual Void InsertAt(Size index, ElementType element) = 0;
+			virtual Void InsertAt(Size ui_index, ElementType&& element) = 0;
 
 			/**
-			 * @brief Inserts the specified element after the element in the
-			 * specified position in the list.
-			 *
-			 * This effectively increases the list size by one, and causes a new
-			 * reallocation if the size of the list surpasses the current capacity.
-			 * Inserting elements at a position past the capacity bounds, will
-			 * reposition all element after the specified position to their new
-			 * positions after reallocation.
-			 *
-			 * @param[in] index   The iterator position to insert the element at.
-			 * @param[in] element The element to insert in the list.
-			 *
+			 * @brief Inserts the specified element in the specified index.
+			 * 
+			 * This function will increase count size by one and shift all elements
+			 * that preceed the newly inserted element. If the number of elements 
+			 * overflow the capacity of the collection, a reallocation will occur
+			 * to accomodate for the increased size if supported.
+			 * 
+			 * @param[in] ui_index The numerical index to insert the element at.
+			 * @param[in] element  The element to insert in the list.
+			 * 
+			 * @throw IndexOutOfRangeException if index to insert element is out
+			 * of range.
+			 * 
 			 * @throw InvalidOperationException if operation not supported by
-			 * this collection.
+			 * this list.
 			 */
-			virtual Void InsertAt(Iterator& index, ElementType element) = 0;
+			virtual Void InsertAt(Size ui_index, ConstElementTypeRef element) = 0;
 
 			/**
-			 * @brief Removes the specified element after the element in the
-			 * specified position in the list.
+			 * @brief Inserts the specified element in the specified position.
 			 *
-			 * This effectively decreases the list size by one, and destroys the
-			 * element but does not deallocate the memory the element was stored
-			 * at.
+			 * This function will increase count size by one and shift all elements
+			 * that preceed the newly inserted element. If the number of elements
+			 * overflow the capacity of the collection, a reallocation will occur
+			 * to accomodate for the increased size if supported.
 			 *
-			 * @param[in] index The numerical index to remove the element at.
+			 * @param[in] position The numerical index to insert the element at.
+			 * @param[in] element  The element to insert in the list.
+			 *
+			 * @throw IndexOutOfRangeException if index to insert element is out
+			 * of range.
 			 *
 			 * @throw InvalidOperationException if operation not supported by
-			 * this collection.
+			 * this list.
 			 */
-			virtual Void RemoveAt(Size index) = 0;
+			virtual Void InsertAt(Iterator& position, ElementType&& element) = 0;
 
 			/**
-			 * @brief Removes the specified element after the element in the
-			 * specified position in the list.
+			 * @brief Inserts the specified element in the specified position.
 			 *
-			 * This effectively decreases the list size by one, and destroys the
-			 * element but does not deallocate the memory the element was stored
-			 * at.
+			 * This function will increase count size by one and shift all elements
+			 * that preceed the newly inserted element. If the number of elements
+			 * overflow the capacity of the collection, a reallocation will occur
+			 * to accomodate for the increased size if supported.
 			 *
-			 * @param[in] index The iterator position to remove the element at.
+			 * @param[in] position The numerical index to insert the element at.
+			 * @param[in] element  The element to insert in the list.
+			 *
+			 * @throw IndexOutOfRangeException if index to insert element is out
+			 * of range.
 			 *
 			 * @throw InvalidOperationException if operation not supported by
-			 * this collection.
+			 * this list.
 			 */
-			virtual Void RemoveAt(Iterator& index) = 0;
+			virtual Void InsertAt(Iterator& position, ConstElementTypeRef element) = 0;
+
+			/**
+			* @brief Removes an element in the specified index.
+			*
+			* This function will decrease the count size by one and shift all
+			* elements that preceed the removed element.
+			*
+			* @param[in] ui_index The numerical index to remove the element at.
+			*
+			* @throw IndexOutOfRangeException if index to remove element at is out
+			* of range.
+			*
+			* @throw InvalidOperationException if operation not supported by
+			* this list.
+			*/
+			virtual Void RemoveAt(Size ui_index) = 0;
+
+			/**
+			* @brief Removes an element in the specified position.
+			*
+			* This function will decrease the count size by one and shift all
+			* elements that preceed the removed element.
+			*
+			* @param[in] position The numerical index to remove the element at.
+			*
+			* @throw IndexOutOfRangeException if index to remove element at is out
+			* of range.
+			*
+			* @throw InvalidOperationException if operation not supported by
+			* this list.
+			*/
+			virtual Void RemoveAt(Iterator& position) = 0;
 		};
 
 		template<typename T>

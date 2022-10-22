@@ -2,7 +2,7 @@
 #define ENDIANNESS_H
 
 #include "TypeDefinitions.h"
-#include "TypeTraits/TypeTraits.h"
+#include "TypeTraits.h"
 
 namespace Forge {
 	namespace Common

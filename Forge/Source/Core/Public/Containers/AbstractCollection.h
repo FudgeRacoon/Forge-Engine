@@ -19,16 +19,23 @@ namespace Forge {
 			using ConstElementTypePtr = const InElementType*;
 
 		protected:
-			Size m_size;
+			enum STORAGE
+			{
+				OWNED = 0,
+				EXTERNAL
+			} m_memory_storage;
+
+		protected:
+			Size m_count;
 			Size m_capacity;
 		
 		public:
 			class Iterator;
-			using ConstIterator = const Iterator;
+			class ConstIterator;
 
 		public:
 			AbstractCollection(Size size, Size capacity)
-				: m_size(size), m_capacity(capacity) {}
+				: m_count(size), m_capacity(capacity) {}
 			virtual ~AbstractCollection() = default;
 		
 		public:
@@ -37,7 +44,7 @@ namespace Forge {
 			 * 
 			 * @return Size storing the number of elements.
 			 */
-			virtual Size GetSize(void) const;
+			virtual Size GetCount(void) const;
 
 		public:
 			/**
@@ -145,6 +152,24 @@ namespace Forge {
 			/**
 			 * @brief Inserts the specified element in this collection. This
 			 * operation has different behaviours depending on the collection type.
+			 *
+			 * Collections that support this operation may place limitations on how
+			 * elements are inserted into the collection and in what order they are
+			 * placed.
+			 *
+			 * @param[in] element ElementType to insert in this collection.
+			 *
+			 * @return True if insertion was successful and no duplicates in
+			 * this collection if supported.
+			 *
+			 * @throws InvalidOperationException if operation not supported by
+			 * this collection.
+			 */
+			virtual Bool Insert(ElementType&& element) = 0;
+
+			/**
+			 * @brief Inserts the specified element in this collection. This
+			 * operation has different behaviours depending on the collection type.
 			 * 
 			 * Collections that support this operation may place limitations on how
 			 * elements are inserted into the collection and in what order they are
@@ -158,7 +183,7 @@ namespace Forge {
 			 * @throws InvalidOperationException if operation not supported by
 			 * this collection.
 			 */
-			virtual Bool Insert(ElementType element) = 0;
+			virtual Bool Insert(ConstElementTypeRef element) = 0;
 
 			/**
 			 * @brief Removes the specified element from this collection. This 
@@ -175,7 +200,7 @@ namespace Forge {
 			 * @throws InvalidOperationException if operation not supported by
 			 * this collection.
 			 */
-			virtual Bool Remove(ElementType element) = 0;
+			virtual Bool Remove(ConstElementTypeRef element) = 0;
 
 			/**
 			 * @brief Searches this collection for the specified element. This
@@ -185,7 +210,7 @@ namespace Forge {
 			 * 
 			 * @return True if the specified element was found in this collection.
 			 */
-			virtual Bool Contains(ElementType element) = 0;
+			virtual Bool Contains(ConstElementTypeRef element) = 0;
 
 		public:
 			/**
@@ -241,7 +266,7 @@ namespace Forge {
 		};
 
 		template<typename T>
-		FORGE_FORCE_INLINE Size AbstractCollection<T>::GetSize() const { return m_size; }
+		FORGE_FORCE_INLINE Size AbstractCollection<T>::GetCount() const { return m_count; }
 		template<typename T>
 		FORGE_FORCE_INLINE Bool AbstractCollection<T>::IsFull() const  { return GetSize() == m_capacity; }
 		template<typename T>

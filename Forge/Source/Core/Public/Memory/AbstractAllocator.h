@@ -5,6 +5,7 @@
 
 #include "Core/Public/Common/Compiler.h"
 #include "Core/Public/Common/TypeDefinitions.h"
+#include "Core/Public/Common/TypeTraits.h"
 
 namespace Forge {
 	namespace Memory
@@ -40,7 +41,8 @@ namespace Forge {
 				Size m_total_size;
 				Size m_used_memory;
 				Size m_num_of_allocs;
-			} m_stats = {0, 0, 0, 0};
+				Size m_num_of_deallocs;
+			} m_stats = {0, 0, 0, 0, 0};
 		
 		protected:
 			Bool m_is_mem_owned;
@@ -48,8 +50,64 @@ namespace Forge {
 		public:
 			AbstractAllocator(VoidPtr start, Size total_size)
 				: m_start_ptr(start), m_stats({ 0, total_size, 0, 0 }) {}
+
+		public:
 			virtual ~AbstractAllocator() = default;
 		
+		private:
+			template<typename InElementType, typename... Args>
+			InElementType* ConstructImpl(Args&&... args, Common::TypeIsPod)
+			{
+				return reinterpret_cast<InElementType*>(Allocate(sizeof(InElementType)));
+			}
+			template<typename InElementType, typename... Args>
+			InElementType* ConstructImpl(Args&&... args, Common::TypeIsClass)
+			{
+				return new (Allocate(sizeof(InElementType))) InElementType(args...);
+			}
+
+			template<typename InElementType>
+			Void DestructImpl(InElementType* address, Common::TypeIsPod)
+			{
+				Deallocate(address);
+			}
+			template<typename InElementType>
+			Void DestructImpl(InElementType* address, Common::TypeIsClass)
+			{
+				address->~InElementType();
+				Deallocate(address);
+			}
+
+			template<typename InElementType>
+			InElementType* ConstructArrayImpl(Size size, Common::TypeIsPod)
+			{
+				return reinterpret_cast<InElementType*>(Allocate(sizeof(InElementType) * size));
+			}
+			template<typename InElementType>
+			InElementType* ConstructArrayImpl(Size size, Common::TypeIsClass)
+			{
+				InElementType* address = reinterpret_cast<InElementType*>(Allocate(sizeof(InElementType) * size));
+
+				for (I32 i = 0; i < size; i++)
+					new (address + i) InElementType();
+
+				return address;
+			}
+
+			template<typename InElementType>
+			InElementType* DeconstructArrayImpl(Size size, InElementType* address, Common::TypeIsPod)
+			{
+				Deallocate(address);
+			}
+			template<typename InElementType>
+			InElementType* DeconstructArrayImpl(Size size, InElementType* address, Common::TypeIsClass)
+			{
+				for (I32 i = 0; i < size; i++)
+					(address + i)->~InElementType();
+
+				Deallocate(address);
+			}
+
 		public:
 			/**
 			 * @brief Gets the starting address of the memory pool.
@@ -88,6 +146,14 @@ namespace Forge {
 			 * @return Size storting the number of allocations made.
 			 */
 			virtual Size GetNumOfAllocs(void);
+
+			/**
+			 * @brief Gets the number of deallocations made by the allocator object
+			 * during its lifetime.
+			 *
+			 * @return Size storting the number of deallocations made.
+			 */
+			virtual Size GetNumOfDeallocs(void);
 
 		public:
 			/**
@@ -153,20 +219,81 @@ namespace Forge {
 			 * of the memory pool bounds.
 			 */
 			virtual Void Deallocate(VoidPtr address) = 0;
+
+		public:
+			/**
+			 * @brief Constructs an element object using this allocator.
+			 * 
+			 * @param[in] args The arguments to pass to the object's constructor.
+			 * 
+			 * @return InElementType* storing the address of the constructed
+			 * element.
+			 */
+			template<typename InElementType, typename... Args>
+			InElementType* Construct(Args&&... args)
+			{
+				ConstructImpl(args, Common::TTraitInt<Common::TIsPod<InElementType>::Value>);
+			}
 			
+			/**
+			 * @brief Deconstructs an element object using this allocator.
+			 * 
+			 * @param[in] address The address of the element object.
+			 * 
+			 * @throws InvalidOperationException if operation is not supported by
+			 * the allocator
+			 */
+			template<typename InElementType>
+			Void Destruct(InElementType* address)
+			{
+				DestructImpl(address, Common::TTraitInt<Common::TIsPod<InElementType>::Value>);
+			}
+
+			/**
+			 * @brief Constructs an element object array using this allocator.
+			 *
+			 * @param[in] size The size of the array.
+			 *
+			 * @return InElementType* storing the address of the constructed
+			 * element array.
+			 */
+			template<typename InElementType>
+			InElementType* ConstructArray(Size size)
+			{
+				ConstructArrayImpl(size, Common::TTraitInt<Common::TIsPod<InElementType>::Value>);
+			}
+
+			/**
+			 * @brief Deconstructs an element object array using this allocator.
+			 *
+			 * @param[in] size    The size of the array.
+			 * @param[in] address The address of the element object array.
+			 *
+			 * @throws InvalidOperationException if operation is not supported by
+			 * the allocator
+			 */
+			template<typename InElementType>
+			InElementType* DeconstructArray(Size size, InElementType* address)
+			{
+				DeconstructArrayImpl(size, address, Common::TTraitInt<Common::TIsPod<InElementType>::Value>);
+			}
+
 		public:
 			/**
 			 * @brief Resets the whole memory pool.
+			 * 
+			 * This function sets the entire allocated memory pool to zeros.
 			 */
 			virtual Void Reset(void) = 0;
 		};
 
-		FORGE_FORCE_INLINE VoidPtr AbstractAllocator::GetStartAddress(void) { return m_start_ptr;             }
+		FORGE_FORCE_INLINE VoidPtr AbstractAllocator::GetStartAddress(void) { return m_start_ptr; }
 
-		FORGE_FORCE_INLINE Size    AbstractAllocator::GetPeakSize(void)    { return m_stats.m_peak_size;     }
-		FORGE_FORCE_INLINE Size    AbstractAllocator::GetTotalSize(void)   { return m_stats.m_total_size;    }
-		FORGE_FORCE_INLINE Size    AbstractAllocator::GetUsedMemory(void)  { return m_stats.m_used_memory;   }
-		FORGE_FORCE_INLINE Size    AbstractAllocator::GetNumOfAllocs(void) { return m_stats.m_num_of_allocs; }
+		FORGE_FORCE_INLINE Size AbstractAllocator::GetPeakSize(void)      { return m_stats.m_peak_size;     }
+		FORGE_FORCE_INLINE Size AbstractAllocator::GetTotalSize(void)     { return m_stats.m_total_size;    }
+		FORGE_FORCE_INLINE Size AbstractAllocator::GetUsedMemory(void)    { return m_stats.m_used_memory;   }
+		FORGE_FORCE_INLINE Size AbstractAllocator::GetNumOfAllocs(void)   { return m_stats.m_num_of_allocs; }
+		FORGE_FORCE_INLINE Size AbstractAllocator::GetNumOfDeallocs(void) { return m_stats.m_num_of_deallocs; }
 
 		FORGE_FORCE_INLINE Bool AbstractAllocator::IsMemoryOwned(void) { return m_is_mem_owned; }
 	}

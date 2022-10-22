@@ -5,7 +5,6 @@
 #include "Endianness.h"
 #include "TypeDefinitions.h"
 #include "PreprocessorUtilities.h"
-
-#include "TypeTraits/TypeTraits.h"
+#include "TypeTraits.h"
 
 #endif // COMMON_H

@@ -64,10 +64,14 @@ namespace Forge {
 				{
 					m_raw_ptr = rhs.m_raw_ptr;
 					rhs.m_raw_ptr = nullptr;
+
+					return *this;
 				}
 				Iterator& operator =(const Iterator& rhs)
 				{
 					m_raw_ptr = rhs.m_raw_ptr;
+
+					return *this;
 				}
 
 			public:
@@ -133,8 +137,6 @@ namespace Forge {
 				: AbstractList<ElementType>(0, InMaxSize)
 			{
 				FORGE_ASSERT(this->m_capacity != 0 && this->m_size <= this->m_capacity, "Array size is not large enough to store the data.")
-
-				Memory::MemorySet(m_mem_block, 0, sizeof(ElementType) * this->m_capacity);
 			}
 			
 			/**
@@ -145,12 +147,12 @@ namespace Forge {
 			 * @param[in] element  The element to fill the static array with.
 			 * @param[in] size     The number of elements to fill.
 			 */
-			TStaticArray(ElementType element, Size size)
+			TStaticArray(ConstElementTypeRef element, Size size)
 				: AbstractList<ElementType>(size, InMaxSize)
 			{
 				FORGE_ASSERT(this->m_capacity != 0 && this->m_size <= this->m_capacity, "Array size is not large enough to store the data.")
 
-				Memory::MemoryCopy(m_mem_block, element, sizeof(ElementType) * this->m_size);
+				Memory::CopyConstruct(m_mem_block, element, this->m_size);
 			}
 			
 			/**
@@ -167,7 +169,7 @@ namespace Forge {
 			{
 				FORGE_ASSERT(this->m_capacity != 0 && this->m_size <= this->m_capacity, "Array size is not large enough to store the data.")
 
-				Memory::MemoryCopy(m_mem_block, const_cast<ElementTypePtr>(init_list.begin()), sizeof(ElementType) * this->m_size);
+				Memory::CopyConstructArray(m_mem_block, const_cast<ElementTypePtr>(init_list.begin()), this->m_size);
 			}
 			
 		public:
@@ -204,20 +206,27 @@ namespace Forge {
 			~TStaticArray() = default;
 
 		public:
-			TStaticArray<ElementType, InMaxSize>& operator =(TStaticArray&& rhs)
+			TStaticArray<ElementType, InMaxSize>& operator =(TStaticArray<ElementType, InMaxSize>&& rhs)
 			{
-				this->m_size = rhs.m_size;
+				if (this->m_mem_block == rhs.m_mem_block)
+					return *this;
 
+				this->m_size = rhs.m_size;
+				this->m_capacity = rhs.m_capacity;
 				this->m_mem_block = rhs.m_mem_block;
+
 				rhs.m_mem_block = nullptr;
 
 				return *this;
 			}
-			TStaticArray<ElementType, InMaxSize>& operator =(const TStaticArray& rhs)
+			TStaticArray<ElementType, InMaxSize>& operator =(const TStaticArray<ElementType, InMaxSize>& rhs)
 			{
+				if (this->m_mem_block == rhs.m_mem_block)
+					return *this;
+
 				this->m_size = rhs.m_size;
 
-				Memory::MemoryCopy(this->m_mem_block, const_cast<ElementTypePtr>(rhs.m_mem_block), sizeof(ElementType) * this->m_size);
+				Memory::CopyConstructArray(this->m_mem_block, rhs.m_mem_block, this->m_size);
 
 				return *this;
 			}
@@ -225,7 +234,7 @@ namespace Forge {
 		public:
 			ElementTypeRef operator [](Size index) override
 			{
-				FORGE_ASSERT(index >= 0 && index < this->m_capacity, "Index is out of range.")
+				FORGE_ASSERT(index >= 0 && index < this->m_count, "Index is out of range.")
 
 				return *(this->m_mem_block + index);
 			}
@@ -328,9 +337,9 @@ namespace Forge {
 			 */
 			ElementTypePtr ToArray(void) const override
 			{
-				ElementTypePtr array_ptr = new ElementType[this->m_size];
+				ElementTypePtr array_ptr = (ElementTypePtr)malloc(this->m_count * sizeof(ElementType));
 
-				Memory::MemoryCopy(array_ptr, const_cast<ElementTypePtr>(m_mem_block), sizeof(ElementType) * this->m_size);
+				Memory::CopyConstructArray(array_ptr, this->m_mem_block, this->m_count);
 
 				return array_ptr;
 			}
@@ -351,7 +360,7 @@ namespace Forge {
 			 */
 			ElementTypePtr ToArray(ElementTypePtr array_ptr) const override
 			{
-				Memory::MemoryCopy(array_ptr, const_cast<ElementTypePtr>(m_mem_block), sizeof(ElementType) * this->m_size);
+				Memory::CopyConstructArray(array_ptr, this->m_mem_block, this->m_count);
 
 				return array_ptr;
 			}
@@ -368,7 +377,7 @@ namespace Forge {
 			 * specified element, or -1 if the static array does not contain the
 			 * element or it is empty.
 			 */
-			I64 FirstIndexOf(ElementType value) const override
+			I64 FirstIndexOf(ConstElementTypeRef value) const override
 			{
 				if (this->m_capacity > 0)
 				{
@@ -396,7 +405,7 @@ namespace Forge {
 			 * specified element, or -1 if the static array does not contain the
 			 * element or it is empty.
 			 */
-			I64 LastIndexOf(ElementType value) const override
+			I64 LastIndexOf(ConstElementTypeRef value) const override
 			{
 				if (this->m_capacity > 0)
 				{
@@ -513,12 +522,12 @@ namespace Forge {
 			 */
 			Bool Insert(ElementType element) override
 			{
-				if (this->m_index_ptr >= this->m_capacity)
+				if (this->m_size >= this->m_capacity)
 					return false;
 
 				this->m_size++;
 
-				InsertAt(this->m_index_ptr++, element);
+				InsertAt(this->m_size, element);
 				 
 				return true;
 			}
@@ -653,7 +662,7 @@ namespace Forge {
 			{
 				this->m_size = 0;
 				
-				Memory::MemorySet(m_mem_block, 0, sizeof(ElementType) * InMaxSize);
+				Memory::Destruct(this->m_mem_block, this->m_capacity);
 			}
 		};
 	}

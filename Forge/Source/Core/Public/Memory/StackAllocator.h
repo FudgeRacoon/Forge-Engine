@@ -27,14 +27,15 @@ namespace Forge {
 		class FORGE_API StackAllocator : public AbstractAllocator
 		{
 		private:
-			VoidPtr m_offset_ptr;
-			VoidPtr m_prev_address;
-
-		private:
 			struct AllocationHeader
 			{
 				Byte m_padding;
 			};
+
+
+		private:
+			VoidPtr m_offset_ptr;
+			VoidPtr m_prev_address;
 
 		public:
 			StackAllocator(Size total_size);

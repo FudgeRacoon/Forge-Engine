@@ -73,6 +73,8 @@ namespace Forge {
 		public:
 			/**
 			 * @brief Resets the whole memory pool.
+			 * 
+			 * This function sets the entire allocated memory pool to zeros.
 			 */
 			Void Reset(void) override;
 		};
