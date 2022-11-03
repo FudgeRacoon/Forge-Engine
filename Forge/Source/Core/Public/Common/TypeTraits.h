@@ -1,12 +1,14 @@
 #ifndef TYPE_TRAITS_H
 #define TYPE_TRAITS_H
 
+#include <type_traits>
+
 #include "TypeDefinitions.h"
 
 namespace Forge {
 	namespace Common
 	{
-		template<int Value>
+		template<I32 Value>
 		struct TTraitInt
 		{
 			enum { Value = Value };
@@ -21,6 +23,12 @@ namespace Forge {
 		template<typename _Type>
 		struct TIsPod { enum { Value = __is_pod(_Type) }; };
 		
+		/**
+		 * @brief Tests if two types are assignable.
+		 */
+		template<typename _Type_1, typename _Type_2> 
+		struct TIsAssignable { enum { Value = std::is_assignable<_Type_1, _Type_2>::value }; };
+
 		/**
 		 * @brief Tests if a type has a default constructor.
 		 */

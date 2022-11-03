@@ -23,22 +23,23 @@ namespace Forge {
 			VoidPtr* m_head;
 
 		private:
-			Size m_object_size;
+			Size m_chunk_size;
 
 		public:
-			PoolAllocator(Size object_size, Size total_size);
-			PoolAllocator(VoidPtr start, Size object_size, Size total_size);
+			PoolAllocator(Size chunk_size, Size capacity);
+			PoolAllocator(VoidPtr start, Size chunk_size, Size capacity);
 
 		public:
 		   ~PoolAllocator();
 
 		public:
 			/**
-			 * @brief Gets the object size the allocator object supports allocation.
+			 * @brief Gets the maximum chunk size the pool allocator is capable of
+			 * allocation.
 			 * 
-			 * @return Size storing the object size.
+			 * @return Size storing the chunk size in bytes.
 			 */
-			Size GetObjectSize(void);
+			Size GetChunktSize(void);
 
 		public:
 			/**
@@ -85,7 +86,7 @@ namespace Forge {
 			Void  Reset(void) override;
 		};
 
-		FORGE_FORCE_INLINE Size PoolAllocator::GetObjectSize(void) { return m_object_size; }
+		FORGE_FORCE_INLINE Size PoolAllocator::GetChunktSize(void) { return m_chunk_size; }
 	}
 }
 

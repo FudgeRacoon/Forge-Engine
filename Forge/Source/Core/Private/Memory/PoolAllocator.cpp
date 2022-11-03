@@ -3,18 +3,18 @@
 namespace Forge {
 	namespace Memory
 	{
-		PoolAllocator::PoolAllocator(Size object_size, Size total_size)
-			: AbstractAllocator(nullptr, total_size)
+		PoolAllocator::PoolAllocator(Size chunk_size, Size capacity)
+			: AbstractAllocator(nullptr, capacity)
 		{
-			if (object_size < sizeof(VoidPtr))
+			if (chunk_size < sizeof(VoidPtr))
 			{
 				/*FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "Object Size must be larger than or equal to Void*")*/
 			}
 
-			m_start_ptr = malloc(total_size);
+			m_start_ptr = malloc(capacity);
 
 			m_is_mem_owned = true;
-			m_object_size = object_size;
+			m_chunk_size = chunk_size;
 
 			MemorySet(m_start_ptr, 0, m_stats.m_total_size);
 
@@ -22,26 +22,26 @@ namespace Forge {
 			m_head = reinterpret_cast<VoidPtr*>(AddAddress(m_start_ptr, adjustment));
 
 			VoidPtr* temp_ptr = m_head;
-			Size num_of_chunks = (m_stats.m_total_size - adjustment) / m_object_size;
+			Size num_of_chunks = (m_stats.m_total_size - adjustment) / m_chunk_size;
 
-			for (int i = 0; i < num_of_chunks - 1; i++)
+			for (I32 i = 0; i < num_of_chunks - 1; i++)
 			{
-				*temp_ptr = AddAddress(temp_ptr, m_object_size);
+				*temp_ptr = AddAddress(temp_ptr, m_chunk_size);
 				temp_ptr = reinterpret_cast<VoidPtr*>(*temp_ptr);
 			}
 
 			*temp_ptr = nullptr;
 		}
-		PoolAllocator::PoolAllocator(VoidPtr start, Size object_Size, Size total_Size)
-			: AbstractAllocator(start, total_Size)
+		PoolAllocator::PoolAllocator(VoidPtr start, Size chunk_size, Size capacity)
+			: AbstractAllocator(start, capacity)
 		{
-			if (m_object_size < sizeof(VoidPtr))
+			if (chunk_size < sizeof(VoidPtr))
 			{
 				/*FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "Object Size must be larger than or equal to Void*")*/
 			}
 
 			m_is_mem_owned = false;
-			m_object_size = object_Size;
+			m_chunk_size = chunk_size;
 
 			MemorySet(m_start_ptr, 0, m_stats.m_total_size);
 
@@ -49,11 +49,11 @@ namespace Forge {
 			m_head = reinterpret_cast<VoidPtr*>(AddAddress(m_start_ptr, adjustment));
 
 			VoidPtr* temp_ptr = m_head;
-			Size num_of_chunks = (m_stats.m_total_size - adjustment) / m_object_size;
+			Size num_of_chunks = (m_stats.m_total_size - adjustment) / m_chunk_size;
 
 			for (int i = 0; i < num_of_chunks - 1; i++)
 			{
-				*temp_ptr = AddAddress(temp_ptr, m_object_size);
+				*temp_ptr = AddAddress(temp_ptr, m_chunk_size);
 				temp_ptr = reinterpret_cast<VoidPtr*>(*temp_ptr);
 			}
 
@@ -70,7 +70,7 @@ namespace Forge {
 
 		VoidPtr PoolAllocator::Allocate(Size size, Byte alignment)
 		{
-			if (size != m_object_size)
+			if (size != m_chunk_size)
 			{
 				/*FORGE_EXCEPT(Debug::Exception::ERR_BAD_ALLOCATION_EXCEPTION, "Requsted size must be equal to allocator's supported object size")*/
 			}
@@ -85,7 +85,7 @@ namespace Forge {
 
 			if (m_stats.m_peak_size < size) { m_stats.m_peak_size = size; }
 
-			m_stats.m_used_memory += m_object_size;
+			m_stats.m_used_memory += m_chunk_size;
 			m_stats.m_num_of_allocs++;
 
 			return address;
@@ -106,7 +106,7 @@ namespace Forge {
 			*reinterpret_cast<VoidPtr*>(address) = m_head;
 			m_head = reinterpret_cast<VoidPtr*>(address);
 
-			m_stats.m_used_memory -= m_object_size;
+			m_stats.m_used_memory -= m_chunk_size;
 			m_stats.m_num_of_allocs--;
 		}
 
@@ -116,11 +116,11 @@ namespace Forge {
 			m_head = reinterpret_cast<VoidPtr*>(AddAddress(m_start_ptr, adjustment));
 
 			VoidPtr* temp_ptr = m_head;
-			Size num_of_chunks = (m_stats.m_total_size - adjustment) / m_object_size;
+			Size num_of_chunks = (m_stats.m_total_size - adjustment) / m_chunk_size;
 
 			for (int i = 0; i < num_of_chunks - 1; i++)
 			{
-				*temp_ptr = AddAddress(temp_ptr, m_object_size);
+				*temp_ptr = AddAddress(temp_ptr, m_chunk_size);
 				temp_ptr = reinterpret_cast<VoidPtr*>(*temp_ptr);
 			}
 

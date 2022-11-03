@@ -26,237 +26,183 @@ namespace Forge {
 			using ConstElementTypePtr = const InElementType*;
 
 		private:
-			enum { CAPACITY_ALIGNMENT = 2};
+			enum { CAPACITY_ALIGNMENT = 2 };
 
 		private:
 			ElementTypePtr m_mem_block;
 
 		private:
+			Size m_capacity;
 			Size m_version;
 
 		public:
-			class Iterator
+			struct Iterator
 			{
 			private:
-				ElementTypePtr m_raw_ptr;
+				ElementTypePtr m_ptr;
 
 			public:
+				Iterator(void)
+					: m_ptr(nullptr) {}
+
 				Iterator(ElementTypePtr ptr)
-					: m_raw_ptr(ptr) {}
+					: m_ptr(ptr) {}
 
 			public:
-				Iterator(Iterator&& rhs)
+				Iterator(Iterator&& other)
 				{
-					this->m_raw_ptr = rhs.m_raw_ptr;
-					rhs.m_raw_ptr = nullptr;
+					*this = std::move(other);
 				}
-				Iterator(const Iterator& rhs)
+				Iterator(const Iterator& other)
 				{
-					this->m_raw_ptr = rhs.m_raw_ptr;
+					*this = other;
 				}
 
 			public:
-				Iterator& operator =(Iterator&& rhs)
+				~Iterator() = default;
+
+			public:
+				Iterator operator =(Iterator&& other)
 				{
-					this->m_raw_ptr = rhs.m_raw_ptr;
-					rhs.m_raw_ptr = nullptr;
+					Memory::MemoryCopy(this, &other, sizeof(Iterator));
+
+					other.m_ptr = nullptr;
 
 					return *this;
 				}
-				Iterator& operator =(const Iterator& rhs)
+				Iterator operator =(const Iterator& other)
 				{
-					this->m_raw_ptr = rhs.m_raw_ptr;
-
-					return *this;
-				}
-
-			public:
-				virtual ~Iterator() = default;
-
-			public:
-				Iterator operator ++(void) override
-				{
-					Iterator itr(++this->m_raw_ptr);
-					return itr;
-				}
-				Iterator operator ++(I32 junk) override
-				{
-					ElementTypePtr temp = this->m_raw_ptr++;
-
-					Iterator itr(temp);
-					return itr;
-				}
-
-			public:
-				Iterator operator --(void) override
-				{
-					Iterator itr(--this->m_raw_ptr);
-					return itr;
-				}
-				Iterator operator --(I32 junk) override
-				{
-					ElementTypePtr temp = this->m_raw_ptr--;
-
-					Iterator itr(temp);
-					return itr;
-				}
-
-			public:
-				Bool operator ==(const Iterator& rhs)
-				{
-					return this->m_raw_ptr == rhs.m_raw_ptr;
-				}
-				Bool operator !=(const Iterator& rhs)
-				{
-					return this->m_raw_ptr != rhs.m_raw_ptr;
-				}
-
-			public:
-				ElementTypeRef operator *(void)
-				{
-					return *this->m_raw_ptr;
-				}
-				ElementTypePtr operator ->(void)
-				{
-					return this->m_raw_ptr;
-				}
-			};
-			class ConstIterator
-			{
-			private:
-				ElementTypePtr m_raw_ptr;
-
-			public:
-				ConstIterator(ElementTypePtr ptr)
-					: m_raw_ptr(ptr) {}
-
-			public:
-				ConstIterator(ConstIterator&& rhs)
-				{
-					this->m_raw_ptr = rhs.m_raw_ptr;
-					rhs.m_raw_ptr = nullptr;
-				}
-				ConstIterator(const ConstIterator& rhs)
-				{
-					this->m_raw_ptr = rhs.m_raw_ptr;
-				}
-
-			public:
-				virtual ~ConstIterator() = default;
-
-			public:
-				ConstIterator& operator =(ConstIterator&& rhs)
-				{
-					this->m_raw_ptr = rhs.m_raw_ptr;
-					rhs.m_raw_ptr = nullptr;
-
-					return *this;
-				}
-				ConstIterator& operator =(const ConstIterator& rhs)
-				{
-					this->m_raw_ptr = rhs.m_raw_ptr;
+					Memory::MemoryCopy(this, const_cast<Iterator*>(&other), sizeof(Iterator));
 
 					return *this;
 				}
 
 			public:
-				ConstIterator operator ++(void) override
+				Iterator operator --(I32)
 				{
-					ConstIterator itr(++this->m_raw_ptr);
-					return itr;
-				}
-				ConstIterator operator ++(I32 junk) override
-				{
-					ElementTypePtr temp = this->m_raw_ptr++;
+					Iterator temp(this->m_ptr);
 
-					ConstIterator itr(temp);
-					return itr;
-				}
+					this->m_ptr++;
 
-			public:
-				ConstIterator operator --(void) override
-				{
-					ConstIterator itr(--this->m_raw_ptr);
-					return itr;
+					return temp;
 				}
-				ConstIterator operator --(I32 junk) override
+				Iterator operator --(void)
 				{
-					ElementTypePtr temp = this->m_raw_ptr--;
+					this->m_ptr++;
 
-					ConstIterator itr(temp);
-					return itr;
+					return *this;
 				}
 
 			public:
-				Bool operator ==(const ConstIterator& rhs)
+				Iterator operator ++(I32)
 				{
-					return this->m_raw_ptr == rhs.m_raw_ptr;
+					Iterator temp(this->m_ptr);
+
+					this->m_ptr++;
+
+					return temp;
 				}
-				Bool operator !=(const ConstIterator& rhs)
+				Iterator operator ++(void)
 				{
-					return this->m_raw_ptr != rhs.m_raw_ptr;
+					this->m_ptr++;
+
+					return *this;
 				}
 
 			public:
-				ConstElementTypeRef operator *(void)
+				Bool operator ==(const Iterator& other)
 				{
-					return *this->m_raw_ptr;
+					return this->m_ptr == other.m_ptr;
 				}
-				ConstElementTypePtr operator ->(void)
+				Bool operator !=(const Iterator& other)
 				{
-					return this->m_raw_ptr;
+					return this->m_ptr != other.m_ptr;
+				}
+
+			public:
+				ElementTypeRef operator *()
+				{
+					return *(this->m_ptr);
+				}
+
+			public:
+				ElementTypePtr operator ->()
+				{
+					return this->m_ptr;
 				}
 			};
 
 		public:
+			/**
+			 * @brief Default constructor.
+			 *
+			 * Constructs an empty dynamic array.
+			 */
 			TDynamicArray(void)
 				: m_version(0), AbstractList<ElementType>(0, 0) {}
+
+			/**
+			 * @brief Move element constructor.
+			 *
+			 * Constructs a dynamic array with a copy of an element.
+			 */
 			TDynamicArray(ElementType&& element, Size count)
-				: m_version(0), AbstractList<ElementType>(count, count)
+				: m_version(0), AbstractList<ElementType>(count, ~((Size)0))
 			{
-				this->m_mem_block = (ElementTypePtr)malloc(this->m_capacity * sizeof(ElementType));
-				Memory::MoveConstruct(this->m_mem_block, element, this->m_capacity);
+				this->m_mem_block = (ElementTypePtr)malloc(this->m_count * sizeof(ElementType));
+
+				Memory::MoveConstruct(this->m_mem_block, element, this->m_count);
 			}
+
+			/**
+			 * @brief Copy element constructor.
+			 *
+			 * Constructs a dynamic array with a copy of an element.
+			 */
 			TDynamicArray(ConstElementTypeRef element, Size count)
-				: m_version(0), AbstractList<ElementType>(count, count)
+				: m_version(0), AbstractList<ElementType>(count, ~((Size)0))
 			{
-				this->m_mem_block = (ElementTypePtr)malloc(this->m_capacity * sizeof(ElementType));
-				Memory::CopyConstruct(this->m_mem_block, element, this->m_capacity);
+				this->m_mem_block = (ElementTypePtr)malloc(this->m_count * sizeof(ElementType));
+				Memory::CopyConstruct(this->m_mem_block, element, this->m_count);
 			}
+
+			/**
+			 * @brief Initializer list constructor.
+			 *
+			 * Constructs a static array with an initializer list.
+			 */
 			TDynamicArray(std::initializer_list<ElementType> init_list)
-				: m_version(0), AbstractList<ElementType>(init_list.size(), init_list.size())
+				: m_version(0), AbstractList<ElementType>(init_list.size(), ~((Size)0))
 			{
-				this->m_mem_block = (ElementTypePtr)malloc(this->m_capacity * sizeof(ElementType));
-				Memory::CopyConstructArray(this->m_mem_block, const_cast<ElementTypePtr>(init_list.begin()), this->m_capacity);
+				this->m_mem_block = (ElementTypePtr)malloc(this->m_count * sizeof(ElementType));
+				Memory::CopyConstructArray(this->m_mem_block, const_cast<ElementTypePtr>(init_list.begin()), this->m_count);
 			}
 
 		public:
+			/**
+			 * @brief Move constructor.
+			 */
 			TDynamicArray(TDynamicArray<ElementType>&& rhs)
 				: AbstractList<ElementType>(rhs)
 			{
-				if (this->m_mem_block == rhs.m_mem_block)
-					return;
-
-				Memory::Destruct(this->m_mem_block, this->m_count);
 				Memory::MemoryCopy(this, &rhs, sizeof(TDynamicArray<ElementType>));
 
 				rhs.m_mem_block = nullptr;
-				rhs.m_count = 0;
-				rhs.m_capacity = 0;
-				rhs.m_version = 0;
+				rhs.m_count = rhs.m_capacity = rhs.m_version = 0;
 			}
+
+			/**
+			 * @brief Copy constructor.
+			 */
 			TDynamicArray(const TDynamicArray<ElementType>& rhs)
 				: AbstractList<ElementType>(rhs)
 			{
-				if (this->m_mem_block == rhs.m_mem_block)
-					return;
-
 				ConstSize old_count = this->m_count;
 				ConstSize new_count = rhs.m_count;
 
 				if (new_count > old_count)
 				{
-					this->Reserve(new_count);
+					this->ReserveCapacity(new_count);
 
 					Memory::CopyArray(this->m_mem_block, rhs.m_mem_block, old_count);
 					Memory::CopyConstructArray(this->m_mem_block + old_count, rhs.m_mem_block + old_count, new_count - old_count);
@@ -271,62 +217,55 @@ namespace Forge {
 				this->m_capacity = rhs.m_capacity;
 			}
 
-		public:
-			TDynamicArray<ElementType>& operator =(TDynamicArray<ElementType>&& rhs)
-			{
-				if (this->m_mem_block == rhs.m_mem_block)
-					return *this;
-
-				Memory::Destruct(this->m_mem_block, this->m_capacity);
-				Memory::MemoryCopy(this, &rhs, sizeof(TDynamicArray<ElementType>));
-
-				rhs.m_mem_block = nullptr;
-				rhs.m_count = 0;
-				rhs.m_capacity = 0;
-				rhs.m_version = 0;
-
-				return *this;
-			}
-			TDynamicArray<ElementType>& operator =(const TDynamicArray<ElementType>& rhs)
-			{
-				if (this->m_mem_block == rhs.m_mem_block)
-					return *this;
-
-				ConstSize old_count = this->m_count;
-				ConstSize new_count = rhs.m_count;
-
-				if (new_count > old_count)
-				{
-					this->Reserve(new_count);
-
-					Memory::CopyArray(this->m_mem_block, rhs.m_mem_block, old_count);
-					Memory::CopyConstructArray(this->m_mem_block + old_count, rhs.m_mem_block + old_count, new_count - old_count);
-				}
-				else
-				{
-					Memory::CopyArray(this->m_mem_block, rhs.m_mem_block, new_count);
-					Memory::Destruct(this->m_mem_block + new_count, old_count - new_count);
-				}
-
-				this->m_count = rhs.m_count;
-				this->m_capacity = rhs.m_capacity;
-
-				return *this;
-			}
-
-		public:
+		public:	
 			~TDynamicArray()
 			{
 				this->Clear();
 
 				free(this->m_mem_block);
 			}
+
+		public:
+			TDynamicArray<ElementType>& operator =(TDynamicArray<ElementType>&& rhs)
+			{
+				this->Clear();
+				
+				Memory::MemoryCopy(this, &rhs, sizeof(TDynamicArray<ElementType>));
+
+				rhs.m_mem_block = nullptr;
+				rhs.m_capacity = rhs.m_count = rhs.m_version = 0;
+
+				return *this;
+			}
+
+			TDynamicArray<ElementType>& operator =(const TDynamicArray<ElementType>& rhs)
+			{
+				ConstSize old_count = this->m_count;
+				ConstSize new_count = rhs.m_count;
+
+				this->Clear();
+
+				if (new_count > old_count)
+				{
+					this->ReserveCapacity(new_count);
+
+					Memory::CopyArray(this->m_mem_block, rhs.m_mem_block, old_count);
+					Memory::CopyConstructArray(this->m_mem_block + old_count, rhs.m_mem_block + old_count, new_count - old_count);
+				}
+				else
+					Memory::CopyArray(this->m_mem_block, rhs.m_mem_block, new_count);
+
+				this->m_count = rhs.m_count;
+				this->m_capacity = rhs.m_capacity;
+
+				return *this;
+			}
 		
 		public:
-			ElementTypeRef operator [](Size ui_index) override
+			ElementTypeRef operator [](Size index)
 			{
-				FORGE_ASSERT(ui_index >= 0 && ui_index < this->m_count, "Index is out of range.")
-				return *(this->m_mem_block + ui_index);
+				FORGE_ASSERT(index >= 0 && index < this->m_count, "Index is out of range.")
+				return *(this->m_mem_block + index);
 			}
 
 		public:
@@ -336,7 +275,7 @@ namespace Forge {
 			 *
 			 * @return ForwardIterator pointing to the first element.
 			 */
-			Iterator GetStartItr(void) override
+			Iterator GetStartItr(void) const
 			{
 				return Iterator(this->m_mem_block);
 			}
@@ -347,9 +286,9 @@ namespace Forge {
 			 *
 			 * @return ForwardIterator pointing to the past-end element element.
 			 */
-			Iterator GetEndItr(void) override
+			Iterator GetEndItr(void) const
 			{
-				return Iterator(this->m_mem_block + this->m_capacity);
+				return Iterator(this->m_mem_block + this->m_count);
 			}
 
 			/**
@@ -360,7 +299,7 @@ namespace Forge {
 			 *
 			 * @return BackwardIterator pointing to the last element.
 			 */
-			ConstIterator GetStartConstItr(void) override
+			Iterator GetStartConstItr(void) const
 			{
 				return ConstIterator(this->m_mem_block);
 			}
@@ -373,9 +312,9 @@ namespace Forge {
 			 *
 			 * @return BackwardIterator pointing to the first element.
 			 */
-			ConstIterator GetEndConstItr(void) override
+			Iterator GetEndConstItr(void) const
 			{
-				return ConstIterator(this->m_mem_block + this->m_capacity);
+				return ConstIterator(this->m_mem_block + this->m_count);
 			}
 
 		public:
@@ -408,7 +347,7 @@ namespace Forge {
 			 *
 			 * @return True if the specified collection is equal to this collection.
 			 */
-			Bool IsEqual(const AbstractCollection<ElementType>& collection) const override
+			Bool IsEqual(AbstractCollection<ElementType>& collection) const override
 			{
 				if (collection.IsEmpty())
 					return false;
@@ -416,16 +355,28 @@ namespace Forge {
 				if (this->m_count != collection.GetCount())
 					return false;
 
+				Bool return_value;
+
 				Iterator start_itr = this->GetStartItr();
+				Iterator end_itr = this->GetEndItr();
 
-				Iterator other_start_itr = collection.GetStartItr();
-				Iterator other_end_itr = collection.GetEndItr();
+				collection.ForEach([&return_value, &start_itr, end_itr](ElementTypeRef element) -> Void
+					{
+						if ((start_itr++) == end_itr)
+						{
+							return_value = true;
+							return;
+						}
 
-				for (; other_start_itr != other_end_itr; start_itr++, other_start_itr++)
-					if (!Memory::MemoryCompare(&(*start_itr), &(*other_start_itr)))
-						return false;
+						if (!Memory::MemoryCompare(&(*start_itr), &element, sizeof(ElementType)))
+						{
+							return_value = false;
+							return;
+						}
+					}
+				);
 
-				return false;
+				return return_value;
 			}
 
 		public:
@@ -443,6 +394,7 @@ namespace Forge {
 			ElementTypePtr ToArray(void) const override
 			{
 				ElementTypePtr array_ptr = (ElementTypePtr)malloc(this->m_count * sizeof(ElementType));
+
 				Memory::CopyConstructArray(array_ptr, this->m_mem_block, this->m_count);
 
 				return array_ptr;
@@ -470,18 +422,40 @@ namespace Forge {
 			}
 		
 		public:
-			Void ReserveCapacity(Size ui_capacity)
+			/**
+			 * @brief Iterates through all the elements inside the collection and
+			 * performs the operation provided on each element.
+			 *
+			 * The operation is performed in the order of iteration, and is performed
+			 * until all elements have been processed or the operation throws an
+			 * exception.
+			 *
+			 * @param[in] function The function to perform on each element.
+			 */
+			Void ForEach(Common::TDelegate<Void(ElementTypeRef)> function) override
 			{
-				if (this->m_capacity >= ui_capacity)
+				for (I32 i = 0; i < this->m_count; i++)
+					function.Invoke(*(this->m_mem_block + i));
+			}
+
+		public:
+			/**
+			 * @brief
+			 * 
+			 * @param[in] capacity The minimum capacity of the dynamic array.
+			 */
+			Void ReserveCapacity(Size capacity)
+			{
+				if (this->m_capacity >= capacity)
 					return;
 
 				Size new_capacity;
-				ConstSize max_capacity = ~(Size)0;
+
 				ElementTypePtr old_elements, new_elements;
 
 				new_capacity = this->m_capacity + (this->m_capacity / 2);
-				new_capacity = new_capacity > ui_capacity ? new_capacity : ui_capacity;
-				new_capacity = new_capacity < max_capacity ? new_capacity : max_capacity;
+				new_capacity = new_capacity > capacity ? new_capacity : capacity;
+				new_capacity = new_capacity < this->m_max_capacity ? new_capacity : this->m_max_capacity;
 				new_capacity = (new_capacity + (CAPACITY_ALIGNMENT - 1)) & ~(CAPACITY_ALIGNMENT - 1);
 			
 				old_elements = this->m_mem_block;
@@ -517,7 +491,7 @@ namespace Forge {
 
 					for (ConstElementTypePtr ptr = start; ptr != end; ptr++)
 					{
-						if (Memory::MemoryCompare(ptr, &value, sizeof(ElementType))
+						if (Memory::MemoryCompare(ptr, &value, sizeof(ElementType)))
 							return reinterpret_cast<I64>(Memory::SubAddress(ptr, start)) / sizeof(ElementType);
 					}
 				}
@@ -545,7 +519,7 @@ namespace Forge {
 
 					for (ConstElementTypePtr ptr = end; ptr != start; ptr--)
 					{
-						if (Memory::MemoryCompare(ptr, &value, sizeof(ElementType))
+						if (Memory::MemoryCompare(ptr, &value, sizeof(ElementType)))
 							return reinterpret_cast<I64>(Memory::SubAddress(ptr, start + 1)) / sizeof(ElementType);
 					}
 				}
@@ -555,40 +529,99 @@ namespace Forge {
 
 		public:
 			/**
-			* @brief Inserts the specified element in the specified index.
-			*
-			* This function will increase the count size by one and shift all
-			* elements that preceed the newly inserted element. If the number of
-			* elements overflow the capacity of the array a reallocation will occur
-			* to accomodate for the increased size.
-			*
-			* @param[in] ui_index The numerical index to insert the element at.
-			* @param[in] element  The element to insert in the dynamic array.
-			*
-			* @throw IndexOutOfRangeException if index to insert element is out
-			* of range.
-			*/
-			Void InsertAt(Size ui_index, ElementType&& element) override
+			 * @brief Retreives the last element in the dynamic array.
+			 *
+			 * @return ConstElementTypeRef storing the last element in the list.
+			 */
+			ConstElementTypeRef PeekBack() const
 			{
-				FORGE_ASSERT(ui_index >= 0 && ui_index <= this->m_count, "Index is out of range.")
-
-				this->Reserve(this->m_count + 1);
-
-				ElementType next, prev;
-
-				ElementTypePtr ptr = this->m_mem_block + ui_index;
-
-				for (I32 i = 0, prev = *ptr; i < this->m_count - ui_index; i++)
+				if (!this->m_count)
 				{
-					next = *(++ptr);
-					*ptr = prev;
-					prev = next;
+					// Throw Exception
 				}
 
-				this->m_count++;
-				Memory::Move(this->m_mem_block + ui_index, element, 1);
+				return *(this->m_mem_block + this->m_count - 1);
 			}
 
+			/**
+			 * @brief Retreives the first element in the dynamic array.
+			 *
+			 * @return ConstElementTypeRef storing the first element in the list.
+			 */
+			ConstElementTypeRef PeekFront() const
+			{
+				if (!this->m_count)
+				{
+					// throw exception
+				}
+
+				return *(this->m_mem_block);
+			}
+
+		public:
+			/**
+			 * @brief Inserts a new element at the end of this linked list, after
+			 * its current last element.
+			 *
+			 * @param[in] element The element to insert in this linked list.
+			 */
+			Void PushBack(ElementType&& element) override
+			{
+				this->InsertAt(this->m_count, element);
+			}
+
+			/**
+			 * @brief Inserts a new element at the start of this linked list, before
+			 * its current first element.
+			 *
+			 * @param[in] element The element to insert in this linked list.
+			 */
+			Void PushFront(ElementType&& element) override
+			{
+				this->InsertAt(0, element);
+			}
+
+			/**
+			 * @brief Inserts a new element at the end of this linked list, after
+			 * its current last element.
+			 *
+			 * @param[in] element The element to insert in the linked list.
+			 */
+			Void PushBack(ConstElementTypeRef element) override
+			{
+				this->InsertAt(this->m_count, element);
+			}
+
+			/**
+			 * @brief Inserts a new element at the start of this linked list, before
+			 * its current first element.
+			 *
+			 * @param[in] element The element to insert in thi linked list.
+			 */
+			Void PushFront(ConstElementTypeRef element) override
+			{
+				this->InsertAt(0, element);
+			}
+
+			/**
+			 * @brief Removes the element at the end of this linked list, effectivly
+			 * reducing the list count by one.
+			 */
+			Void PopBack(void) override
+			{
+				this->RemoveAt(this->m_count - 1);
+			}
+
+			/**
+			 * @brief Removes the element at the start of this linked list,
+			 * effectivly reducing the list count by one.
+			 */
+			Void PopFront(void) override
+			{
+				this->RemoveAt(0);
+			}
+
+		public:
 			/**
 			* @brief Inserts the specified element in the specified index.
 			*
@@ -597,101 +630,74 @@ namespace Forge {
 			* elements overflow the capacity of the array a reallocation will occur
 			* to accomodate for the increased size.
 			*
-			* @param[in] ui_index The numerical index to insert the element at.
+			* @param[in] index The numerical index to insert the element at.
 			* @param[in] element  The element to insert in the dynamic array.
 			*
 			* @throw IndexOutOfRangeException if index to insert element is out
 			* of range.
 			*/
-			Void InsertAt(Size ui_index, ConstElementTypeRef element) override
+			Void InsertAt(Size index, ElementType&& element) override
 			{
-				FORGE_ASSERT(ui_index >= 0 && ui_index <= this->m_count, "Index is out of range.")
+				FORGE_ASSERT(index >= 0 && index <= this->m_count, "Index is out of range.")
 
-				this->Reserve(this->m_count + 1);
-				
+				if (this->m_count >= this->m_max_capacity)
+					return;
+
+				this->ReserveCapacity(this->m_count + 1);
+
 				ElementType next, prev;
 
-				ElementTypePtr ptr = this->m_mem_block + ui_index;
-				
-				for (I32 i = 0, prev = *ptr; i < this->m_count - ui_index; i++)
+				ElementTypePtr ptr = this->m_mem_block + index;
+
+				for (I32 i = 0, prev = *ptr; i < this->m_count - index; i++)
 				{
 					next = *(++ptr);
 					*ptr = prev;
 					prev = next;
 				}
 
+				Memory::Move(this->m_mem_block + index, std::move(element), 1);
+
 				this->m_count++;
-				Memory::Copy(this->m_mem_block + ui_index, element, 1);
 			}
 
 			/**
-			* @brief Inserts the specified element in the specified position.
+			* @brief Inserts the specified element in the specified index.
 			*
 			* This function will increase the count size by one and shift all
 			* elements that preceed the newly inserted element. If the number of
 			* elements overflow the capacity of the array a reallocation will occur
 			* to accomodate for the increased size.
 			*
-			* @param[in] position The numerical index to insert the element at.
+			* @param[in] index The numerical index to insert the element at.
 			* @param[in] element  The element to insert in the dynamic array.
 			*
 			* @throw IndexOutOfRangeException if index to insert element is out
 			* of range.
 			*/
-			Void InsertAt(Iterator& position, ElementType&& element) override
+			Void InsertAt(Size index, ConstElementTypeRef element) override
 			{
-				FORGE_ASSERT(position != this->GetEndItr(), "Index is out of range.")
+				FORGE_ASSERT(index >= 0 && index <= this->m_count, "Index is out of range.")
 
-				this->Reserve(this->m_count + 1);
+				if (this->m_count >= this->m_max_capacity)
+					return;
 
+				this->ReserveCapacity(this->m_count + 1);
+				
 				ElementType next, prev;
 
-				Size iteration = reinterpret_cast<Size>(Memory::SubAddress(this->m_mem_block + this->m_count - 1, &(*position)));
-
-				for (I32 i = 0, prev = *position; i < iteration; i++)
+				ElementTypePtr ptr = this->m_mem_block + index;
+				
+				for (I32 i = 0, prev = *ptr; i < this->m_count - index; i++)
 				{
-					next = *(++position);
-					*position = prev;
+					next = *(++ptr);
+					*ptr = prev;
 					prev = next;
 				}
 
-				this->m_count++;
-				Memory::Move(&(*position), element, 1);
-			}
-
-			/**
-			* @brief Inserts the specified element in the specified position.
-			*
-			* This function will increase the count size by one and shift all
-			* elements that preceed the newly inserted element. If the number of
-			* elements overflow the capacity of the array a reallocation will occur
-			* to accomodate for the increased size.
-			*
-			* @param[in] position The numerical index to insert the element at.
-			* @param[in] element  The element to insert in the dynamic array.
-			*
-			* @throw IndexOutOfRangeException if index to insert element is out
-			* of range.
-			*/
-			Void InsertAt(Iterator& position, ConstElementTypeRef element) override
-			{
-				FORGE_ASSERT(position != this->GetEndItr(), "Index is out of range.")
-
-				this->Reserve(this->m_count + 1);
-
-				ElementType next, prev;
-
-				Size iteration = reinterpret_cast<Size>(Memory::SubAddress(this->m_mem_block + this->m_count - 1, &(*position)));
-
-				for (I32 i = 0, prev = *position; i < iteration; i++)
-				{
-					next = *(++position);
-					*position = prev;
-					prev = next;
-				}
+				Memory::Copy(this->m_mem_block + index, element, 1);
 
 				this->m_count++;
-				Memory::Copy(&(*position), element, 1);
 			}
 
 			/**
@@ -700,68 +706,30 @@ namespace Forge {
 			* This function will decrease the count size by one and shift all
 			* elements that preceed the removed element.
 			*
-			* @param[in] ui_index The numerical index to remove the element at.
+			* @param[in] index The numerical index to remove the element at.
 			*
 			* @throw IndexOutOfRangeException if index to remove element at is out
 			* of range.
 			*/
-			Void RemoveAt(Size ui_index) override
+			Void RemoveAt(Size index) override
 			{
-				FORGE_ASSERT(ui_index >= 0 && ui_index < this->m_count, "Index is out of range.")
+				FORGE_ASSERT(index >= 0 && index < this->m_count, "Index is out of range.")
 
-				ElementTypePtr slow_ptr = this->m_mem_block + ui_index;
-				ElementTypePtr fast_ptr = this->m_mem_block + ui_index + 1;
+				if(!this->m_count)
+					return;
 
-				this->m_count--;
+				ElementTypePtr slow_ptr = this->m_mem_block + index;
+				ElementTypePtr fast_ptr = this->m_mem_block + index + 1;
 
-				for (I32 i = 0; i < this->m_count - ui_index; i++)
+				Memory::Destruct(this->m_mem_block + index, 1);
+
+				for (I32 i = 0; i < this->m_count - index; i++)
 					*(slow_ptr++) = *(fast_ptr++);
-
-				Memory::Destruct(this->m_mem_block + ui_index, 1);
-				Memory::Destruct(this->m_mem_block + ui_index + 1, 1);
-			}
-
-			/**
-			* @brief Removes an element in the specified position.
-			*
-			* This function will decrease the count size by one and shift all
-			* elements that preceed the removed element.
-			*
-			* @param[in] position The numerical index to remove the element at.
-			*
-			* @throw IndexOutOfRangeException if index to remove element at is out
-			* of range.
-			*/
-			Void RemoveAt(Iterator& position) override
-			{
-				FORGE_ASSERT(position != this->GetEndItr(), "Index is out of range.")
-
+				
 				this->m_count--;
-
-				Size iteration = reinterpret_cast<Size>(Memory::SubAddress(this->m_mem_block + this->m_count - 1, &(*position)));
-
-				for (I32 i = 0; i < iteration; i++)
-					*(position++) = *((position + 1)++);
-
-				Memory::Destruct(&(*position), 1);
-				Memory::Destruct(&(*position + 1), 1);
 			}
 
 		public:
-			/**
-			 * @brief Inserts the specified element at the end of the dynamic array.
-			 *
-			 * @param[in] element The element to insert in the dynamic array.
-			 *
-			 * @return True if insertion was successfull.
-			 */
-			Bool Insert(ConstElementTypeRef element) override
-			{
-				this->InsertAt(this->m_count, element);
-
-				return true;
-			}
-
 			/**
 			 * @brief Removes the first occurance of the specified element from the
 			 * static array.
@@ -775,14 +743,13 @@ namespace Forge {
 			 */
 			Bool Remove(ConstElementTypeRef element) override
 			{
-				Size index = FirstIndexOf(element);
+				if (Size index = this->FirstIndexOf(element) != -1)
+				{
+					this->RemoveAt(index);
+					return true;
+				}
 
-				if (index == -1)
-					return false;
-
-				RemoveAt(index);
-
-				return true;
+				return false;
 			}
 
 			/**
@@ -792,7 +759,7 @@ namespace Forge {
 			 *
 			 * @return True if the specified element was found in the static array.
 			 */
-			Bool Contains(ConstElementTypeRef element) override
+			Bool Contains(ConstElementTypeRef element) const override
 			{
 				return FirstIndexOf(element) != -1;
 			}
@@ -800,26 +767,29 @@ namespace Forge {
 		public:
 			/**
 			 * @brief Inserts all the elements in the specified collection to the
-			 * dynamic array.
+			 * static array.
 			 *
-			 * The order in which the elements are inserted into the dynamic array
+			 * The order in which the elements are inserted into the static array
 			 * depends on how the specified collection is iterated on.
 			 *
 			 * @param[in] collection The collection containing elements to be added
-			 * to the dynamic array.
+			 * to the static array.
 			 *
 			 * @return True if insertion was succesfull and collection is not empty.
 			 */
-			Bool InsertAll(const AbstractCollection<ElementType>& collection) override
+			Bool InsertAll(AbstractCollection<ElementType>& collection) override
 			{
 				if (collection.IsEmpty())
 					return false;
 
-				Iterator start_itr = collection.GetStartItr();
-				Iterator end_itr = collection.GetEndItr();
+				if (this->m_max_capacity - collection.GetMaxCapacity() < 0)
+					return false;
 
-				for (; start_itr != end_itr; start_itr++)
-					InsertAt(start_itr, *start_itr);
+				collection.ForEach([this](ElementTypeRef element)->Void
+					{
+						this->PushBack(element);
+					}
+				);
 
 				return true;
 			}
@@ -837,19 +807,23 @@ namespace Forge {
 			 * @return True if removal was successful, the elements were found and
 			 * the collection is not empty.
 			 */
-			Bool RemoveAll(const AbstractCollection<ElementType>& collection) override
+			Bool RemoveAll(AbstractCollection<ElementType>& collection) override
 			{
-				if (collection.IsEmpty())
+				if (!this->m_count || collection.IsEmpty())
 					return false;
 
-				Iterator start_itr = collection.GetStartItr();
-				Iterator end_itr = collection.GetEndItr();
+				Bool return_value;
 
-				for (; start_itr != end_itr; start_itr++)
-					if (!Remove(*start_itr))
-						return false;
+				collection.ForEach([this, &return_value](ElementTypeRef element)->Void
+					{
+						return_value = this->Remove(element);
 
-				return true;
+						if (!return_value)
+							return;
+					}
+				);
+
+				return return_value;
 			}
 
 			/**
@@ -862,19 +836,23 @@ namespace Forge {
 			 * @return True if the specified elements were found in the static
 			 * array and the collection is not empty.
 			 */
-			Bool ContainsAll(const AbstractCollection<ElementType>& collection) override
+			Bool ContainsAll(AbstractCollection<ElementType>& collection) override
 			{
-				if (collection.IsEmpty())
+				if (!this->m_count || collection.IsEmpty())
 					return false;
 
-				Iterator start_itr = collection.GetStartItr();
-				Iterator end_itr = collection.GetEndItr();
+				Bool return_value;
 
-				for (; start_itr != end_itr; start_itr++)
-					if (!Contains(*start_itr))
-						return false;
+				collection.ForEach([this, &return_value](ElementTypeRef element)->Void
+					{
+						return_value = this->Contains(element);
 
-				return true;
+						if (!return_value)
+							return;
+					}
+				);
+
+				return return_value;
 			}
 
 		public:

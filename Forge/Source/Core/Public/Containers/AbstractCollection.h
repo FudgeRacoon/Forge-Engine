@@ -1,7 +1,9 @@
 #ifndef ABSTRACT_COLLECTION_H
 #define ABSTRACT_COLLECTION_H
 
+
 #include "Core/Public/Common/Compiler.h"
+#include "Core/Public/Common/TDelegate.h"
 #include "Core/Public/Common/TypeDefinitions.h"
 
 namespace Forge {
@@ -19,23 +21,14 @@ namespace Forge {
 			using ConstElementTypePtr = const InElementType*;
 
 		protected:
-			enum STORAGE
-			{
-				OWNED = 0,
-				EXTERNAL
-			} m_memory_storage;
-
-		protected:
 			Size m_count;
-			Size m_capacity;
-		
-		public:
-			class Iterator;
-			class ConstIterator;
+			Size m_max_capacity;
 
 		public:
-			AbstractCollection(Size size, Size capacity)
-				: m_count(size), m_capacity(capacity) {}
+			AbstractCollection(Size count, Size max_capacity)
+				: m_count(count), m_max_capacity(max_capacity) {}
+
+		public:
 			virtual ~AbstractCollection() = default;
 		
 		public:
@@ -46,43 +39,18 @@ namespace Forge {
 			 */
 			virtual Size GetCount(void) const;
 
-		public:
 			/**
-			 * @brief Returns an iterator pointing to the first element in the
-			 * collection.
+			 * @brief Gets the maximum number of elements that can be stored in
+			 * this collection.
 			 *
-			 * @return Iterator pointing to the first element.
+			 * @return Size storing the maximum number of elements.
 			 */
-			virtual Iterator GetStartItr(void) = 0;
-
-			/**
-			 * @brief Returns an iterator pointing to the past-end element in the
-			 * collection.
-			 *
-			 * @return Iterator pointing to the past-end element element.
-			 */
-			virtual Iterator GetEndItr(void) = 0;
-
-			/**
-			 * @brief Returns a constant iterator pointing to the first element in
-			 * the collection.
-			 *
-			 * @return ConstIterator pointing to the first element.
-			 */
-			virtual ConstIterator GetStartConstItr(void) = 0;
-
-			/**
-			 * @brief Returns a constant iterator pointing to the past-end element
-			 * in the collection.
-			 *
-			 * @return Iterator pointing to the past-end element element.
-			 */
-			virtual ConstIterator GetEndConstItr(void) = 0;
+			virtual Size GetMaxCapacity(void) const;
 
 		public:
 			/**
 			 * @brief Checks whether this collection is full and is at maximum
-			 * size.
+			 * capacity.
 			 *
 			 * @return True if this collection is full.
 			 */
@@ -109,7 +77,7 @@ namespace Forge {
 			 * 
 			 * @return True if the specified collection is equal to this collection. 
 			 */
-			virtual Bool IsEqual(const AbstractCollection<ElementType>& collection) const = 0;
+			virtual Bool IsEqual(AbstractCollection<ElementType>& collection) const = 0;
 
 		public:
 			/**
@@ -150,67 +118,16 @@ namespace Forge {
 
 		public:
 			/**
-			 * @brief Inserts the specified element in this collection. This
-			 * operation has different behaviours depending on the collection type.
-			 *
-			 * Collections that support this operation may place limitations on how
-			 * elements are inserted into the collection and in what order they are
-			 * placed.
-			 *
-			 * @param[in] element ElementType to insert in this collection.
-			 *
-			 * @return True if insertion was successful and no duplicates in
-			 * this collection if supported.
-			 *
-			 * @throws InvalidOperationException if operation not supported by
-			 * this collection.
+			 * @brief Iterates through all the elements inside the collection and
+			 * performs the operation provided on each element.
+			 * 
+			 * The operation is performed in the order of iteration, and is performed
+			 * until all elements have been processed or the operation throws an
+			 * exception.
+			 * 
+			 * @param[in] function The function to perform on each element.
 			 */
-			virtual Bool Insert(ElementType&& element) = 0;
-
-			/**
-			 * @brief Inserts the specified element in this collection. This
-			 * operation has different behaviours depending on the collection type.
-			 * 
-			 * Collections that support this operation may place limitations on how
-			 * elements are inserted into the collection and in what order they are
-			 * placed.
-			 * 
-			 * @param[in] element ElementType to insert in this collection.
-			 * 
-			 * @return True if insertion was successful and no duplicates in
-			 * this collection if supported.
-			 * 
-			 * @throws InvalidOperationException if operation not supported by
-			 * this collection.
-			 */
-			virtual Bool Insert(ConstElementTypeRef element) = 0;
-
-			/**
-			 * @brief Removes the specified element from this collection. This 
-			 * operation has different behaviours depending on the collection type.
-			 * 
-			 * Collections that support this operation may place limitations on how
-			 * elements are removed from the collection and in what order they are
-			 * removed.
-			 * 
-			 * @param[in] element ElementType to remove from this collection.
-			 * 
-			 * @return True if removal was successful and the element was found.
-			 * 
-			 * @throws InvalidOperationException if operation not supported by
-			 * this collection.
-			 */
-			virtual Bool Remove(ConstElementTypeRef element) = 0;
-
-			/**
-			 * @brief Searches this collection for the specified element. This
-			 * operation has different behaviours depening on the collection type.
-			 * 
-			 * @param[in] element ElementType to search for in this collection.
-			 * 
-			 * @return True if the specified element was found in this collection.
-			 */
-			virtual Bool Contains(ConstElementTypeRef element) = 0;
+			virtual Void ForEach(Common::TDelegate<Void(ElementTypeRef)> function) = 0;
 
 		public:
 			/**
@@ -227,7 +144,7 @@ namespace Forge {
 			 * @throws InvalidOperationException if operation not supported by
 			 * this collection.
 			 */
-			virtual Bool InsertAll(const AbstractCollection<ElementType>& collection) = 0;
+			virtual Bool InsertAll(AbstractCollection<ElementType>& collection) = 0;
 
 			/**
 			 * @brief Removes all the elements in the specified collection from this
@@ -242,7 +159,7 @@ namespace Forge {
 			 * @throws InvalidOperationException if operation not supported by
 			 * this collection.
 			 */
-			virtual Bool RemoveAll(const AbstractCollection<ElementType>& collection) = 0;
+			virtual Bool RemoveAll(AbstractCollection<ElementType>& collection) = 0;
 
 			/**
 			 * @brief Searches for all the elements in the specified collection in 
@@ -254,7 +171,7 @@ namespace Forge {
 			 * 
 			 * @return True if the specified elements were found in this collection.
 			 */
-			virtual Bool ContainsAll(const AbstractCollection<ElementType>& collection) = 0;
+			virtual Bool ContainsAll(AbstractCollection<ElementType>& collection) = 0;
 
 		public:
 			/**
@@ -266,11 +183,13 @@ namespace Forge {
 		};
 
 		template<typename T>
-		FORGE_FORCE_INLINE Size AbstractCollection<T>::GetCount() const { return m_count; }
+		FORGE_FORCE_INLINE Size AbstractCollection<T>::GetCount() const { return this->m_count; }
 		template<typename T>
-		FORGE_FORCE_INLINE Bool AbstractCollection<T>::IsFull() const  { return GetSize() == m_capacity; }
+		FORGE_FORCE_INLINE Size AbstractCollection<T>::GetMaxCapacity() const { return this->m_max_capacity; }
 		template<typename T>
-		FORGE_FORCE_INLINE Bool AbstractCollection<T>::IsEmpty() const { return GetSize() == 0; }
+		FORGE_FORCE_INLINE Bool AbstractCollection<T>::IsFull() const  { return this->m_count == this->m_max_capacity; }
+		template<typename T>
+		FORGE_FORCE_INLINE Bool AbstractCollection<T>::IsEmpty() const { return this->m_count == 0; }
 	}
 }
 

@@ -1,7 +1,8 @@
-#ifndef T_STATIC_ARRAY_H
-#define T_STATIC_ARRAY_H
+#ifndef T_STATIC_STACK_H
+#define T_STATIC_STACK_H
 
 #include <utility>
+#include <stdlib.h>
 #include <initializer_list>
 
 #include "AbstractList.h"
@@ -9,24 +10,14 @@
 #include "Core/Public/Common/TypeDefinitions.h"
 #include "Core/Public/Common/PreprocessorUtilities.h"
 
+#include "Core/Public/Memory/PoolAllocator.h"
 #include "Core/Public/Memory/MemoryUtilities.h"
 
 namespace Forge {
 	namespace Containers
 	{
-		/**
-		 * @brief A fixed-size linear container that holds a specific number of
-		 * elements in a contigous memory block.
-		 * 
-		 * The static array has a fixed-size and does not manage the allocation of
-		 * its elements through the memory allocators, instead the memory block is
-		 * constructed at compile time in the stack. Therefore, it cannot be expanded
-		 * dynamiclly at run-time.
-		 * 
-		 * @author Karim Hisham
-		 */
 		template<typename InElementType, Size InMaxSize>
-		class TStaticArray : public AbstractList<InElementType>
+		class TStaticStack : public AbstractList<InElementType>
 		{
 		private:
 			using ElementType         = InElementType;
@@ -35,14 +26,6 @@ namespace Forge {
 			using ConstElementType    = const InElementType;
 			using ConstElementTypeRef = const InElementType&;
 			using ConstElementTypePtr = const InElementType*;
-
-		private:
-			using SelfType         = TStaticArray<ElementType, InMaxSize>;
-			using SelfTypeRef      = TStaticArray<ElementType, InMaxSize>&;
-			using SelfTypePtr      = TStaticArray<ElementType, InMaxSize>*;
-			using ConstSelfType    = const TStaticArray<ElementType, InMaxSize>;
-			using ConstSelfTypeRef = const TStaticArray<ElementType, InMaxSize>&;
-			using ConstSelfTypePtr = const TStaticArray<ElementType, InMaxSize>*;
 
 		public:
 			struct Iterator
@@ -143,25 +126,15 @@ namespace Forge {
 
 		private:
 			ElementType m_mem_block[InMaxSize];
-		
+
 		public:
-			/**
-			 * @brief Default constructor.
-			 * 
-			 * Constructs an empty static array.
-			 */
-			TStaticArray(void) 
+			TStaticStack(void)
 				: AbstractList<ElementType>(0, InMaxSize)
 			{
-				FORGE_ASSERT(this->m_max_capacity != 0 && this->m_count <= this->m_max_capacity, "Array size is not large enough to store the data.")
+				FORGE_ASSERT(this->m_max_capacity != 0 && this->m_count < this->m_max_capacity, "Array size is not large enough to store the data.")
 			}
 
-			/**
-			 * @brief Move element constructor.
-			 * 
-			 * Constructs a static array with a copy of an element.
-			 */
-			TStaticArray(ElementType&& element, Size count)
+			TStaticStack(ElementType&& element, Size count)
 				: AbstractList<ElementType>(count, InMaxSize)
 			{
 				FORGE_ASSERT(this->m_max_capacity != 0 && this->m_count < this->m_max_capacity, "Array size is not large enough to store the data.")
@@ -169,12 +142,7 @@ namespace Forge {
 				Memory::MoveConstruct(m_mem_block, std::move(element), this->m_count);
 			}
 
-			/**
-			 * @brief Copy element constructor.
-			 *
-			 * Constructs a static array with a copy of an element.
-			 */
-			TStaticArray(ConstElementTypeRef element, Size count)
+			TStaticStack(ConstElementTypeRef element, Size count)
 				: AbstractList<ElementType>(count, InMaxSize)
 			{
 				FORGE_ASSERT(this->m_max_capacity != 0 && this->m_count < this->m_max_capacity, "Array size is not large enough to store the data.")
@@ -182,82 +150,58 @@ namespace Forge {
 				Memory::CopyConstruct(m_mem_block, element, this->m_count);
 			}
 
-			/**
-			 * @brief Initializer list constructor.
-			 * 
-			 * Constructs a static array with an initializer list.
-			 */
-			TStaticArray(std::initializer_list<ElementType> init_list)
+			TStaticStack(std::initializer_list<ElementType> init_list)
 				: AbstractList<ElementType>(init_list.size(), InMaxSize)
 			{
 				FORGE_ASSERT(this->m_max_capacity != 0 && this->m_count < this->m_max_capacity, "Array size is not large enough to store the data.")
 
-				Memory::MoveConstructArray(m_mem_block, const_cast<ElementTypePtr>(init_list.begin()), this->m_count);
+				Memory::MoveConstructArray(this->m_mem_block, const_cast<ElementTypePtr>(init_list.begin()), this->m_count);
 			}
-			
+		
 		public:
-			/**
-			 * @brief Move constructor.
-			 */
-			TStaticArray(TStaticArray<ElementType, InMaxSize>&& other)
-				: AbstractList<ElementType>(other)
+			TStaticStack(TStaticStack<ElementType, InMaxSize>&& rhs)
 			{
-				Memory::MemoryCopy(this, &other, sizeof(SelfType));
+				Memory::MemoryCopy(this, &rhs, sizeof(TStaticStack<ElementType, InMaxSize>));
 
-				other.m_mem_block = nullptr;
-				other.m_count = 0;
+				rhs.m_mem_block = nullptr;
+				rhs.m_count = 0;
 			}
 
-			/**
-			 * @brief Copy constructor.
-			 */
-			TStaticArray(const TStaticArray<ElementType, InMaxSize>& other)
-				: AbstractList<ElementType>(other)
+			TStaticStack(const TStaticStack<ElementType, InMaxSize>& rhs)
 			{
-				Memory::CopyArray(this->m_mem_block, other.m_mem_block, other.m_count);
+				Memory::CopyConstructArray(this->m_mem_block, rhs.m_mem_block, rhs.m_count);
 
-				this->m_count = other.m_count;
+				this->m_count = rhs.m_count;
+			}
+		
+		public:
+			~TStaticStack()
+			{
+				this->Clear();
 			}
 
 		public:
-			~TStaticArray() = default;
-
-		public:
-			/**
-			 * @brief Move assignment.
-			 */
-			SelfType operator =(TStaticArray<ElementType, InMaxSize>&& other)
+			TStaticStack<ElementType, InMaxSize>& operator =(TStaticStack<ElementType, InMaxSize>&& rhs)
 			{
 				this->Clear();
 
-				Memory::MemoryCopy(this, &other, sizeof(SelfType));
+				Memory::MemoryCopy(this, &rhs, sizeof(TStaticStack<ElementType, InMaxSize>));
 
-				other.m_mem_block = nullptr;
-				other.m_count = 0;
-
-				return *this;
-			}
-			
-			/**
-			 * @brief Copy assignment.
-			 */
-			SelfType operator =(const TStaticArray<ElementType, InMaxSize>& other)
-			{
-				this->Clear();
-
-				Memory::CopyArray(this->m_mem_block, other.m_mem_block, other.m_count);
-
-				this->m_count = other.m_count;
+				rhs.m_mem_block = nullptr;
+				rhs.m_count = 0;
 
 				return *this;
 			}
 
-		public:
-			ElementTypeRef operator [](Size index)
+			TStaticStack<ElementType, InMaxSize>& operator =(const TStaticStack<ElementType, InMaxSize>& rhs)
 			{
-				FORGE_ASSERT(index >= 0 && index < this->m_count, "Index is out of range.")
+				this->Clear();
 
-				return *(this->m_mem_block + index);
+				Memory::CopyArray(this->m_mem_block, rhs.m_mem_block, rhs.m_count);
+
+				this->m_count = rhs.m_count;
+
+				return *this;
 			}
 
 		public:
@@ -311,8 +255,8 @@ namespace Forge {
 
 		public:
 			/**
-			 * @brief Gets a direct pointer to the memory array managed by this
-			 * collection.
+			 * @brief Gets a direct pointer to the memory array managed by the
+			 * static stack.
 			 *
 			 * Elements in the memory array are guranteed to be stored in contiguous
 			 * memory locations. This allows the pointer to be offsetted to access
@@ -391,6 +335,7 @@ namespace Forge {
 					return nullptr;
 
 				ElementTypePtr array_ptr = (ElementTypePtr)malloc(this->m_count * sizeof(ElementType));
+
 				Memory::CopyConstructArray(array_ptr, const_cast<ElementTypePtr>(this->m_mem_block), this->m_count);
 
 				return array_ptr;
@@ -423,15 +368,15 @@ namespace Forge {
 
 		public:
 			/**
-		     * @brief Iterates through all the elements inside the collection and
-		     * performs the operation provided on each element.
-		     *
-		     * The operation is performed in the order of iteration, and is performed
-		     * until all elements have been processed or the operation throws an
-		     * exception.
-		     *
-		     * @param[in] function The function to perform on each element.
-		     */
+			 * @brief Iterates through all the elements inside the collection and
+			 * performs the operation provided on each element.
+			 *
+			 * The operation is performed in the order of iteration, and is performed
+			 * until all elements have been processed or the operation throws an
+			 * exception.
+			 *
+			 * @param[in] function The function to perform on each element.
+			 */
 			virtual Void ForEach(Common::TDelegate<Void(ElementTypeRef)> function) override
 			{
 				for (I32 i = 0; i < this->m_count; i++)
@@ -441,14 +386,12 @@ namespace Forge {
 		public:
 			/**
 			 * @brief Returns the index of the first occurence of the specified
-			 * element in the static array, or -1 if it does not contain the
-			 * element or it is empty.
+			 * element in the static stack, or -1 if it does not contain the element.
 			 *
 			 * @param[in] element The element to search for the first occurence.
 			 *
 			 * @return Size storing the index of the first occurrence of the
-			 * specified element, or -1 if the static array does not contain the
-			 * element or it is empty.
+			 * specified element, or -1 if this list does not contain the element.
 			 */
 			I64 FirstIndexOf(ConstElementTypeRef element) const override
 			{
@@ -459,285 +402,269 @@ namespace Forge {
 				ConstElementTypePtr end = start + this->m_count;
 
 				for (ConstElementTypePtr ptr = start; ptr != end; ptr++)
-					if (*ptr == element)
+				{
+					if (Memory::MemoryCompare(ptr, &element, sizeof(ElementType)))
 						return reinterpret_cast<I64>(Memory::SubAddress(ptr, start)) / sizeof(ElementType);
+				}
 				
 				return -1;
 			}
-			
+
 			/**
 			 * @brief Returns the index of the last occurence of the specified
-			 * element in the static array, or -1 if it does not contain the
-			 * element or it is empty.
+			 * element in the static stack, or -1 if it does not contain the element.
 			 *
-			 * @param[in] element The element to search for the last occurence.
+			 * @param[in] element The element to search for the first occurence.
 			 *
 			 * @return Size storing the index of the last occurrence of the
-			 * specified element, or -1 if the static array does not contain the
-			 * element or it is empty.
+			 * specified element, or -1 if this list does not contain the element.
 			 */
 			I64 LastIndexOf(ConstElementTypeRef element) const override
 			{
 				if (!this->m_count)
 					return -1;
-				
+
 				ConstElementTypePtr start = this->m_mem_block - 1;
 				ConstElementTypePtr end = start + this->m_count;
 
-				for (ConstElementTypePtr ptr = end; ptr != start; ptr--)
-					if (*ptr == element)
+				for (ConstElementTypePtr ptr = end; ptr != end; ptr--)
+				{
+					if (Memory::MemoryCompare(ptr, &element, sizeof(ElementType)))
 						return reinterpret_cast<I64>(Memory::SubAddress(ptr, start + 1)) / sizeof(ElementType);
+				}
 				
 				return -1;
 			}
 
 		public:
 			/**
-			 * @brief Retreives the last element in the dynamic array.
+			 * @brief Retreives the top most element in the static stack.
 			 *
-			 * @return ConstElementTypeRef storing the last element in the list.
+			 * @return ConstElementTypeRef storing the top most element in the
+			 * static stack.
 			 */
 			ConstElementTypeRef PeekBack() const override
 			{
-				if (!this->m_count)
-				{
-					// Throw Exception
-				}
-
 				return *(this->m_mem_block + this->m_count - 1);
 			}
 
 			/**
-			 * @brief Retreives the first element in the dynamic array.
+			 * @brief The static stack only allows retrieval of the top most element.
 			 *
-			 * @return ConstElementTypeRef storing the first element in the list.
+			 * @throws InvalidOperationException if attempted to retrieve the first
+			 * element.
 			 */
 			ConstElementTypeRef PeekFront() const override
 			{
-				if (!this->m_count)
+				// Throw Exception
+
+				return ElementType();
+			}
+
+		public:
+			/**
+			 * @brief Inserts a new element at the end of the static stack, after
+			 * its current last element.
+			 * 
+			 * This operation has the same functionality as Push.
+			 *
+			 * @param[in] element The element to insert in the static stack.
+			 */
+			Void PushBack(ElementType&& element) override
+			{
+				if (this->m_count >= this->m_max_capacity)
+				{
+					// Throw Exception
+				}
+					
+				Memory::Move(this->m_mem_block + this->m_count, std::move(element), 1);
+
+				this->m_count++;
+			}
+
+			/**
+			 * @brief The static stack only allows insertion of elements at the end
+			 * of the stack.
+			 *
+			 * @throws InvalidOperationException if attempted to insert at the front
+			 * of the stack.
+			 */
+			Void PushFront(ElementType&& element) override
+			{
+				// Throw Exception
+			}
+
+			/**
+			 * @brief Inserts a new element at the end of the static stack, after
+			 * its current last element.
+			 * 
+			 * This operation has the same functionality as Push.
+			 *
+			 * @param[in] element The element to insert in the static stack.
+			 */
+			Void PushBack(ConstElementTypeRef element) override
+			{
+				if (this->m_count >= this->m_max_capacity)
 				{
 					// Throw Exception
 				}
 
-				return *(this->m_mem_block);
-			}
+				Memory::Copy(this->m_mem_block + this->m_count, element, 1);
 
-		public:
-			/**
-			 * @brief Inserts a new element at the end of this linked list, after
-			 * its current last element.
-			 *
-			 * @param[in] element The element to insert in this linked list.
-			 */
-			Void PushBack(ElementType&& element) override
-			{
-				this->InsertAt(this->m_count, element);
+				this->m_count++;
 			}
 
 			/**
-			 * @brief Inserts a new element at the start of this linked list, before
-			 * its current first element.
+			 * @brief The static stack only allows insertion of elements at the end
+			 * of the stack.
 			 *
-			 * @param[in] element The element to insert in this linked list.
-			 */
-			Void PushFront(ElementType&& element) override
-			{
-				this->InsertAt(0, element);
-			}
-
-			/**
-			 * @brief Inserts a new element at the end of this linked list, after
-			 * its current last element.
-			 *
-			 * @param[in] element The element to insert in the linked list.
-			 */
-			Void PushBack(ConstElementTypeRef element) override
-			{
-				this->InsertAt(this->m_count, element);
-			}
-
-			/**
-			 * @brief Inserts a new element at the start of this linked list, before
-			 * its current first element.
-			 *
-			 * @param[in] element The element to insert in thi linked list.
+			 * @throws InvalidOperationException if attempted to insert at the front
+			 * of the stack.
 			 */
 			Void PushFront(ConstElementTypeRef element) override
 			{
-				this->InsertAt(0, element);
+				// Throw Exception
 			}
 
 			/**
-			 * @brief Removes the element at the end of this linked list, effectivly
+			 * @brief Removes the element at the end of this static stack, effectivly
 			 * reducing the list count by one.
+			 * 
+			 * This operation has the same functionality as Pop.
 			 */
 			Void PopBack(void) override
 			{
-				this->RemoveAt(this->m_count - 1);
-			}
-
-			/**
-			 * @brief Removes the element at the start of this linked list,
-			 * effectivly reducing the list count by one.
-			 */
-			Void PopFront(void) override
-			{
-				this->RemoveAt(0);
-			}
-
-		public:	
-			/**
-			* @brief Inserts the specified element in the specified index.
-			*
-			* This function will increase the count size by one and shift all
-			* elements that preceed the newly inserted element. If the number of
-			* elements overflow the capacity of the array a reallocation will occur
-			* to accomodate for the increased size.
-			*
-			* @param[in] index   The numerical index to insert the element at.
-			* @param[in] element The element to insert in the static array.
-			*
-			* @throw IndexOutOfRangeException if index to insert element is out
-			* of range.
-			*/
-			Void InsertAt(Size index, ElementType&& element) override
-			{
-				FORGE_ASSERT(index >= 0 && index <= this->m_count, "Index is out of range.")
-
-				if (this->m_count >= this->m_max_capacity)
-					return;
-					
-				ElementType next, prev;
-
-				ElementTypePtr ptr = this->m_mem_block + index;
-
-				for (I32 i = 0, prev = *ptr; i < this->m_count - index; i++)
-				{
-					next = *(++ptr);
-					*ptr = prev;
-					prev = next;
-				}
-
-				Memory::Move(this->m_mem_block + index, std::move(element), 1);
-
-				this->m_count++;
-			}
-
-			/**
-			* @brief Inserts the specified element in the specified index.
-			*
-			* This function will increase the count size by one and shift all
-			* elements that preceed the newly inserted element. If the number of
-			* elements overflow the capacity of the array a reallocation will occur
-			* to accomodate for the increased size.
-			*
-			* @param[in] index   The numerical index to insert the element at.
-			* @param[in] element The element to insert in the static array.
-			*
-			* @throw IndexOutOfRangeException if index to insert element is out
-			* of range.
-			*/
-			Void InsertAt(Size index, ConstElementTypeRef element) override
-			{
-				FORGE_ASSERT(index >= 0 && index <= this->m_count, "Index is out of range.")
-
-				if (this->m_count >= this->m_max_capacity)
+				if (!this->m_count)
 					return;
 
-				ElementType next, prev;
-
-				ElementTypePtr ptr = this->m_mem_block + index;
-
-				for (I32 i = 0, prev = *ptr; i < this->m_count - index; i++)
-				{
-					next = *(++ptr);
-					*ptr = prev;
-					prev = next;
-				}
-
-				Memory::Copy(this->m_mem_block + index, element, 1);
-
-				this->m_count++;
-			}
-
-			/**
-			 * @brief Removes the specified element after the element in the
-			 * specified position in the list.
-			 *
-			 * This effectively decreases the list size by one, and destroys the
-			 * element but does not deallocate the memory the element was stored
-			 * at.
-			 *
-			 * @param[in] index The numerical index to remove the element at.
-			 *
-			 * @throw InvalidOperationException if operation not supported by
-			 * this collection.
-			 */
-			Void RemoveAt(Size index) override
-			{
-				FORGE_ASSERT(index >= 0 && index < this->m_count, "Index is out of range.")
-
-				if(!this->m_count)
-					return;
-
-				ElementTypePtr slow_ptr = this->m_mem_block + index;
-				ElementTypePtr fast_ptr = this->m_mem_block + index + 1;
-				
-				Memory::Destruct(this->m_mem_block + index, 1);
-
-				for (I32 i = 0; i < this->m_count - index; i++)
-					*(slow_ptr++) = *(fast_ptr++);
+				Memory::Destruct(this->m_mem_block + this->m_count - 1, 1);
 
 				this->m_count--;
 			}
 
+			/**
+			 * @brief The static stack only allows removal of elements at the end
+			 * of the stack.
+			 *
+			 * @throws InvalidOperationException if attempted to remove at the front
+			 * of the stack.
+			 */
+			Void PopFront(void) override
+			{
+				// Throw Exception
+			}
+
 		public:
 			/**
-			 * @brief Removes the first occurance of the specified element from the
-			 * static array.
+			 * @brief Inserts a new element at the end of the static stack, after
+			 * its current last element.
 			 *
-			 * This operation explicitly calls the destructor of the element
-			 * but does not deallocate the memory it was stored at.
-			 * 
-			 * @param[in] element ElementType to remove from the static array.
+			 * This operation has the same functionality as PushBack.
 			 *
-			 * @return True if removal was successful and the element was found.
+			 * @param[in] element The element to insert in the static stack.
+			 */
+			Void Push(ElementType&& element)
+			{
+				this->PushBack(element);
+			}
+
+			/**
+			 * @brief Inserts a new element at the end of the static stack, after
+			 * its current last element.
+			 *
+			 * This operation has the same functionality as PushBack.
+			 *
+			 * @param[in] element The element to insert in the static stack.
+			 */
+			Void Push(ConstElementTypeRef element)
+			{
+				this->PushBack(element);
+			}
+
+			/**
+			 * @brief Removes the element at the end of this static stack, effectivly
+			 * reducing the list count by one.
+			 *
+			 * This operation has the same functionality as PopBack.
+			 */
+			Void Pop(void)
+			{
+				this->PopBack();
+			}
+
+		public:
+			/**
+			 * @brief The static stack does not support insertion of elements at
+			 * specified positions.
+			 *
+			 * @throws InvalidOperationException if attempted to insert element at
+			 * a specified position
+			 */
+			Void InsertAt(Size index, ElementType&& element) override
+			{
+				// Throw Exception
+			}
+
+			/**
+			 * @brief The static stack does not support insertion of elements at
+			 * specified positions.
+			 *
+			 * @throws InvalidOperationException if attempted to insert element at
+			 * a specified position
+			 */
+			Void InsertAt(Size index, ConstElementTypeRef element) override
+			{
+				// Throw Exception
+			}
+
+			/**
+			 * @brief The static stack does not support removal of elements at
+			 * specified positions.
+			 *
+			 * @throws InvalidOperationException if attempted to remove element at
+			 * a specified position
+			 */
+			Void RemoveAt(Size index) override
+			{
+				// Throw Exception
+			}
+
+		public:
+			/**
+			 * @brief The static stack does not support removal of elements at
+			 * specified positions.
+			 *
+			 * @throws InvalidOperationException if attempted to remove element at
+			 * a specified position
 			 */
 			Bool Remove(ConstElementTypeRef element) override
 			{
-				if (Size index = this->FirstIndexOf(element) != -1)
-				{
-					this->RemoveAt(index);
-					return true;
-				}
+				// Throw Exception
 
 				return false;
 			}
 
 			/**
-			 * @brief Searches the static array for the specified element.
+			 * @brief Searches the static stack for the specified element.
 			 *
-			 * @param[in] element ElementType to search for in the static array.
+			 * @param[in] element ElementType to search for in the static stack.
 			 *
-			 * @return True if the specified element was found in the static array.
+			 * @return True if the specified element was found.
 			 */
 			Bool Contains(ConstElementTypeRef element) const override
 			{
-				return FirstIndexOf(element) != -1;
+				return this->FirstIndexOf(element) != -1;
 			}
 
 		public:
 			/**
-			 * @brief Inserts all the elements in the specified collection to the
-			 * static array. 
-			 * 
-			 * The order in which the elements are inserted into the static array
-			 * depends on how the specified collection is iterated on.
+			 * @brief Inserts all the elements in the specified collection to this
+			 * collection.
 			 *
 			 * @param[in] collection The collection containing elements to be added
-			 * to the static array.
+			 * to this collection.
 			 *
-			 * @return True if insertion was succesfull and collection is not empty.
+			 * @return True if insertion was successful.
 			 */
 			Bool InsertAll(AbstractCollection<ElementType>& collection) override
 			{
@@ -749,7 +676,7 @@ namespace Forge {
 
 				collection.ForEach([this](ElementTypeRef element)->Void
 					{
-						this->PushBack(element);
+						this->Push(element);
 					}
 				);
 
@@ -757,46 +684,27 @@ namespace Forge {
 			}
 
 			/**
-			 * @brief Removes all the elements in the specified collection from the
-			 * static array.
+			 * @brief The static stack does not support removal of elements at
+			 * specified positions.
 			 *
-			 * This operation explicitly calls the destructor of the element
-			 * but does not deallocate the memory it was stored at.
-			 * 
-			 * @param[in] collection The collection containing elements to be
-			 * removed from the static array.
-			 *
-			 * @return True if removal was successful, the elements were found and
-			 * the collection is not empty.
+			 * @throws InvalidOperationException if attempted to remove element at
+			 * a specified position
 			 */
 			Bool RemoveAll(AbstractCollection<ElementType>& collection) override
 			{
-				if (!this->m_count || collection.IsEmpty())
-					return false;
+				// Throw Exception
 
-				Bool return_value;
-
-				collection.ForEach([this, &return_value](ElementTypeRef element)->Void
-					{
-						return_value = this->Remove(element);
-
-						if (!return_value)
-							return;
-					}
-				);
-
-				return return_value;
+				return false;
 			}
 
 			/**
 			 * @brief Searches for all the elements in the specified collection in
-			 * the static array.
+			 * this collection.
 			 *
 			 * @param[in] collection The collection containing elements to be
-			 * search for in the static array.
+			 * search for in this collection.
 			 *
-			 * @return True if the specified elements were found in the static
-			 * array and the collection is not empty.
+			 * @return True if the specified elements were found in this collection.
 			 */
 			Bool ContainsAll(AbstractCollection<ElementType>& collection) override
 			{
@@ -816,15 +724,18 @@ namespace Forge {
 
 				return return_value;
 			}
-	
+
 		public:
 			/**
-			 * @brief Removes all the elements from the static array.
+			 * @brief Removes all the elements from the static stack.
 			 *
-			 * The static array will be empty after this operation.
+			 * The static stack will be empty after this operation.
 			 */
 			Void Clear(void) override
 			{
+				if (!this->m_count)
+					return;
+
 				Memory::Destruct(this->m_mem_block, this->m_count);
 
 				this->m_count = 0;
@@ -833,4 +744,4 @@ namespace Forge {
 	}
 }
 
-#endif // T_STATIC_ARRAY_H
+#endif // T_STATIC_STACK_H

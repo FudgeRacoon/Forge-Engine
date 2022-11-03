@@ -48,8 +48,8 @@ namespace Forge {
 			Bool m_is_mem_owned;
 
 		public:
-			AbstractAllocator(VoidPtr start, Size total_size)
-				: m_start_ptr(start), m_stats({ 0, total_size, 0, 0 }) {}
+			AbstractAllocator(VoidPtr start, Size capacity)
+				: m_start_ptr(start), m_stats({ 0, capacity, 0, 0 }) {}
 
 		public:
 			virtual ~AbstractAllocator() = default;
