@@ -246,9 +246,9 @@ namespace Forge {
 		 * @param[in]  count The number of element to construct in the array.
 		 */
 		template<typename _Type>
-		FORGE_FORCE_INLINE Void Destruct(_Type* dst, Size ui_count)
+		FORGE_FORCE_INLINE Void Destruct(_Type* dst, Size count)
 		{
-			Internal::DestructImpl(dst, ui_count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
+			Internal::DestructImpl(dst, count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
 		}
 
 		/**

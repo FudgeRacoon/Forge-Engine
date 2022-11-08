@@ -26,6 +26,14 @@ namespace Forge {
 			using ConstElementType    = const InElementType;
 			using ConstElementTypeRef = const InElementType&;
 			using ConstElementTypePtr = const InElementType*;
+		
+		private:
+			using SelfType         = TStaticQueue<ElementType, InMaxSize>;
+			using SelfTypeRef      = TStaticQueue<ElementType, InMaxSize>&;
+			using SelfTypePtr      = TStaticQueue<ElementType, InMaxSize>*;
+			using ConstSelfType    = const TStaticQueue<ElementType, InMaxSize>;
+			using ConstSelfTypeRef = const TStaticQueue<ElementType, InMaxSize>&;
+			using ConstSelfTypePtr = const TStaticQueue<ElementType, InMaxSize>*;
 
 		private:
 			ElementType m_mem_block[InMaxSize];
@@ -126,22 +134,132 @@ namespace Forge {
 					return this->m_ptr;
 				}
 			};
+			struct ConstIterator
+			{
+			private:
+				ElementTypePtr m_ptr;
+
+			public:
+				ConstIterator(void)
+					: m_ptr(nullptr) {}
+
+				ConstIterator(ElementTypePtr ptr)
+					: m_ptr(ptr) {}
+
+			public:
+				ConstIterator(ConstIterator&& other)
+				{
+					*this = std::move(other);
+				}
+				ConstIterator(const ConstIterator& other)
+				{
+					*this = other;
+				}
+
+			public:
+				~ConstIterator() = default;
+
+			public:
+				ConstIterator operator =(ConstIterator&& other)
+				{
+					Memory::MemoryCopy(this, &other, sizeof(Iterator));
+
+					other.m_ptr = nullptr;
+
+					return *this;
+				}
+				ConstIterator operator =(const ConstIterator& other)
+				{
+					Memory::MemoryCopy(this, const_cast<ConstIterator*>(&other), sizeof(Iterator));
+
+					return *this;
+				}
+
+			public:
+				ConstIterator operator --(I32)
+				{
+					ConstIterator temp(this->m_ptr);
+
+					this->m_ptr++;
+
+					return temp;
+				}
+				ConstIterator operator --(void)
+				{
+					this->m_ptr++;
+
+					return *this;
+				}
+
+			public:
+				ConstIterator operator ++(I32)
+				{
+					ConstIterator temp(this->m_ptr);
+
+					this->m_ptr++;
+
+					return temp;
+				}
+				ConstIterator operator ++(void)
+				{
+					this->m_ptr++;
+
+					return *this;
+				}
+
+			public:
+				Bool operator ==(const ConstIterator& other)
+				{
+					return this->m_ptr == other.m_ptr;
+				}
+				Bool operator !=(const ConstIterator& other)
+				{
+					return this->m_ptr != other.m_ptr;
+				}
+
+			public:
+				ConstElementTypeRef operator *()
+				{
+					return *(this->m_ptr);
+				}
+
+			public:
+				ConstElementTypePtr operator ->()
+				{
+					return this->m_ptr;
+				}
+			};
 
 		public:
+			/**
+			 * @brief Default constructor.
+			 *
+			 * Constructs an empty static queue.
+			 */
 			TStaticQueue(void)
 				: AbstractList<ElementType>(0, InMaxSize)
 			{
 				FORGE_ASSERT(this->m_max_capacity != 0 && this->m_count < this->m_max_capacity, "Array size is not large enough to store the data.")
 			}
 
+			/**
+			 * @brief Move element constructor.
+			 *
+			 * Constructs a static queue with a copy of an element.
+			 */
 			TStaticQueue(ElementType&& element, Size count)
 				: AbstractList<ElementType>(count, InMaxSize)
 			{
 				FORGE_ASSERT(this->m_max_capacity != 0 && this->m_count < this->m_max_capacity, "Array size is not large enough to store the data.")
 
-				Memory::MoveConstruct(m_mem_block, element, this->m_count);
+				Memory::MoveConstruct(m_mem_block, std::move(element), this->m_count);
 			}
 
+			/**
+			 * @brief Copy element constructor.
+			 *
+			 * Constructs a static queue with a copy of an element.
+			 */
 			TStaticQueue(ConstElementTypeRef element, Size count)
 				: AbstractList<ElementType>(count, InMaxSize)
 			{
@@ -150,6 +268,11 @@ namespace Forge {
 				Memory::CopyConstruct(m_mem_block, element, this->m_count);
 			}
 
+			/**
+			 * @brief Initializer list constructor.
+			 *
+			 * Constructs a static queue with an initializer list.
+			 */
 			TStaticQueue(std::initializer_list<ElementType> init_list)
 				: AbstractList<ElementType>(init_list.size(), InMaxSize)
 			{
@@ -159,19 +282,20 @@ namespace Forge {
 			}
 
 		public:
-			TStaticQueue(TStaticQueue<ElementType, InMaxSize>&& rhs)
+			/**
+			 * @brief Move constructor.
+			 */
+			TStaticQueue(SelfType&& other)
 			{
-				Memory::MemoryCopy(this, &rhs, sizeof(TStaticQueue<ElementType, InMaxSize>));
-
-				rhs.m_mem_block = nullptr;
-				rhs.m_count = 0;
+				*this = std::move(other);
 			}
 
-			TStaticQueue(const TStaticQueue<ElementType, InMaxSize>& rhs)
+			/**
+			 * @brief Copy constructor.
+			 */
+			TStaticQueue(ConstSelfTypeRef other)
 			{
-				Memory::CopyConstructArray(this->m_mem_block, rhs.m_mem_block, rhs.m_count);
-
-				this->m_count = rhs.m_count;
+				*this = other;
 			}
 
 		public:
@@ -181,76 +305,90 @@ namespace Forge {
 			}
 
 		public:
-			TStaticQueue<ElementType, InMaxSize>& operator =(TStaticQueue<ElementType, InMaxSize>&& rhs)
+			/**
+			 * @brief Move assignment.
+			 */
+			SelfTypeRef operator =(SelfType&& other)
 			{
-				Memory::MemoryCopy(this, &rhs, sizeof(TStaticQueue<ElementType, InMaxSize>));
+				this->Clear();
 
-				rhs.m_mem_block = nullptr;
-				rhs.m_count = 0;
+				Memory::MemoryCopy(this, &other, sizeof(SelfType));
+
+				other.m_mem_block = nullptr;
+				other.m_count = 0;
+
+				return *this;
 			}
 
-			TStaticQueue<ElementType, InMaxSize>& operator =(const TStaticQueue<ElementType, InMaxSize>& rhs)
+			/**
+			 * @brief Copy assignment.
+			 */
+			SelfTypeRef operator =(ConstSelfTypeRef other)
 			{
-				Memory::CopyArray(this->m_mem_block, rhs.m_mem_block, rhs.m_count);
+				this->Clear();
 
-				this->m_count = rhs.m_count;
+				Memory::CopyArray(this->m_mem_block, other.m_mem_block, other.m_count);
+
+				this->m_count = other.m_count;
+
+				return *this;
 			}			
 
 		public:
 			/**
 			 * @brief Returns an iterator pointing to the first element in this
-			 * static stack.
+			 * collection.
 			 *
 			 * @return Iterator pointing to the first element.
 			 */
-			Iterator GetStartItr(void) const
+			Iterator GetStartItr(void)
 			{
 				return Iterator(const_cast<ElementTypePtr>(this->m_mem_block));
 			}
 
 			/**
 			 * @brief Returns an iterator pointing to the past-end element in this
-			 * static stack.
+			 * collection.
 			 *
 			 * @return Iterator pointing to the past-end element element.
 			 */
-			Iterator GetEndItr(void) const
+			Iterator GetEndItr(void)
 			{
 				return Iterator(const_cast<ElementTypePtr>(this->m_mem_block + this->m_count));
 			}
 
 			/**
 			 * @brief Returns a const iterator pointing to the first element in this
-			 * static stack.
+			 * collection.
 			 *
 			 * @return ConstIterator pointing to the first element.
 			 */
-			Iterator GetStartConstItr(void) const
+			ConstIterator GetStartConstItr(void) const
 			{
 				return ConstIterator(const_cast<ElementTypePtr>(this->m_mem_block));
 			}
 
 			/**
-			 * @brief Returns a const iterator pointing to the past-end element in this
-			 * static.
+			 * @brief Returns a const iterator pointing to the past-end element in
+			 * this collection.
 			 *
 			 * @return ConstIterator pointing to the past-end element element.
 			 */
-			Iterator GetEndConstItr(void) const
+			ConstIterator GetEndConstItr(void) const
 			{
 				return ConstIterator(const_cast<ElementTypePtr>(this->m_mem_block + this->m_count));
 			}
 
 		public:
 			/**
-			 * @brief Gets a direct pointer to the memory array managed by the
-			 * static stack.
+			 * @brief Gets a direct pointer to the memory array managed by this
+			 * collection.
 			 *
 			 * Elements in the memory array are guranteed to be stored in contiguous
 			 * memory locations. This allows the pointer to be offsetted to access
 			 * different elements.
 			 *
-			 * @return Const pointer storing address of the memory array.
+			 * @return ConstElementTypePtr storing address of the memory array.
 			 */
 			ConstElementTypePtr GetRawData() const override
 			{
@@ -281,8 +419,8 @@ namespace Forge {
 
 				Bool return_value;
 
-				Iterator start_itr = this->GetStartItr();
-				Iterator end_itr = this->GetEndItr();
+				ConstIterator start_itr = this->GetStartConstItr();
+				ConstIterator end_itr = this->GetEndConstItr();
 
 				collection.ForEach([&return_value, &start_itr, end_itr](ElementTypeRef element) -> Void
 					{
@@ -306,7 +444,7 @@ namespace Forge {
 		public:
 			/**
 			 * @brief Returns an array containing all the elements returned by this
-			 * collection's forward iterator.
+			 * collection's iterator.
 			 *
 			 * The length of the array is equal to the number of elements returned
 			 * by the iterator. If this collection makes any guarantees as to what
@@ -331,7 +469,7 @@ namespace Forge {
 
 			/**
 			 * @brief Returns an array containing all the elements returned by this
-			 * collection's forward iterator.
+			 * collection's iterator.
 			 *
 			 * The length of the array is equal to the number of elements returned
 			 * by the iterator. If this collection makes any guarantees as to what
@@ -339,7 +477,7 @@ namespace Forge {
 			 * return the elements in the same order. The returned array contains
 			 * deep copies of the elements.
 			 *
-			 * @param[out] array The array to store this collection's elements.
+			 * @param[out] array_ptr The array to store this collection's elements.
 			 *
 			 * @return ElementTypePtr storing the address of the array or
 			 * nullptr if collection is empty.
@@ -365,7 +503,7 @@ namespace Forge {
 			 *
 			 * @param[in] function The function to perform on each element.
 			 */
-			virtual Void ForEach(Common::TDelegate<Void(ElementTypeRef)> function) override
+			Void ForEach(Common::TDelegate<Void(ElementTypeRef)> function) override
 			{
 				for (I32 i = 0; i < this->m_count; i++)
 					function.Invoke(*(this->m_mem_block + i));
@@ -374,13 +512,14 @@ namespace Forge {
 		public:
 			/**
 			 * @brief Returns the index of the first occurence of the specified
-			 * element in the static queue, or -1 if it does not contain the element.
+			 * element in this collection, or -1 if it does not contain the
+			 * element or it is empty.
 			 *
 			 * @param[in] element The element to search for the first occurence.
 			 *
 			 * @return Size storing the index of the first occurrence of the
-			 * specified element, or -1 if the static queue does not contain the
-			 * element.
+			 * specified element, or -1 if this collection does not contain the
+			 * element or it is empty.
 			 */
 			I64 FirstIndexOf(ConstElementTypeRef element) const override
 			{
@@ -401,13 +540,14 @@ namespace Forge {
 
 			/**
 			 * @brief Returns the index of the last occurence of the specified
-			 * element in the static queue, or -1 if it does not contain the element.
+			 * element in this collection, or -1 if it does not contain the
+			 * element or it is empty.
 			 *
-			 * @param[in] element The element to search for the first occurence.
+			 * @param[in] element The element to search for the last occurence.
 			 *
 			 * @return Size storing the index of the last occurrence of the
-			 * specified element, or -1 if the static queue does not contain the
-			 * element.
+			 * specified element, or -1 if this collection does not contain the
+			 * element or it is empty.
 			 */
 			I64 LastIndexOf(ConstElementTypeRef element) const override
 			{
@@ -428,10 +568,10 @@ namespace Forge {
 
 		public:
 			/**
-			 * @brief Retreives the top most element in the static stack.
+			 * @brief This collection only allows retrieval of the front most element.
 			 *
-			 * @return ConstElementTypeRef storing the top most element in the
-			 * static stack.
+			 * @throws InvalidOperationException if attempted to retrieve the last
+			 * element in this collection.
 			 */
 			ConstElementTypeRef PeekBack() const override
 			{
@@ -441,23 +581,29 @@ namespace Forge {
 			}
 
 			/**
-			 * @brief The static stack only allows retrieval of the top most element.
+			 * @brief Retreives the first element in this collection.
 			 *
-			 * @throws InvalidOperationException if attempted to retrieve the first
-			 * element.
+			 * @return ConstElementTypeRef storing the first element in this
+			 * collection.
+			 *
+			 * @Throws InvalidOperationException if this collection is empty.
 			 */
 			ConstElementTypeRef PeekFront() const override
 			{
+				if (!this->m_count)
+				{
+					// Throw Exception
+				}
+
 				return *(this->m_mem_block);
 			}
 
 		public:
 			/**
-			 * @brief The static queue only allows insertion of elements at the front
-			 * of the queue.
+			 * @brief This collection only allows insertion of elements at the front.
 			 *
 			 * @throws InvalidOperationException if attempted to insert at the back
-			 * of the stack.
+			 * of this collection.
 			 */
 			Void PushBack(ElementType&& element) override
 			{
@@ -465,12 +611,13 @@ namespace Forge {
 			}
 
 			/**
-			 * @brief Inserts a new element at the front of the static queue, after
-			 * its current last element.
+			 * @brief Inserts a new element at the front of this collection, before
+			 * its current first element.
 			 *
-			 * This operation has the same functionality as Push.
+			 * @param[in] element The element to insert in this collection.
 			 *
-			 * @param[in] element The element to insert in the static queue.
+			 * @throw MemoryOutOfBoundsException if this collection's max capacity
+			 * has been reached.
 			 */
 			Void PushFront(ElementType&& element) override
 			{
@@ -485,12 +632,10 @@ namespace Forge {
 			}
 
 			/**
-			 * @brief Inserts a new element at the end of the static stack, after
-			 * its current last element.
+			 * @brief This collection only allows insertion of elements at the front.
 			 *
-			 * This operation has the same functionality as Push.
-			 *
-			 * @param[in] element The element to insert in the static stack.
+			 * @throws InvalidOperationException if attempted to insert at the back
+			 * of this collection.
 			 */
 			Void PushBack(ConstElementTypeRef element) override
 			{
@@ -498,11 +643,13 @@ namespace Forge {
 			}
 
 			/**
-			 * @brief The static stack only allows insertion of elements at the end
-			 * of the stack.
+			 * @brief Inserts a new element at the front of this collection, before
+			 * its current first element.
 			 *
-			 * @throws InvalidOperationException if attempted to insert at the front
-			 * of the stack.
+			 * @param[in] element The element to insert in this collection.
+			 *
+			 * @throw MemoryOutOfBoundsException if this collection's max capacity
+			 * has been reached.
 			 */
 			Void PushFront(ConstElementTypeRef element) override
 			{
@@ -517,10 +664,10 @@ namespace Forge {
 			}
 
 			/**
-			 * @brief Removes the element at the end of this static stack, effectivly
-			 * reducing the list count by one.
+			 * @brief This collection only allows removal of elements at the front.
 			 *
-			 * This operation has the same functionality as Pop.
+			 * @throws InvalidOperationException if attempted to remove at the back
+			 * of this collection.
 			 */
 			Void PopBack(void) override
 			{
@@ -528,11 +675,12 @@ namespace Forge {
 			}
 
 			/**
-			 * @brief The static stack only allows removal of elements at the end
-			 * of the stack.
+			 * @brief Removes the element at the front of this collection, effectivly
+			 * reducing the collection count by one.
 			 *
-			 * @throws InvalidOperationException if attempted to remove at the front
-			 * of the stack.
+			 * This function has the same functionality as Pop
+			 *
+			 * @Throws InvalidOperationException if this collection is empty.
 			 */
 			Void PopFront(void) override
 			{
@@ -544,22 +692,21 @@ namespace Forge {
 				ElementTypePtr slow_ptr = this->m_mem_block;
 				ElementTypePtr fast_ptr = this->m_mem_block + 1;
 
-				this->m_count--;
+				Memory::Destruct(this->m_mem_block, 1);
 
 				for (I32 i = 0; i < this->m_count; i++)
 					*(slow_ptr++) = *(fast_ptr++);
 
-				Memory::Destruct(this->m_mem_block, 1);
+				this->m_count--;
 			}
 
 		public:
 			/**
-			 * @brief Inserts a new element at the end of the static stack, after
-			 * its current last element.
+			 * @brief Inserts a new element at the front of this collection.
 			 *
-			 * This operation has the same functionality as PushBack.
+			 * This function has the same functionality as PushBack.
 			 *
-			 * @param[in] element The element to insert in the static stack.
+			 * @param[in] element The element to insert at the front.
 			 */
 			Void Push(ElementType&& element)
 			{
@@ -567,12 +714,11 @@ namespace Forge {
 			}
 
 			/**
-			 * @brief Inserts a new element at the end of the static stack, after
-			 * its current last element.
+			 * @brief Inserts a new element at the front of this collection.
 			 *
-			 * This operation has the same functionality as PushBack.
+			 * This function has the same functionality as PushBack.
 			 *
-			 * @param[in] element The element to insert in the static stack.
+			 * @param[in] element The element to insert at the front.
 			 */
 			Void Push(ConstElementTypeRef element)
 			{
@@ -580,8 +726,7 @@ namespace Forge {
 			}
 
 			/**
-			 * @brief Removes the element at the end of this static stack, effectivly
-			 * reducing the list count by one.
+			 * @brief Removes the element at the front of this collection.
 			 *
 			 * This operation has the same functionality as PopBack.
 			 */
@@ -592,11 +737,11 @@ namespace Forge {
 
 		public:
 			/**
-			 * @brief The static queue does not support insertion of elements at
-			 * specified positions.
+			 * @brief This collection does not support insertion of elements at
+			 * specified indices.
 			 *
 			 * @throws InvalidOperationException if attempted to insert element at
-			 * a specified position
+			 * a specified index.
 			 */
 			Void InsertAt(Size index, ElementType&& element) override
 			{
@@ -604,11 +749,11 @@ namespace Forge {
 			}
 
 			/**
-			 * @brief The static queue does not support insertion of elements at
-			 * specified positions.
+			 * @brief This collection does not support insertion of elements at
+			 * specified indices.
 			 *
 			 * @throws InvalidOperationException if attempted to insert element at
-			 * a specified position
+			 * a specified index.
 			 */
 			Void InsertAt(Size index, ConstElementTypeRef element) override
 			{
@@ -616,23 +761,23 @@ namespace Forge {
 			}
 
 			/**
-			 * @brief The static queue does not support removal of elements at
-			 * specified positions.
+			 * @brief This does not support removal of elements at specified indices.
 			 *
 			 * @throws InvalidOperationException if attempted to remove element at
-			 * a specified position
+			 * a specified index.
 			 */
 			Void RemoveAt(Size index) override
 			{
 				// Throw Exception
 			}
+
 		public:
 			/**
-			 * @brief The static queue does not support removal of elements at
+			 * @brief This collection does not support removal of elements at
 			 * specified positions.
 			 *
 			 * @throws InvalidOperationException if attempted to remove element at
-			 * a specified position
+			 * a specified position.
 			 */
 			Bool Remove(ConstElementTypeRef element) override
 			{
@@ -642,11 +787,11 @@ namespace Forge {
 			}
 
 			/**
-			 * @brief Searches the static queue for the specified element.
+			 * @brief Searches this collection for the specified element.
 			 *
-			 * @param[in] element ElementType to search for in the static stack.
+			 * @param[in] element ElementType to search for in this collection.
 			 *
-			 * @return True if the specified element was found.
+			 * @return True if the specified element was found in this collection.
 			 */
 			Bool Contains(ConstElementTypeRef element) const override
 			{
@@ -658,10 +803,13 @@ namespace Forge {
 			 * @brief Inserts all the elements in the specified collection to this
 			 * collection.
 			 *
+			 * The order in which the elements are inserted into this collection
+			 * depends on how the specified collection is iterated on.
+			 *
 			 * @param[in] collection The collection containing elements to be added
 			 * to this collection.
 			 *
-			 * @return True if insertion was successful.
+			 * @return True if insertion was succesfull and collection is not empty.
 			 */
 			Bool InsertAll(AbstractCollection<ElementType>& collection) override
 			{
@@ -671,7 +819,7 @@ namespace Forge {
 				if (this->m_max_capacity - collection.GetMaxCapacity() < 0)
 					return false;
 
-				collection.ForEach([this](ElementTypeRef element)->Void
+				collection.ForEach([this](ElementTypeRef element) -> Void
 					{
 						this->Push(element);
 					}
@@ -681,11 +829,11 @@ namespace Forge {
 			}
 
 			/**
-			 * @brief The static stack does not support removal of elements at
+			 * @brief This collection does not support removal of elements at
 			 * specified positions.
 			 *
 			 * @throws InvalidOperationException if attempted to remove element at
-			 * a specified position
+			 * a specified position.
 			 */
 			Bool RemoveAll(AbstractCollection<ElementType>& collection) override
 			{
@@ -701,7 +849,8 @@ namespace Forge {
 			 * @param[in] collection The collection containing elements to be
 			 * search for in this collection.
 			 *
-			 * @return True if the specified elements were found in this collection.
+			 * @return True if the specified elements were found and the collection
+			 * is not empty.
 			 */
 			Bool ContainsAll(AbstractCollection<ElementType>& collection) override
 			{
@@ -710,7 +859,7 @@ namespace Forge {
 
 				Bool return_value;
 
-				collection.ForEach([this, &return_value](ElementTypeRef element)->Void
+				collection.ForEach([this, &return_value](ElementTypeRef element) -> Void
 					{
 						return_value = this->Contains(element);
 
@@ -724,9 +873,7 @@ namespace Forge {
 
 		public:
 			/**
-			 * @brief Removes all the elements from the static queue.
-			 *
-			 * The static stack will be empty after this operation.
+			 * @brief Removes all the elements from this collection.
 			 */
 			Void Clear(void) override
 			{

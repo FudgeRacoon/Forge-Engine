@@ -10,6 +10,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sandbox", "Sandbox\Sandbox.
 		{5BB4D4FF-6A01-466D-A2AB-78EA80ABEE1C} = {5BB4D4FF-6A01-466D-A2AB-78EA80ABEE1C}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestBed", "TestBed\TestBed.vcxproj", "{F995C5C0-5A6E-4EB5-93B3-59BA5CA56D0B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -34,6 +36,14 @@ Global
 		{709528F8-5B3E-4857-A2B6-7CA4307AFEFE}.Release|x64.Build.0 = Debug|x64
 		{709528F8-5B3E-4857-A2B6-7CA4307AFEFE}.Release|x86.ActiveCfg = Release|x64
 		{709528F8-5B3E-4857-A2B6-7CA4307AFEFE}.Release|x86.Build.0 = Release|x64
+		{F995C5C0-5A6E-4EB5-93B3-59BA5CA56D0B}.Debug|x64.ActiveCfg = Debug|x64
+		{F995C5C0-5A6E-4EB5-93B3-59BA5CA56D0B}.Debug|x64.Build.0 = Debug|x64
+		{F995C5C0-5A6E-4EB5-93B3-59BA5CA56D0B}.Debug|x86.ActiveCfg = Debug|Win32
+		{F995C5C0-5A6E-4EB5-93B3-59BA5CA56D0B}.Debug|x86.Build.0 = Debug|Win32
+		{F995C5C0-5A6E-4EB5-93B3-59BA5CA56D0B}.Release|x64.ActiveCfg = Release|x64
+		{F995C5C0-5A6E-4EB5-93B3-59BA5CA56D0B}.Release|x64.Build.0 = Release|x64
+		{F995C5C0-5A6E-4EB5-93B3-59BA5CA56D0B}.Release|x86.ActiveCfg = Release|Win32
+		{F995C5C0-5A6E-4EB5-93B3-59BA5CA56D0B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
