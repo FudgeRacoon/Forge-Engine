@@ -16,10 +16,10 @@ namespace Forge {
 		class TDelegate {};
 
 		/**
-		 * @brief A delegate is a type that represents references to functions with
-		 * a particular parameter list and return type.
+		 * @brief A delegate is a type that represents references to callable
+		 * objects with a particular parameter list and return type.
 		 * 
-		 * When an instance of a delegate is created, the instance can associated
+		 * When an instance of a delegate is created, the instance can be associated
 		 * with any function with a compatible signature and return type. The method
 		 * can be invoked (or called) through the delegate instance.
 		 * 
@@ -42,16 +42,14 @@ namespace Forge {
 
 		private:
 			using SignatureFunc = ReturnType(Params...);
-			using InvokableFunc = ReturnType(*)(ConstSelfTypeRef, Params&&...);
+			using InvokableFunc = ReturnType(*)(ConstSelfTypeRef, Params...);
 
 		private:
 			template<typename InLambdaFunctor>
 			struct LambdaStorage 
 			{ 
 				InLambdaFunctor m_lambda; 
-				
-				LambdaStorage(InLambdaFunctor lambda)
-					: m_lambda(lambda) {}
+				LambdaStorage(InLambdaFunctor lambda) : m_lambda(lambda) {}
 			};
 
 		private:
@@ -68,7 +66,7 @@ namespace Forge {
 			InvokableFunc m_invokable;
 
 		private:
-			 mutable VoidPtr m_func_address;
+			 mutable BytePtr m_func_address;
 
 		private:
 			/**
@@ -85,9 +83,9 @@ namespace Forge {
 			 * @return ReturnType storing the return value of the bound function.
 			 */
 			template<typename InFunction>
-			static ReturnType InvokeLambda(ConstSelfTypeRef self_type, const Params&... params)
+			static ReturnType InvokeLambda(ConstSelfTypeRef self_type, Params... params)
 			{
-				return reinterpret_cast<LambdaStorage<InFunction>*>(&self_type.m_func_address)->m_lambda(params...);
+				return reinterpret_cast<LambdaStorage<InFunction>*>(self_type.m_func_address)->m_lambda(params...);
 			}
 
 			/**
@@ -104,9 +102,9 @@ namespace Forge {
 			 * @return ReturnType storing the return value of the bound function.
 			 */
 			template<typename InFunction>
-			static ReturnType InvokeFunction(ConstSelfTypeRef self_type, const Params&... params)
+			static ReturnType InvokeFunction(ConstSelfTypeRef self_type, Params... params)
 			{
-				return (*(reinterpret_cast<InFunction*>(&self_type.m_func_address)))(params...);
+				return (*(reinterpret_cast<InFunction*>(self_type.m_func_address)))(params...);
 			}
 
 			/**
@@ -123,9 +121,9 @@ namespace Forge {
 			 * @return ReturnType storing the return value of the bound function.
 			 */
 			template<typename InFunction, typename InClass>
-			static ReturnType InvokeClassFunction(ConstSelfTypeRef self_type, const Params&... params)
+			static ReturnType InvokeClassFunction(ConstSelfTypeRef self_type, const Params... params)
 			{
-				InFunction function = *(reinterpret_cast<InFunction*>(&self_type.m_func_address));
+				InFunction function = *(reinterpret_cast<InFunction*>(self_type.m_func_address));
 
 				return (static_cast<InClass*>(self_type.m_instance_ptr)->*function)(params...);
 			}
@@ -144,9 +142,9 @@ namespace Forge {
 			 * @return ReturnType storing the return value of the bound function.
 			 */
 			template<typename InFunction, typename InClass>
-			static ReturnType InvokeClassConstFunction(ConstSelfTypeRef self_type, const Params&... params)
+			static ReturnType InvokeClassConstFunction(ConstSelfTypeRef self_type, Params... params)
 			{
-				InFunction function = *(reinterpret_cast<InFunction*>(&self_type.m_func_address));
+				InFunction function = *(reinterpret_cast<InFunction*>(self_type.m_func_address));
 
 				return (static_cast<const InClass*>(self_type.m_const_instance_ptr)->*function)(params...);
 			}
@@ -155,60 +153,51 @@ namespace Forge {
 			/**
 			 * @brief Default constructor.
 			 * 
-			 * Constructs an empty delegate object with the dispatch function
-			 * pointers set to null.
+			 * Constructs an empty delegate object with the invokable to null.
 			 */
 			TDelegate(void)
-				: m_invokable(nullptr)
-			{
-				this->m_func_address = malloc(sizeof(ReturnType(*)(Params...)));
-
-				Memory::MemorySet(this->m_func_address, 0, sizeof(ReturnType(*)(Params...)));
-			}
+				: m_func_container_size(sizeof(ReturnType(*)(Params...))), m_func_address(nullptr), m_invokable(nullptr) {}
 
 			/**
-			 * @brief Bind global function constructor.
+			 * @brief Global invokable constructor.
 			 * 
-			 * Constructs a delegate object with the passed function or lambda
-			 * bound to the delegate object.
+			 * Constructs a delegate object with the passed invokable bound to the
+			 * delegate object.
 			 */
 			template<typename InFunction>
 			TDelegate(InFunction function)
 			{
-				this->m_func_address = malloc(sizeof(ReturnType(*)(Params...)));
-
 				if (TIsAssignable<SignatureFunc*&, InFunction>::Value)
 				{
 					ConstSize function_size = sizeof(InFunction);
 
+					this->m_func_address = (BytePtr)malloc(sizeof(function_size));
+					
 					if (function_size > 1 && function_size <= sizeof(ReturnType(*)(Params...)))
 						Memory::MemoryCopy(this->m_func_address, &function, function_size);
 					else
 						Memory::MemorySet(this->m_func_address, 0, function_size);
 
+					this->m_instance_ptr = nullptr;
 					this->m_func_container_size = function_size;
-
 					this->m_invokable = &InvokeFunction<InFunction>;
 				}
 				else
 				{
-					ConstSize lambda_storage_size = sizeof(LambdaStorage<InFunction>);
+					ConstSize lambda_size = sizeof(LambdaStorage<InFunction>);
 
-					if (lambda_storage_size > sizeof(ReturnType(*)(Params...)))
-						this->m_func_address = realloc(this->m_func_address, lambda_storage_size);
+					this->m_func_address = (BytePtr)malloc(sizeof(lambda_size));
 						
 					new (this->m_func_address) LambdaStorage<InFunction>(function);
 				
 					this->m_instance_ptr = nullptr;
-
-					this->m_func_container_size = lambda_storage_size;
-
+					this->m_func_container_size = lambda_size;
 					this->m_invokable = &InvokeLambda<InFunction>;
 				}
 			}
 			
 			/**
-			 * @brief Bind member function constructor.
+			 * @brief Member function constructor.
 			 * 
 			 * Constructs a delegate object with the passed member function bound
 			 * to the delegate object.
@@ -216,16 +205,14 @@ namespace Forge {
 			template<typename InFunction, typename InClass>
 			TDelegate(InFunction function, InClass* instance)
 			{
-				this->m_func_address = malloc(sizeof(ReturnType(*)(Params...)));
+				this->m_func_address = (BytePtr)malloc(sizeof(ReturnType(*)(Params...)));
 
 				ConstSize function_size = sizeof(InFunction);
 
 				Memory::MemoryCopy(this->m_func_address, &function, function_size);
 
 				this->m_instance_ptr = instance;
-
 				this->m_func_container_size = function_size;
-
 				this->m_invokable = &InvokeClassFunction<InFunction, InClass>;
 			}
 			
@@ -238,16 +225,14 @@ namespace Forge {
 			template<typename InFunction, typename InClass>
 			TDelegate(InFunction function, const InClass* instance)
 			{
-				this->m_func_address = malloc(sizeof(ReturnType(*)(Params...)));
+				this->m_func_address = (BytePtr)malloc(sizeof(ReturnType(*)(Params...)));
 
 				ConstSize function_size = sizeof(InFunction);
 
 				Memory::MemoryCopy(this->m_func_address, &function, function_size);
 
 				this->m_const_instance_ptr = instance;
-
 				this->m_func_container_size = function_size;
-
 				this->m_invokable = &InvokeClassFunction<InFunction, InClass>;
 			}
 
@@ -256,87 +241,74 @@ namespace Forge {
 			 * @brief Move constructor.
 			 */
 			TDelegate(SelfType&& other)
+				: m_func_container_size(sizeof(ReturnType(*)(Params...))), m_func_address(nullptr), m_invokable(nullptr)
 			{
-				this->Invalidate();
-
-				this->m_instance_ptr = other.m_instance_ptr;
-
-				this->m_func_container_size = other.m_func_container_size;
-
-				this->m_invokable = other.m_invokable;
-
-				this->m_func_address = other.m_func_address;
-
-				other.m_func_address = nullptr;
+				*this = std::move(other);
 			}
 
 			/**
 			 * @brief Copy constructor.
 			 */
 			TDelegate(ConstSelfTypeRef other)
+				: m_func_container_size(sizeof(ReturnType(*)(Params...))), m_func_address(nullptr), m_invokable(nullptr)
 			{
-				this->Invalidate();
-
-				this->m_func_address = malloc(other.m_func_container_size);
-
-				Memory::MemoryCopy(this->m_func_address, other.m_func_address, other.m_func_container_size);
-
-				this->m_instance_ptr = other.m_instance_ptr;
-
-				this->m_func_container_size = other.m_func_container_size;
-
-				this->m_invokable = other.m_invokable;
+				*this = other;
 			}
 
 		public:
+			/**
+			 * Destructor
+			 */
 			~TDelegate()
 			{
 				this->Invalidate();
-
-				free(this->m_func_address);
 			}
 
 		public:
 			/**
 			 * @brief Move assignment.
 			 */
-			ConstSelfTypeRef operator =(SelfType&& other)
+			SelfTypeRef operator =(SelfType&& other)
 			{
 				this->Invalidate();
 
 				this->m_instance_ptr = other.m_instance_ptr;
-
 				this->m_func_container_size = other.m_func_container_size;
-
-				this->m_invokable = other.m_invokable;
-				
 				this->m_func_address = other.m_func_address;
+				this->m_invokable = other.m_invokable;
 			
+				other.m_instance_ptr = nullptr;
+				other.m_func_container_size = 0;
 				other.m_func_address = nullptr;
+				other.m_invokable = nullptr;
+
+				return *this;
 			}
 
 			/**
 			 * @brief Copy assignment.
 			 */
-			ConstSelfTypeRef operator =(ConstSelfTypeRef other)
+			SelfTypeRef operator =(ConstSelfTypeRef other)
 			{
 				this->Invalidate();
 
-				this->m_func_address = malloc(other.m_func_container_size);
+				this->m_func_address = (BytePtr)malloc(other.m_func_container_size);
 
 				Memory::MemoryCopy(this->m_func_address, other.m_func_address, other.m_func_container_size);
 
 				this->m_instance_ptr = other.m_instance_ptr;
-
 				this->m_func_container_size = other.m_func_container_size;
-
 				this->m_invokable = other.m_invokable;
+
+				return *this;
 			}
 
 		public:
 			/** 
 			 * @brief Checks wether the delegate object has a currently bound
-			 * function. The function pointer must be valid and non-nullptr.
+			 * invokable. 
+			 * 
+			 * The function pointer must be valid and non-nullptr.
 			 * 
 			 * @return True if the delegate object has a bound function.
 			 */
@@ -347,7 +319,7 @@ namespace Forge {
 			
 			/**
 			 * @brief Checks wether two delegate objects are bound to the same
-			 * functions, including the same instance.
+			 * invokables, including the same instance.
 			 * 
 			 * @param[in] other The other delegate object to check for equality.
 			 * 
@@ -362,33 +334,39 @@ namespace Forge {
 
 		public:
 			/**
-			 * @brief Releases the currently bound function.
+			 * @brief Releases the currently bound invokable.
 			 * 
 			 * This function invalidates the delegate object by resseting its
-			 * inplace memory storage for function address and setting the
-			 * dispatch function pointers to null.
+			 * inplace memory storage for function address.
 			 */
 			Void Invalidate(void)
 			{
-				Memory::MemorySet(this->m_func_address, 0, this->m_func_container_size);
+				if (this->m_func_address)
+					free(this->m_func_address);
 
 				this->m_instance_ptr = nullptr;
-
+				this->m_func_container_size = 0;
+				this->m_func_address = nullptr;
 				this->m_invokable = nullptr;
 			}
 
 			/**
-			 * @brief Invokes the currently bound function.
+			 * @brief Invokes the currently bound invokable.
 			 *
-			 * @param[in] params The parameters to pass to the bound function.
+			 * @param[in] params The parameters to pass to the bound invokable.
 			 *
-			 * @return ReturnType storing the return value of the bound function.
+			 * @return ReturnType storing the return value of the bound invokable.
 			 * 
 			 * @throws InvalidOperationException if the delegate object is invalid.
 			 */
 			ReturnType Invoke(Params... params)
 			{
-				return (*(this->m_invokable))(*this, params...);
+				if (!this->IsValid())
+				{
+					// Throw Exception
+				}
+
+				return (this->m_invokable)(*this, params...);
 			}
 		};
 	}

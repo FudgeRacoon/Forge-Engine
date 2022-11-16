@@ -1,7 +1,9 @@
 #include <gtest/gtest.h>
 
+#include "Source/Core/Common/TDelegateTest.h"
+
 int main(int argc, char** args)
 {
-
-	return 1;
+	testing::InitGoogleTest(&argc, args);
+	return RUN_ALL_TESTS();
 }

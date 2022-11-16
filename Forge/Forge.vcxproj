@@ -98,9 +98,9 @@
     <ClInclude Include="Source\Core\Public\Common\TypeDefinitions.h" />
     <ClInclude Include="Source\Core\Public\Common\TypeTraits.h" />
     <ClInclude Include="Source\Core\Public\Containers\AbstractCollection.h" />
-    <ClInclude Include="Source\Core\Public\Containers\TIterator.h" />
     <ClInclude Include="Source\Core\Public\Containers\AbstractList.h" />
     <ClInclude Include="Source\Core\Public\Containers\TDynamicArray.h" />
+    <ClInclude Include="Source\Core\Public\Containers\TDynamicQueue.h" />
     <ClInclude Include="Source\Core\Public\Containers\TDynamicStack.h" />
     <ClInclude Include="Source\Core\Public\Containers\TLinkedList.h" />
     <ClInclude Include="Source\Core\Public\Containers\TStaticArray.h" />

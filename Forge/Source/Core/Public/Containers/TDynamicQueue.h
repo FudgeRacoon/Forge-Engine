@@ -1,5 +1,5 @@
-#ifndef T_DYNAMIC_STACK_H
-#define T_DYNAMIC_STACK_H
+#ifndef T_DYNAMIC_QUEUE_H
+#define T_DYNAMIC_QUEUE_H
 
 #include <utility>
 #include <stdlib.h>
@@ -18,7 +18,7 @@ namespace Forge {
 	namespace Containers
 	{
 		template<typename InElementType>
-		class TDynamicStack : public AbstractList<InElementType>
+		class TDynamicQueue : public AbstractList<InElementType>
 		{
 		private:
 			using ElementType         = InElementType;
@@ -29,12 +29,12 @@ namespace Forge {
 			using ConstElementTypePtr = const InElementType*;
 
 		private:
-			using SelfType         = TDynamicStack<ElementType>;
-			using SelfTypeRef      = TDynamicStack<ElementType>&;
-			using SelfTypePtr      = TDynamicStack<ElementType>*;
-			using ConstSelfType    = const TDynamicStack<ElementType>;
-			using ConstSelfTypeRef = const TDynamicStack<ElementType>&;
-			using ConstSelfTypePtr = const TDynamicStack<ElementType>*;
+			using SelfType         = TDynamicQueue<ElementType>;
+			using SelfTypeRef      = TDynamicQueue<ElementType>&;
+			using SelfTypePtr      = TDynamicQueue<ElementType>*;
+			using ConstSelfType    = const TDynamicQueue<ElementType>;
+			using ConstSelfTypeRef = const TDynamicQueue<ElementType>&;
+			using ConstSelfTypePtr = const TDynamicQueue<ElementType>*;
 
 		private:
 			TLinkedList<ElementType>* m_container;
@@ -43,9 +43,9 @@ namespace Forge {
 			/**
 			 * @brief Default constructor.
 			 *
-			 * Constructs an empty dynamic stack.
+			 * Constructs an empty dynamic queue.
 			 */
-			TDynamicStack(void)
+			TDynamicQueue(void)
 				: AbstractList<ElementType>(0, ~((Size)0))
 			{
 				m_container = new TLinkedList<ElementType>();
@@ -54,9 +54,9 @@ namespace Forge {
 			/**
 			 * @brief Move element constructor.
 			 *
-			 * Constructs a dynamic stack with a copy of an element.
+			 * Constructs a dynamic queue with a copy of an element.
 			 */
-			TDynamicStack(ElementType&& element, Size count)
+			TDynamicQueue(ElementType&& element, Size count)
 				: AbstractList<ElementType>(0, ~((Size)0))
 			{
 				m_container = new TLinkedList<ElementType>(std::move(element), count);
@@ -67,9 +67,9 @@ namespace Forge {
 			/**
 			 * @brief Copy element constructor.
 			 *
-			 * Constructs a dynamic stack with a copy of an element.
+			 * Constructs a dynamic queue with a copy of an element.
 			 */
-			TDynamicStack(ConstElementTypeRef element, Size count)
+			TDynamicQueue(ConstElementTypeRef element, Size count)
 				: AbstractList<ElementType>(0, ~((Size)0))
 			{
 				m_container = new TLinkedList<ElementType>(element, count);
@@ -80,12 +80,12 @@ namespace Forge {
 			/**
 			 * @brief Initializer list constructor.
 			 *
-			 * Constructs a dynamic stack with an initializer list.
+			 * Constructs a dynamic queue with an initializer list.
 			 */
-			TDynamicStack(std::initializer_list<ElementType> init_list)
+			TDynamicQueue(std::initializer_list<ElementType> init_list)
 				: AbstractList<ElementType>(0, ~((Size)0))
 			{
-				m_container = new TLinkedList<ElementType>(init_list);
+				m_container = new TLinkedList<ElementType>(init_list, count);
 
 				this->m_count = m_container->GetCount();
 			}
@@ -94,7 +94,7 @@ namespace Forge {
 			/**
 			 * @brief Move constructor.
 			 */
-			TDynamicStack(SelfType&& other)
+			TDynamicQueue(SelfType&& other)
 				: AbstractList<ElementType>(other)
 			{
 				*this = std::move(other);
@@ -103,14 +103,14 @@ namespace Forge {
 			/**
 			 * @brief Copy constructor.
 			 */
-			TDynamicStack(ConstSelfTypeRef other)
+			TDynamicQueue(ConstSelfTypeRef other)
 				: AbstractList<ElementType>(other)
 			{
 				*this = other;
 			}
 
 		public:
-			~TDynamicStack()
+			~TDynamicQueue()
 			{
 				this->Clear();
 			}
@@ -197,7 +197,9 @@ namespace Forge {
 			 */
 			ConstElementTypePtr GetRawData() const override
 			{
-				return this->m_container->GetRawData();
+				// Throw Exception
+
+				return nullptr;
 			}
 
 		public:
@@ -309,39 +311,53 @@ namespace Forge {
 
 		public:
 			/**
-			 * @brief Retreives the last element in this collection.
+			 * @brief This collection only allows retrieval of the front most element.
 			 *
-			 * @return ConstElementTypeRef storing the last element in this
-			 * collection.
-			 *
-			 * @Throws InvalidOperationException if this collection is empty.
-			 */
-			ConstElementTypeRef PeekBack() const override
-			{
-				return this->m_container->PeekBack();
-			}
-
-			/**
-			 * @brief This collection only allows retrieval of the top most element.
-			 *
-			 * @throws InvalidOperationException if attempted to retrieve the first
+			 * @throws InvalidOperationException if attempted to retrieve the last
 			 * element in this collection.
 			 */
-			ConstElementTypeRef PeekFront() const override
+			ConstElementTypeRef PeekBack() const override
 			{
 				// Throw Exception
 
 				return ElementType();
 			}
 
+			/**
+			 * @brief Retreives the first element in this collection.
+			 *
+			 * @return ConstElementTypeRef storing the first element in this
+			 * collection.
+			 *
+			 * @Throws InvalidOperationException if this collection is empty.
+			 */
+			ConstElementTypeRef PeekFront() const override
+			{
+				return this->m_container->PeekFront();
+			}
+
 		public:
 			/**
-			 * @brief Inserts a new element at the end of this collection, after
-			 * its current last element.
+			 * @brief This collection only allows insertion of elements at the front.
 			 *
-			 * @param[in] element The element to insert in this collection.
+			 * @throws InvalidOperationException if attempted to insert at the back
+			 * of this collection.
 			 */
 			Void PushBack(ElementType&& element) override
+			{
+				// Throw Exception
+			}
+
+			/**
+			 * @brief Inserts a new element at the front of this collection, before
+			 * its current first element.
+			 *
+			 * @param[in] element The element to insert in this collection.
+			 *
+			 * @throw MemoryOutOfBoundsException if this collection's max capacity
+			 * has been reached.
+			 */
+			Void PushFront(ElementType&& element) override
 			{
 				this->m_container->PushBack(std::move(element));
 
@@ -349,23 +365,26 @@ namespace Forge {
 			}
 
 			/**
-		     * @brief This collection only allows insertion of elements at the end.
-		     *
-		     * @throws InvalidOperationException if attempted to insert at the front
-		     * of this collection.
-		     */
-			Void PushFront(ElementType&& element) override
+			 * @brief This collection only allows insertion of elements at the front.
+			 *
+			 * @throws InvalidOperationException if attempted to insert at the back
+			 * of this collection.
+			 */
+			Void PushBack(ConstElementTypeRef element) override
 			{
 				// Throw Exception
 			}
 
 			/**
-			 * @brief Inserts a new element at the end of this collection, after
-			 * its current last element.
+			 * @brief Inserts a new element at the front of this collection, before
+			 * its current first element.
 			 *
 			 * @param[in] element The element to insert in this collection.
+			 *
+			 * @throw MemoryOutOfBoundsException if this collection's max capacity
+			 * has been reached.
 			 */
-			Void PushBack(ConstElementTypeRef element) override
+			Void PushFront(ConstElementTypeRef element) override
 			{
 				this->m_container->PushBack(element);
 
@@ -373,29 +392,14 @@ namespace Forge {
 			}
 
 			/**
-			 * @brief This collection only allows insertion of elements at the end.
+			 * @brief This collection only allows insertion of elements at the front.
 			 *
-			 * @throws InvalidOperationException if attempted to insert at the front
+			 * @throws InvalidOperationException if attempted to insert at the back
 			 * of this collection.
-			 */
-			Void PushFront(ConstElementTypeRef element) override
-			{
-				// Throw Exception
-			}
-
-			/**
-			 * @brief Removes the element at the end of this collection, effectivly
-			 * reducing the collection count by one.
-			 *
-			 * This function has the same functionality as Pop
-			 *
-			 * @Throws InvalidOperationException if this collection is empty.
 			 */
 			Void PopBack(void) override
 			{
-				this->m_container->PopBack();
-
-				this->m_count = m_container->GetCount();
+				// Throw Exception
 			}
 
 			/**
@@ -406,7 +410,9 @@ namespace Forge {
 			 */
 			Void PopFront(void) override
 			{
-				// Throw Exception
+				this->m_container->PopFront();
+
+				this->m_count = m_container->GetCount();
 			}
 
 		public:
@@ -419,7 +425,7 @@ namespace Forge {
 			 */
 			Void Push(ElementType&& element)
 			{
-				//this->PushBack(std:move(element));
+				this->PushFront(std:move(element));
 			}
 
 			/**
@@ -431,7 +437,7 @@ namespace Forge {
 			 */
 			Void Push(ConstElementTypeRef element)
 			{
-				this->PushBack(element);
+				this->PushFront(element);
 			}
 
 			/**
@@ -441,7 +447,7 @@ namespace Forge {
 			 */
 			Void Pop(void)
 			{
-				this->PopBack();
+				this->PopFront();
 			}
 
 		public:
@@ -582,3 +588,4 @@ namespace Forge {
 }
 
 #endif // T_DYNAMIC_STACK_H
+

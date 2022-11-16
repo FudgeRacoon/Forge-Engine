@@ -755,7 +755,8 @@ namespace Forge {
 			}
 
 			/**
-			 * @brief This does not support removal of elements at specified indices.
+			 * @brief This collection does not support removal of elements at
+			 * specified indices.
 			 *
 			 * @throws InvalidOperationException if attempted to remove element at
 			 * a specified index.

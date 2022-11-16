@@ -71,7 +71,7 @@ namespace Forge {
 				~Iterator() = default;
 
 			public:
-				Iterator operator =(Iterator&& other)
+				Iterator& operator =(Iterator&& other)
 				{
 					Memory::MemoryCopy(this, &other, sizeof(Iterator));
 
@@ -79,7 +79,7 @@ namespace Forge {
 
 					return *this;
 				}
-				Iterator operator =(const Iterator& other)
+				Iterator& operator =(const Iterator& other)
 				{
 					Memory::MemoryCopy(this, const_cast<Iterator*>(&other), sizeof(Iterator));
 
@@ -166,17 +166,17 @@ namespace Forge {
 				~ConstIterator() = default;
 
 			public:
-				ConstIterator operator =(ConstIterator&& other)
+				ConstIterator& operator =(ConstIterator&& other)
 				{
-					Memory::MemoryCopy(this, &other, sizeof(Iterator));
+					Memory::MemoryCopy(this, &other, sizeof(ConstIterator));
 
 					other.m_ptr = nullptr;
 
 					return *this;
 				}
-				ConstIterator operator =(const ConstIterator& other)
+				ConstIterator& operator =(const ConstIterator& other)
 				{
-					Memory::MemoryCopy(this, const_cast<ConstIterator*>(&other), sizeof(Iterator));
+					Memory::MemoryCopy(this, const_cast<ConstIterator*>(&other), sizeof(ConstIterator));
 
 					return *this;
 				}
@@ -338,7 +338,7 @@ namespace Forge {
 			{
 				this->Clear();
 
-				Memory::CopyArray(this->m_mem_block, other.m_mem_block, other.m_count);
+				Memory::CopyArray(const_cast<ElementTypePtr>(this->m_mem_block), const_cast<ElementTypePtr>(other.m_mem_block), other.m_count);
 
 				this->m_count = other.m_count;
 
@@ -439,12 +439,12 @@ namespace Forge {
 				if (this->m_count != collection.GetCount())
 					return false;
 
-				Bool return_value;
+				Bool return_value = false;
 
 				ConstIterator start_itr = this->GetStartConstItr();
 				ConstIterator end_itr = this->GetEndConstItr();
 
-				collection.ForEach([&return_value, &start_itr, end_itr](ElementTypeRef element) -> Void
+				collection.ForEach([&](ElementTypeRef element) -> Void
 					{
 						if ((start_itr++) == end_itr)
 						{
@@ -669,6 +669,8 @@ namespace Forge {
 			/**
 			 * @brief Removes the element at the end of this collection, effectivly
 			 * reducing the collection count by one.
+			 * 
+			 * @Throws InvalidOperationException if this collection is empty.
 			 */
 			Void PopBack(void) override
 			{
@@ -678,6 +680,8 @@ namespace Forge {
 			/**
 			 * @brief Removes the element at the start of this collection, effectivly
 			 * reducing the collection count by one.
+			 * 
+			 * @Throws InvalidOperationException if this collection is empty.
 			 */
 			Void PopFront(void) override
 			{

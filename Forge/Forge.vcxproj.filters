@@ -141,13 +141,13 @@
     <ClInclude Include="Source\Core\Public\Containers\TDynamicStack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Public\Containers\TIterator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\Public\Containers\TUniquePtr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Public\Common\TDelegate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\Containers\TDynamicQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
