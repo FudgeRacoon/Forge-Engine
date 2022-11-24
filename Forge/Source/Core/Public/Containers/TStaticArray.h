@@ -259,7 +259,7 @@ namespace Forge {
 			TStaticArray(ElementType&& element, Size count)
 				: AbstractList<ElementType>(count, InMaxSize)
 			{
-				FORGE_ASSERT(this->m_max_capacity != 0 && this->m_count < this->m_max_capacity, "Array size is not large enough to store the data.")
+				FORGE_ASSERT(this->m_max_capacity != 0 && this->m_count <= this->m_max_capacity, "Array size is not large enough to store the data.")
 
 				Memory::MoveConstruct(m_mem_block, std::move(element), this->m_count);
 			}
@@ -272,7 +272,7 @@ namespace Forge {
 			TStaticArray(ConstElementTypeRef element, Size count)
 				: AbstractList<ElementType>(count, InMaxSize)
 			{
-				FORGE_ASSERT(this->m_max_capacity != 0 && this->m_count < this->m_max_capacity, "Array size is not large enough to store the data.")
+				FORGE_ASSERT(this->m_max_capacity != 0 && this->m_count <= this->m_max_capacity, "Array size is not large enough to store the data.")
 
 				Memory::CopyConstruct(m_mem_block, element, this->m_count);
 			}
@@ -285,7 +285,7 @@ namespace Forge {
 			TStaticArray(std::initializer_list<ElementType> init_list)
 				: AbstractList<ElementType>(init_list.size(), InMaxSize)
 			{
-				FORGE_ASSERT(this->m_max_capacity != 0 && this->m_count < this->m_max_capacity, "Array size is not large enough to store the data.")
+				FORGE_ASSERT(this->m_max_capacity != 0 && this->m_count <= this->m_max_capacity, "Array size is not large enough to store the data.")
 
 				Memory::MoveConstructArray(m_mem_block, const_cast<ElementTypePtr>(init_list.begin()), this->m_count);
 			}
@@ -310,6 +310,9 @@ namespace Forge {
 			}
 
 		public:
+			/**
+			 * @brief Destructor.
+			 */
 			~TStaticArray()
 			{
 				this->Clear();
@@ -325,7 +328,6 @@ namespace Forge {
 
 				Memory::MemoryCopy(this, &other, sizeof(SelfType));
 
-				other.m_mem_block = nullptr;
 				other.m_count = 0;
 
 				return *this;
@@ -417,50 +419,20 @@ namespace Forge {
 				return this->m_mem_block;
 			}
 
-		public:
 			/**
-			 * @brief Checks whether this collection is equal to the specified
-			 * collection.
+			 * @brief Retreives a reference to the element stored in the collection
+			 * at the specified index.
 			 *
-			 * Equality between collections is governed by their size, the order
-			 * of the elements in the collection and the eqaulity of the elements
-			 * they store.
+			 * @param[in] index The index to retreive the element stored at.
 			 *
-			 * @param[in] collection The collection to be compared with this
-			 * collection.
-			 *
-			 * @return True if the specified collection is equal to this collection.
+			 * @return ConstElementTypeRef storting the element stored at the
+			 * specified index.
 			 */
-			Bool IsEqual(AbstractCollection<ElementType>& collection) const override
+			ConstElementTypeRef GetByIndex(Size index) const override
 			{
-				if (collection.IsEmpty())
-					return false;
+				FORGE_ASSERT(index >= 0 && index < this->m_count, "Index is out of range.")
 
-				if (this->m_count != collection.GetCount())
-					return false;
-
-				Bool return_value = false;
-
-				ConstIterator start_itr = this->GetStartConstItr();
-				ConstIterator end_itr = this->GetEndConstItr();
-
-				collection.ForEach([&](ElementTypeRef element) -> Void
-					{
-						if ((start_itr++) == end_itr)
-						{
-							return_value = true;
-							return;
-						}
-
-						if (!Memory::MemoryCompare(&(*start_itr), &element, sizeof(ElementType)))
-						{
-							return_value = false;
-							return;
-						}
-					}
-				);
-
-				return return_value;
+				return *(this->m_mem_block + index);
 			}
 
 		public:
@@ -479,7 +451,7 @@ namespace Forge {
 			 */
 			ElementTypePtr ToArray(void) const override
 			{
-				if (!this->m_count)
+				if (this->IsEmpty())
 					return nullptr;
 
 				ElementTypePtr array_ptr = (ElementTypePtr)malloc(this->m_count * sizeof(ElementType));
@@ -582,110 +554,6 @@ namespace Forge {
 						return reinterpret_cast<I64>(Memory::SubAddress(ptr, start + 1)) / sizeof(ElementType);
 				
 				return -1;
-			}
-
-		public:
-			/**
-			 * @brief Retreives the last element in this collection.
-			 *
-			 * @return ConstElementTypeRef storing the last element in this
-			 * collection.
-			 * 
-			 * @Throws InvalidOperationException if this collection is empty.
-			 */
-			ConstElementTypeRef PeekBack() const override
-			{
-				if (!this->m_count)
-				{
-					// Throw Exception
-				}
-
-				return *(this->m_mem_block + this->m_count - 1);
-			}
-
-			/**
-			 * @brief Retreives the first element in this collection.
-			 *
-			 * @return ConstElementTypeRef storing the first element in this
-			 * collection.
-			 *
-			 * @Throws InvalidOperationException if this collection is empty.
-			 */
-			ConstElementTypeRef PeekFront() const override
-			{
-				if (!this->m_count)
-				{
-					// Throw Exception
-				}
-
-				return *(this->m_mem_block);
-			}
-
-		public:
-			/**
-			 * @brief Inserts a new element at the end of this collection, after
-			 * its current last element.
-			 *
-			 * @param[in] element The element to insert in this collection.
-			 */
-			Void PushBack(ElementType&& element) override
-			{
-				this->InsertAt(this->m_count, std::move(element));
-			}
-
-			/**
-			 * @brief Inserts a new element at the start of this collection. before
-			 * its current first element.
-			 *
-			 * @param[in] element The element to insert in this collection.
-			 */
-			Void PushFront(ElementType&& element) override
-			{
-				this->InsertAt(0, std::move(element));
-			}
-
-			/**
-			 * @brief Inserts a new element at the end of this collection, after
-			 * its current last element.
-			 *
-			 * @param[in] element The element to insert in this collection.
-			 */
-			Void PushBack(ConstElementTypeRef element) override
-			{
-				this->InsertAt(this->m_count, element);
-			}
-
-			/**
-			 * @brief Inserts a new element at the start of this collection. before
-			 * its current first element.
-			 *
-			 * @param[in] element The element to insert in this collection.
-			 */
-			Void PushFront(ConstElementTypeRef element) override
-			{
-				this->InsertAt(0, element);
-			}
-
-			/**
-			 * @brief Removes the element at the end of this collection, effectivly
-			 * reducing the collection count by one.
-			 * 
-			 * @Throws InvalidOperationException if this collection is empty.
-			 */
-			Void PopBack(void) override
-			{
-				this->RemoveAt(this->m_count - 1);
-			}
-
-			/**
-			 * @brief Removes the element at the start of this collection, effectivly
-			 * reducing the collection count by one.
-			 * 
-			 * @Throws InvalidOperationException if this collection is empty.
-			 */
-			Void PopFront(void) override
-			{
-				this->RemoveAt(0);
 			}
 
 		public:	
@@ -818,132 +686,6 @@ namespace Forge {
 				this->m_count--;
 			}
 
-		public:
-			/**
-			 * @brief Removes the first occurance of the specified element from
-			 * this collection.
-			 *
-			 * This function explicitly calls the destructor of the element
-			 * but does not deallocate the memory it was stored at.
-			 * 
-			 * @param[in] element ElementType to remove from this collection.
-			 *
-			 * @return True if removal was successful and the element was found.
-			 */
-			Bool Remove(ConstElementTypeRef element) override
-			{
-				if (Size index = this->FirstIndexOf(element) != -1)
-				{
-					this->RemoveAt(index);
-					return true;
-				}
-
-				return false;
-			}
-
-			/**
-			 * @brief Searches this collection for the specified element.
-			 *
-			 * @param[in] element ElementType to search for in this collection.
-			 *
-			 * @return True if the specified element was found in this collection.
-			 */
-			Bool Contains(ConstElementTypeRef element) const override
-			{
-				return FirstIndexOf(element) != -1;
-			}
-
-		public:
-			/**
-			 * @brief Inserts all the elements in the specified collection to this
-			 * collection. 
-			 * 
-			 * The order in which the elements are inserted into this collection
-			 * depends on how the specified collection is iterated on.
-			 *
-			 * @param[in] collection The collection containing elements to be added
-			 * to this collection.
-			 *
-			 * @return True if insertion was succesfull and collection is not empty.
-			 */
-			Bool InsertAll(AbstractCollection<ElementType>& collection) override
-			{
-				if (collection.IsEmpty())
-					return false;
-
-				if (this->m_max_capacity - collection.GetMaxCapacity() < 0)
-					return false;
-
-				collection.ForEach([this](ElementTypeRef element) -> Void
-					{
-						this->PushBack(element);
-					}
-				);
-
-				return true;
-			}
-
-			/**
-			 * @brief Removes all the elements in the specified collection from this
-			 * collection.
-			 *
-			 * This function explicitly calls the destructor of the elements
-			 * but does not deallocate the memory it was stored at.
-			 * 
-			 * @param[in] collection The collection containing elements to be
-			 * removed from this collection.
-			 *
-			 * @return True if removal was successful, the elements were found and
-			 * the collection is not empty.
-			 */
-			Bool RemoveAll(AbstractCollection<ElementType>& collection) override
-			{
-				if (!this->m_count || collection.IsEmpty())
-					return false;
-
-				Bool return_value;
-
-				collection.ForEach([this, &return_value](ElementTypeRef element) -> Void
-					{
-						return_value = this->Remove(element);
-
-						if (!return_value)
-							return;
-					}
-				);
-
-				return return_value;
-			}
-
-			/**
-			 * @brief Searches for all the elements in the specified collection in
-			 * this collection.
-			 *
-			 * @param[in] collection The collection containing elements to be
-			 * search for in this collection.
-			 *
-			 * @return True if the specified elements were found and the collection
-			 * is not empty.
-			 */
-			Bool ContainsAll(AbstractCollection<ElementType>& collection) override
-			{
-				if (!this->m_count || collection.IsEmpty())
-					return false;
-
-				Bool return_value;
-
-				collection.ForEach([this, &return_value](ElementTypeRef element) -> Void
-					{
-						return_value = this->Contains(element);
-
-						if (!return_value)
-							return;
-					}
-				);
-
-				return return_value;
-			}
-	
 		public:
 			/**
 			 * @brief Removes all the elements from this collection.

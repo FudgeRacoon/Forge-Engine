@@ -7,23 +7,23 @@
 namespace Forge {
 	namespace Common
 	{
-		namespace Private
+		namespace Internal
 		{
-			template<typename T,
-				Bool IsArithmetic = TIsArithmetic<T>::Value,
-				Bool IsFloatingPoint = TIsFloatingPoint<T>::Value,
-				Bool IsDoublePrecision = TIsDoublePrecision<T>::Value>
+			template<typename InType,
+				Bool IsArithmetic      = TIsArithmetic<InType>::Value,
+				Bool IsFloatingPoint   = TIsFloatingPoint<InType>::Value,
+				Bool IsDoublePrecision = TIsDoublePrecision<InType>::Value>
 			struct EndiannessImpl {};
 
-			template<typename T>
-			struct EndiannessImpl<T, true, false, false>
+			template<typename InType>
+			struct EndiannessImpl<InType, true, false, false>
 			{
-				using ValueType         = T;
-				using ValueTypeRef      = T&;
-				using ValueTypePtr      = T*;
-				using ConstValueType    = const T;
-				using ConstValueTypeRef = const T&;
-				using ConstValueTypePtr = const T*;
+				using ValueType         = InType;
+				using ValueTypeRef      = InType&;
+				using ValueTypePtr      = InType*;
+				using ConstValueType    = const InType;
+				using ConstValueTypeRef = const InType&;
+				using ConstValueTypePtr = const InType*;
 
 				static Void SwapEndian(ValueType data, BytePtr buffer, Size size)
 				{
@@ -54,15 +54,15 @@ namespace Forge {
 				}
 			};
 
-			template<typename T>
-			struct EndiannessImpl<T, true, true, false>
+			template<typename InType>
+			struct EndiannessImpl<InType, true, true, false>
 			{
-				using ValueType = T;
-				using ValueTypeRef = T&;
-				using ValueTypePtr = T*;
-				using ConstValueType = const T;
-				using ConstValueTypeRef = const T&;
-				using ConstValueTypePtr = const T*;
+				using ValueType         = InType;
+				using ValueTypeRef      = InType&;
+				using ValueTypePtr      = InType*;
+				using ConstValueType    = const InType;
+				using ConstValueTypeRef = const InType&;
+				using ConstValueTypePtr = const InType*;
 
 				union U32F32
 				{
@@ -176,7 +176,7 @@ namespace Forge {
 			if (TIsFloatingPoint<T>::Value)
 				Private::EndiannessImpl::union_helper.f = data;
 
-			Private::EndiannessImpl<T>::SwapEndian(data, buffer, sizeof(data));
+			Internal::EndiannessImpl<T>::SwapEndian(data, buffer, sizeof(data));
 		}
 		
 		/**
@@ -193,7 +193,7 @@ namespace Forge {
 			if (TIsFloatingPoint<T>::Value)
 				Private::EndiannessImpl::union_helper.i = 0;
 
-			Private::EndiannessImpl<T>::RegisterEndian(data, buffer, sizeof(data));
+			Internal::EndiannessImpl<T>::RegisterEndian(data, buffer, sizeof(data));
 		}
 	}
 }

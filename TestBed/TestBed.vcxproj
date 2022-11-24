@@ -50,6 +50,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\Common\TDelegateTest.h" />
+    <ClInclude Include="Source\Core\Containers\TDynamicQueueTest.h" />
+    <ClInclude Include="Source\Core\Containers\TDynamicStackTest.h" />
+    <ClInclude Include="Source\Core\Containers\TLinkedListTest.h" />
+    <ClInclude Include="Source\Core\Containers\TStaticArrayTest.h" />
   </ItemGroup>
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
@@ -107,7 +111,7 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <PreprocessorDefinitions>X64;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>

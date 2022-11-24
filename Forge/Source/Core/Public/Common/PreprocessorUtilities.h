@@ -40,6 +40,7 @@
 		{                                                                                                        \
 			fprintf(stderr, "%s:%s: assertion failed: %s\n", FORGE_FILE_LITERAL, FORGE_LINE_LITERAL, #__EXPR__); \
 			fprintf(stderr, "assertion message: %s", #__MSG__);                                                  \
+			FORGE_DEBUG_BREAK																					 \
 		}											                                                             \
 
 	#define FORGE_STATIC_ASSERT(__EXPR__)            \

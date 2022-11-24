@@ -12,7 +12,7 @@
 namespace Forge {
 	namespace Common
 	{
-		template<typename _Type>
+		template<typename Type>
 		class TDelegate {};
 
 		/**
@@ -171,7 +171,7 @@ namespace Forge {
 				{
 					ConstSize function_size = sizeof(InFunction);
 
-					this->m_func_address = (BytePtr)malloc(sizeof(function_size));
+					this->m_func_address = (BytePtr)malloc(function_size);
 					
 					if (function_size > 1 && function_size <= sizeof(ReturnType(*)(Params...)))
 						Memory::MemoryCopy(this->m_func_address, &function, function_size);
@@ -186,7 +186,7 @@ namespace Forge {
 				{
 					ConstSize lambda_size = sizeof(LambdaStorage<InFunction>);
 
-					this->m_func_address = (BytePtr)malloc(sizeof(lambda_size));
+					this->m_func_address = (BytePtr)malloc(lambda_size);
 						
 					new (this->m_func_address) LambdaStorage<InFunction>(function);
 				
@@ -205,9 +205,9 @@ namespace Forge {
 			template<typename InFunction, typename InClass>
 			TDelegate(InFunction function, InClass* instance)
 			{
-				this->m_func_address = (BytePtr)malloc(sizeof(ReturnType(*)(Params...)));
-
 				ConstSize function_size = sizeof(InFunction);
+
+				this->m_func_address = (BytePtr)malloc(function_size);
 
 				Memory::MemoryCopy(this->m_func_address, &function, function_size);
 
@@ -225,9 +225,9 @@ namespace Forge {
 			template<typename InFunction, typename InClass>
 			TDelegate(InFunction function, const InClass* instance)
 			{
-				this->m_func_address = (BytePtr)malloc(sizeof(ReturnType(*)(Params...)));
-
 				ConstSize function_size = sizeof(InFunction);
+
+				this->m_func_address = (BytePtr)malloc(function_size);
 
 				Memory::MemoryCopy(this->m_func_address, &function, function_size);
 
@@ -257,7 +257,7 @@ namespace Forge {
 
 		public:
 			/**
-			 * Destructor
+			 * @brief Destructor
 			 */
 			~TDelegate()
 			{
@@ -272,10 +272,7 @@ namespace Forge {
 			{
 				this->Invalidate();
 
-				this->m_instance_ptr = other.m_instance_ptr;
-				this->m_func_container_size = other.m_func_container_size;
-				this->m_func_address = other.m_func_address;
-				this->m_invokable = other.m_invokable;
+				Memory::MemoryCopy(this, &other, sizeof(SelfType));
 			
 				other.m_instance_ptr = nullptr;
 				other.m_func_container_size = 0;
@@ -341,8 +338,8 @@ namespace Forge {
 			 */
 			Void Invalidate(void)
 			{
-				if (this->m_func_address)
-					free(this->m_func_address);
+				if(this->m_func_address)
+					Memory::MemorySet(this->m_func_address, 0, this->m_func_container_size);
 
 				this->m_instance_ptr = nullptr;
 				this->m_func_container_size = 0;

@@ -280,9 +280,9 @@ namespace Forge {
 		 * @param[in]  ui_count The number of element copies to store in the array.
 		 */
 		template<typename _Type>
-		FORGE_FORCE_INLINE Void Copy(_Type* dst, const _Type& copy, Size ui_count)
+		FORGE_FORCE_INLINE Void Copy(_Type* dst, const _Type& copy, Size count)
 		{
-			Internal::CopyImpl(dst, copy, ui_count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
+			Internal::CopyImpl(dst, copy, count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
 		}
 
 		/**
@@ -297,9 +297,9 @@ namespace Forge {
 		 * @param[in]  count The number of element copies to store in the array.
 		 */
 		template<typename _Type>
-		FORGE_FORCE_INLINE Void CopyConstruct(_Type* dst, const _Type& copy, Size ui_count)
+		FORGE_FORCE_INLINE Void CopyConstruct(_Type* dst, const _Type& copy, Size count)
 		{
-			Internal::CopyConstructImpl(dst, copy, ui_count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
+			Internal::CopyConstructImpl(dst, copy, count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
 		}
 
 		/**

@@ -19,6 +19,14 @@ namespace Forge {
 			using ConstElementTypeRef = const InElementType&;
 			using ConstElementTypePtr = const InElementType*;
 
+		private:
+			using SelfType         = AbstractList<ElementType>;
+			using SelfTypeRef      = AbstractList<ElementType>&;
+			using SelfTypePtr      = AbstractList<ElementType>*;
+			using ConstSelfType    = const AbstractList<ElementType>;
+			using ConstSelfTypeRef = const AbstractList<ElementType>&;
+			using ConstSelfTypePtr = const AbstractList<ElementType>*;
+
 		public:
 			AbstractList(Size count, Size max_capacity)
 				: AbstractCollection<ElementType>(count, max_capacity) {}
@@ -38,9 +46,62 @@ namespace Forge {
 			 * @return ConstElementTypePtr storing address of the memory array.
 			 *
 			 * @throws InvalidOperationException if operation not supported by
-			 * list.
+			 * this collection.
 			 */
-			virtual ConstElementTypePtr GetRawData() const = 0;
+			virtual ConstElementTypePtr GetRawData(void) const = 0;
+
+			/**
+			 * @brief Retreives a reference to the element stored in the collection
+			 * at the specified index.
+			 *
+			 * @param[in] index The index to retreive the element stored at.
+			 *
+			 * @return ConstElementTypeRef storting the element stored at the
+			 * specified index.
+			 *
+			 * @throws InvalidOperationException if collection is empty.
+			 * 
+			 * @throws IndexOutOfRangeExceotion if index is out of range.
+			 */
+			virtual ConstElementTypeRef GetByIndex(Size index) const = 0;
+
+		public:
+			/**
+			 * @brief Checks whether this collection is equal to the specified
+			 * collection.
+			 *
+			 * Equality between collections is governed by their size, the order
+			 * of the elements in the collection and the eqaulity of the elements
+			 * they store.
+			 *
+			 * @param[in] collection The collection to be compared with this
+			 * collection.
+			 *
+			 * @return True if the specified collection is equal to this collection.
+			 */
+			virtual Bool IsEqual(AbstractCollection<ElementType>& collection) const
+			{
+				if (this->m_count != collection.GetCount())
+					return false;
+
+				I32 index = 0;
+
+				Bool return_value = true;
+
+				collection.ForEach([this, &index, &return_value](ElementTypeRef element) -> Void
+					{
+						ConstElementTypeRef other_element = this->GetByIndex(index++);
+
+						if (!Memory::MemoryCompare(&other_element, &element, sizeof(ElementType)))
+						{
+							return_value = false;
+							return;
+						}
+					}
+				);
+
+				return return_value;
+			}
 
 		public:
 			/**
@@ -51,9 +112,8 @@ namespace Forge {
 			 *
 			 * @return Size storing the index of the first occurrence of the
 			 * specified element, or -1 if this list does not contain the element.
-			 *
-			 * @throws InvalidOperationException if operation not supported by
-			 * this collection.
+			 * 
+			 * @throws InvalidOperationException if collection is empty.
 			 */
 			virtual I64 FirstIndexOf(ConstElementTypeRef element) const = 0;
 
@@ -65,89 +125,172 @@ namespace Forge {
 			 *
 			 * @return Size storing the index of the last occurrence of the
 			 * specified element, or -1 if this list does not contain the element.
-			 *
-			 * @throws InvalidOperationException if operation not supported by
-			 * this collection.
+			 * 
+			 * @throws InvalidOperationException if collection is empty.
 			 */
 			virtual I64 LastIndexOf(ConstElementTypeRef element) const = 0;
 
 		public:
 			/**
-			 * @brief Retreives the last element in the list
+			 * @brief Retreives the back element in this collection.
 			 * 
-			 * @return ConstElementTypeRef storing the last element in the list.
+			 * @return ConstElementTypeRef storing the last element in this
+			 * collection.
+			 * 
+			 * @Throws InvalidOperationException if this collection is empty or not
+			 * supported by this collection.
 			 */
-			virtual ConstElementTypeRef PeekBack() const = 0;
+			virtual ConstElementTypeRef PeekBack(void) const
+			{
+				return this->GetByIndex(this->m_count - 1);
+			}
 
 			/**
-			 * @brief Retreives the first element in the list
+			 * @brief Retreives the front element in this collection.
 			 *
-			 * @return ConstElementTypeRef storing the first element in the list.
+			 * @return ConstElementTypeRef storing the front element in this
+			 * collection.
+			 *
+			 * @Throws InvalidOperationException if this collection is empty or not
+			 * supported by this collection.
 			 */
-			virtual ConstElementTypeRef PeekFront() const = 0;
+			virtual ConstElementTypeRef PeekFront(void) const
+			{
+				return this->GetByIndex(0);
+			}
 
 		public:
 			/**
-			 * @brief Inserts a new element at the end of this list, after its
-			 * current last element.
+			 * @brief Inserts a new element at the end of this collection, after
+			 * its current last element.
+			 *
+			 * @param[in] element The element to insert in this collection.
 			 * 
-			 * @param[in] element The element to insert in the list.
-			 * 
-			 * @throws InvalidOperationException if operation not supported by
-			 * list.
-			 */
-			virtual Void PushBack(ElementType&& element) = 0;
-
-			/**
-			 * @brief Inserts a new element at the start of this list, before its
-			 * current first element.
-			 *
-			 * @param[in] element The element to insert in the list.
-			 *
-			 * @throws InvalidOperationException if operation not supported by
-			 * list.
-			 */
-			virtual Void PushFront(ElementType&& element) = 0;
-
-			/**
-			 * @brief Inserts a new element at the end of this list, after its
-			 * current last element.
-			 *
-			 * @param[in] element The element to insert in the list.
-			 *
-			 * @throws InvalidOperationException if operation not supported by
-			 * list.
-			 */
-			virtual Void PushBack(ConstElementTypeRef element) = 0;
-
-			/**
-			 * @brief Inserts a new element at the start of this list, before its
-			 * current first element.
-			 *
-			 * @param[in] element The element to insert in the list.
-			 *
-			 * @throws InvalidOperationException if operation not supported by
-			 * list.
-			 */
-			virtual Void PushFront(ConstElementTypeRef element) = 0;
-
-			/**
-			 * @brief Removes the element at the end of the list, effectivly reducing the
-			 * list count by one.
+			 * @throw MemoryOutOfBoundsException if this collection's max capacity
+			 * has been reached.
 			 * 
 			 * @throws InvalidOperationException if operation not supported by
-			 * list.
+			 * this collection.
 			 */
-			virtual Void PopBack(void) = 0;
+			virtual Void PushBack(ElementType&& element)
+			{
+				this->InsertAt(this->m_count, std::move(element));
+			}
 
 			/**
-			 * @brief Removes the element at the start of the list, effectivly reducing the
-			 * list count by one.
+			 * @brief Inserts a new element at the front of this collection before
+			 * its current first element.
 			 *
+			 * @param[in] element The element to insert in this collection.
+			 * 
+			 * @throw MemoryOutOfBoundsException if this collection's max capacity
+			 * has been reached.
+			 * 
 			 * @throws InvalidOperationException if operation not supported by
-			 * list.
+			 * this collection.
 			 */
-			virtual Void PopFront(void) = 0;
+			virtual Void PushFront(ElementType&& element)
+			{
+				this->InsertAt(0, std::move(element));
+			}
+
+			/**
+			 * @brief Inserts a new element at the end of this collection, after
+			 * its current last element.
+			 *
+			 * @param[in] element The element to insert in this collection.
+			 * 
+			 * @throw MemoryOutOfBoundsException if this collection's max capacity
+			 * has been reached.
+			 * 
+			 * @throws InvalidOperationException if operation not supported by
+			 * this collection.
+			 */
+			virtual Void PushBack(ConstElementTypeRef element)
+			{
+				this->InsertAt(this->m_count, element);
+			}
+
+			/**
+			 * @brief Inserts a new element at the start of this collection. before
+			 * its current first element.
+			 *
+			 * @param[in] element The element to insert in this collection.
+			 * 
+			 * @throw MemoryOutOfBoundsException if this collection's max capacity
+			 * has been reached.
+			 * 
+			 * @throws InvalidOperationException if operation not supported by
+			 * this collection.
+			 */
+			virtual Void PushFront(ConstElementTypeRef element)
+			{
+				this->InsertAt(0, element);
+			}
+
+			/**
+			 * @brief Removes the element at the end of this collection, effectivly
+			 * reducing the collection count by one.
+			 *
+			 * @Throws InvalidOperationException if this collection is empty or not
+			 * supported by this collection.
+			 */
+			virtual Void PopBack(void)
+			{
+				this->RemoveAt(this->m_count - 1);
+			}
+
+			/**
+			 * @brief Removes the element at the front of this collection, effectivly
+			 * reducing the collection count by one.
+			 *
+			 * @Throws InvalidOperationException if this collection is empty or not
+			 * supported by this collection.
+			 */
+			virtual Void PopFront(void)
+			{
+				this->RemoveAt(0);
+			}
+		
+		public:
+			/**
+			 * @brief Removes the first occurance of the specified element from
+			 * this collection.
+			 *
+			 * This function explicitly calls the destructor of the element
+			 * but does not deallocate the memory it was stored at.
+			 *
+			 * @param[in] element ElementType to remove from this collection.
+			 *
+			 * @return True if removal was successful and the element was found.
+			 * 
+			 * @throws InvalidOperationException if operation not supported by
+			 * this collection.
+			 */
+			virtual Bool Remove(ConstElementTypeRef element) override
+			{
+				Size index = this->FirstIndexOf(element);
+
+				if (index != -1)
+				{
+					this->RemoveAt(index);
+					return true;
+				}
+
+				return false;
+			}
+
+			/**
+			 * @brief Searches this collection for the specified element.
+			 *
+			 * @param[in] element ElementType to search for in this collection.
+			 *
+			 * @return True if the specified element was found in this collection.
+			 */
+			virtual Bool Contains(ConstElementTypeRef element) const override
+			{
+				return this->FirstIndexOf(element) != -1;
+			}
 
 		public:
 			/**
@@ -164,6 +307,9 @@ namespace Forge {
 			 * @throw IndexOutOfRangeException if index to insert element is out
 			 * of range.
 			 *
+			 * @throw MemoryOutOfBoundsException if this collection's max capacity
+			 * has been reached.
+			 * 
 			 * @throw InvalidOperationException if operation not supported by
 			 * this list.
 			 */
@@ -183,6 +329,9 @@ namespace Forge {
 			 * @throw IndexOutOfRangeException if index to insert element is out
 			 * of range.
 			 * 
+			 * @throw MemoryOutOfBoundsException if this collection's max capacity
+			 * has been reached.
+			 * 
 			 * @throw InvalidOperationException if operation not supported by
 			 * this list.
 			 */
@@ -199,6 +348,9 @@ namespace Forge {
 			* @throw IndexOutOfRangeException if index to remove element at is out
 			* of range.
 			*
+			* @throw MemoryOutOfBoundsException if this collection's max capacity
+			* has been reached.
+			* 
 			* @throw InvalidOperationException if operation not supported by
 			* this list.
 			*/
@@ -206,31 +358,95 @@ namespace Forge {
 
 		public:
 			/**
-			 * @brief Removes the specified element from this collection. This
-			 * operation has different behaviours depending on the collection type.
+			 * @brief Inserts all the elements in the specified collection to this
+			 * collection.
 			 *
-			 * Collections that support this operation may place limitations on how
-			 * elements are removed from the collection and in what order they are
-			 * removed.
+			 * The order in which the elements are inserted into this collection
+			 * depends on how the specified collection is iterated on.
 			 *
-			 * @param[in] element ElementType to remove from this collection.
+			 * @param[in] collection The collection containing elements to be added
+			 * to this collection.
 			 *
-			 * @return True if removal was successful and the element was found.
-			 *
-			 * @throws InvalidOperationException if operation not supported by
-			 * this collection.
+			 * @return True if insertion was succesfull and collection is not empty.
 			 */
-			virtual Bool Remove(ConstElementTypeRef element) = 0;
+			virtual Bool InsertAll(AbstractCollection<ElementType>& collection) override
+				{
+					if (collection.IsEmpty())
+						return false;
+
+					if (this->m_max_capacity - collection.GetMaxCapacity() < 0)
+						return false;
+
+					collection.ForEach([this](ElementTypeRef element) -> Void
+						{
+							this->PushBack(element);
+						}
+					);
+
+					return true;
+				}
 
 			/**
-			 * @brief Searches this collection for the specified element. This
-			 * operation has different behaviours depening on the collection type.
+			 * @brief Removes all the elements in the specified collection from this
+			 * collection.
 			 *
-			 * @param[in] element ElementType to search for in this collection.
+			 * This function explicitly calls the destructor of the elements
+			 * but does not deallocate the memory it was stored at.
 			 *
-			 * @return True if the specified element was found in this collection.
+			 * @param[in] collection The collection containing elements to be
+			 * removed from this collection.
+			 *
+			 * @return True if removal was successful, the elements were found and
+			 * the collection is not empty.
 			 */
-			virtual Bool Contains(ConstElementTypeRef element) const = 0;
+			virtual Bool RemoveAll(AbstractCollection<ElementType>& collection) override
+			{
+				if (!this->m_count || collection.IsEmpty())
+					return false;
+
+				I32 index = 0;
+
+				while (index < this->m_count)
+				{
+					ConstElementTypeRef element = this->GetByIndex(index);
+
+					if (collection.Contains(element))
+						this->Remove(element);
+					else
+						index++;
+				}
+
+				return true;
+			}
+
+			/**
+			 * @brief Searches for all the elements in the specified collection in
+			 * this collection.
+			 *
+			 * @param[in] collection The collection containing elements to be
+			 * search for in this collection.
+			 *
+			 * @return True if the specified elements were found and the collection
+			 * is not empty.
+			 */
+			virtual Bool ContainsAll(AbstractCollection<ElementType>& collection) override
+			{
+				if (!this->m_count || collection.IsEmpty())
+					return false;
+
+				I32 index = 0;
+
+				do
+				{
+					ConstElementTypeRef element = this->GetByIndex(index);
+
+					if (!collection.Contains(element))
+						return false;
+
+				} while (++index < this->m_count);
+
+				return true;
+			}
 		};
 	}
 }

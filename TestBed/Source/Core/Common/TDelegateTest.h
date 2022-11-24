@@ -1,3 +1,6 @@
+#ifndef T_DELEGATE_TEST_H
+#define T_DELEGATE_TEST_H
+
 #include <gtest/gtest.h>
 
 #include "Core/Public/Common/TDelegate.h"
@@ -205,5 +208,6 @@ namespace DelegateUnitTest
 	}
 }
 
+#endif // T_DELEGATE_TEST_H
 
 

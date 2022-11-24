@@ -20,6 +20,14 @@ namespace Forge {
 			using ConstElementTypeRef = const InElementType&;
 			using ConstElementTypePtr = const InElementType*;
 
+		private:
+			using SelfType         = AbstractCollection<ElementType>;
+			using SelfTypeRef      = AbstractCollection<ElementType>&;
+			using SelfTypePtr      = AbstractCollection<ElementType>*;
+			using ConstSelfType    = const AbstractCollection<ElementType>;
+			using ConstSelfTypeRef = const AbstractCollection<ElementType>&;
+			using ConstSelfTypePtr = const AbstractCollection<ElementType>*;
+
 		protected:
 			Size m_count;
 			Size m_max_capacity;
@@ -126,8 +134,38 @@ namespace Forge {
 			 * exception.
 			 * 
 			 * @param[in] function The function to perform on each element.
+			 * 
+			 * @throws InvalidOperationException if collection is empty.
 			 */
 			virtual Void ForEach(Common::TDelegate<Void(ElementTypeRef)> function) = 0;
+
+		public:
+			/**
+			 * @brief Removes the specified element from this collection. This
+			 * operation has different behaviours depending on the collection type.
+			 *
+			 * Collections that support this operation may place limitations on how
+			 * elements are removed from the collection and in what order they are
+			 * removed.
+			 *
+			 * @param[in] element ElementType to remove from this collection.
+			 *
+			 * @return True if removal was successful and the element was found.
+			 *
+			 * @throws InvalidOperationException if operation not supported by
+			 * this collection.
+			 */
+			virtual Bool Remove(ConstElementTypeRef element) = 0;
+
+			/**
+			 * @brief Searches this collection for the specified element. This
+			 * operation has different behaviours depening on the collection type.
+			 *
+			 * @param[in] element ElementType to search for in this collection.
+			 *
+			 * @return True if the specified element was found in this collection.
+			 */
+			virtual Bool Contains(ConstElementTypeRef element) const = 0;
 
 		public:
 			/**
@@ -176,8 +214,6 @@ namespace Forge {
 		public:
 			/**
 			 * @brief Removes all the elements from this collections.
-			 * 
-			 * This collection will be empty after this operation.
 			 */
 			virtual Void Clear(void) = 0;
 		};

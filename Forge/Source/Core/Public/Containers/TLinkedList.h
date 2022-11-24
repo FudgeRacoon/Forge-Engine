@@ -10,7 +10,6 @@
 #include "Core/Public/Common/TypeDefinitions.h"
 #include "Core/Public/Common/PreprocessorUtilities.h"
 
-#include "Core/Public/Memory/PoolAllocator.h"
 #include "Core/Public/Memory/MemoryUtilities.h"
 
 namespace Forge {
@@ -79,7 +78,7 @@ namespace Forge {
 				~Iterator() = default;
 
 			public:
-				Iterator operator =(Iterator&& other)
+				Iterator& operator =(Iterator&& other)
 				{
 					Memory::MemoryCopy(this, &other, sizeof(Iterator));
 
@@ -87,7 +86,7 @@ namespace Forge {
 
 					return *this;
 				}
-				Iterator operator =(const Iterator& other)
+				Iterator& operator =(const Iterator& other)
 				{
 					Memory::MemoryCopy(this, const_cast<Iterator*>(&other), sizeof(Iterator));
 
@@ -174,7 +173,7 @@ namespace Forge {
 				~ConstIterator() = default;
 
 			public:
-				ConstIterator operator =(ConstIterator&& other)
+				ConstIterator& operator =(ConstIterator&& other)
 				{
 					Memory::MemoryCopy(this, &other, sizeof(ConstIterator));
 
@@ -182,7 +181,7 @@ namespace Forge {
 
 					return *this;
 				}
-				ConstIterator operator =(const ConstIterator& other)
+				ConstIterator& operator =(const ConstIterator& other)
 				{
 					Memory::MemoryCopy(this, const_cast<ConstIterator*>(&other), sizeof(Iterator));
 
@@ -263,7 +262,7 @@ namespace Forge {
 			 * Constructs a linked list with a copy of an element.
 			 */
 			TLinkedList(ElementType&& element, Size count)
-				: AbstractList<ElementType>(0, ~((Size)0))
+				: m_head(nullptr), m_tail(nullptr), AbstractList<ElementType>(0, ~((Size)0))
 			{
 				while (count > this->m_count)
 					this->PushBack(std::move(element));
@@ -275,7 +274,7 @@ namespace Forge {
 			 * Constructs a linked list with a copy of an element.
 			 */
 			TLinkedList(ConstElementTypeRef element, Size count)
-				: AbstractList<ElementType>(0, ~((Size)0))
+				: m_head(nullptr), m_tail(nullptr), AbstractList<ElementType>(0, ~((Size)0))
 			{
 				while (count > this->m_count)
 					this->PushBack(element);
@@ -287,7 +286,7 @@ namespace Forge {
 			 * Constructs a linked list with an initializer list.
 			 */
 			TLinkedList(std::initializer_list<ElementType> init_list)
-				: AbstractList<ElementType>(0, ~((Size)0))
+				: m_head(nullptr), m_tail(nullptr), AbstractList<ElementType>(0, ~((Size)0))
 			{
 				ConstElementTypePtr ptr = init_list.begin();
 
@@ -300,7 +299,7 @@ namespace Forge {
 			 * @brief Move constructor.
 			 */
 			TLinkedList(SelfType&& other)
-				: AbstractList<ElementType>(other)
+				: m_head(nullptr), m_tail(nullptr), AbstractList<ElementType>(0, ~((Size)0))
 			{
 				*this = std::move(other);
 			}
@@ -309,12 +308,15 @@ namespace Forge {
 			 * @brief Copy constructor.
 			 */
 			TLinkedList(ConstSelfTypeRef other)
-				: AbstractList<ElementType>(other)
+				: m_head(nullptr), m_tail(nullptr), AbstractList<ElementType>(0, ~((Size)0))
 			{
 				*this = other;
 			}
 		
 		public:
+			/**
+			 * @brief Destructor
+			 */
 			~TLinkedList()
 			{
 				this->Clear();
@@ -322,7 +324,7 @@ namespace Forge {
 
 		public:
 			/**
-			 * @brief Move constructor.
+			 * @brief Move assignment operator.
 			 */
 			SelfTypeRef operator =(SelfType&& other)
 			{
@@ -337,7 +339,7 @@ namespace Forge {
 			}
 
 			/**
-			 * @brief Copy constructor.
+			 * @brief Copy assignment operator.
 			 */
 			SelfTypeRef operator =(ConstSelfTypeRef other)
 			{
@@ -347,6 +349,20 @@ namespace Forge {
 					this->PushBack(curr_node->m_data);
 
 				return *this;
+			}
+		
+		private:
+			/**
+			 * @brief This function is not supported by this collection.
+			 *
+			 * @throws InvalidOperationException if attempted to retrieve
+			 * this collection's raw pointer.
+			 */
+			ConstElementTypePtr GetRawData(void) const override
+			{
+				// Throw Exception
+
+				return nullptr;
 			}
 
 		public:
@@ -396,64 +412,34 @@ namespace Forge {
 
 		public:
 			/**
-			 * @brief This function is not supported by this collection.
+			 * @brief Retreives a reference to the element stored in the collection
+			 * at the specified index.
 			 *
-			 * @throws InvalidOperationException if attempted to retrieve
-			 * this collection's raw pointer.
+			 * @param[in] index The index to retreive the element stored at.
+			 *
+			 * @return ConstElementTypeRef storting the element stored at the
+			 * specified index.
 			 */
-			ConstElementTypePtr GetRawData() const override
+			ConstElementTypeRef GetByIndex(Size index) const override
 			{
-				// Throw Exception
+				if (this->IsEmpty())
+				{
+					// Throw Exception
+				}
 
-				return nullptr;
+				if (index < 0 || index > this->m_count)
+				{
+					// Throw Exception
+				}
+
+				EntryNode* curr_node = this->m_head;
+
+				while (curr_node->m_next && (index--) > 0)
+					curr_node = curr_node->m_next;
+
+				return curr_node->m_data;
 			}
-
-		public:
-			/**
-			 * @brief Checks whether this collection is equal to the specified
-			 * collection.
-			 *
-			 * Equality between collections is governed by their size, the order
-			 * of the elements in the collection and the eqaulity of the elements
-			 * they store.
-			 *
-			 * @param[in] collection The collection to be compared with this
-			 * collection.
-			 *
-			 * @return True if the specified collection is equal to this collection.
-			 */
-			Bool IsEqual(AbstractCollection<ElementType>& collection) const override
-			{
-				if (collection.IsEmpty())
-					return false;
-
-				if (this->m_count != collection.GetCount())
-					return false;
-
-				Bool return_value;
-
-				ConstIterator start_itr = this->GetStartConstItr();
-				ConstIterator end_itr = this->GetEndConstItr();
-
-				collection.ForEach([&return_value, &start_itr, end_itr](ElementTypeRef element) -> Void
-					{
-						if ((start_itr++) == end_itr)
-						{
-							return_value = true;
-							return;
-						}
-
-						if (!Memory::MemoryCompare(&(*start_itr), &element, sizeof(ElementType)))
-						{
-							return_value = false;
-							return;
-						}
-					}
-				);
-
-				return return_value;
-			}
-			 
+	 
 		public:
 			/**
 			 * @brief Returns an array containing all the elements returned by this
@@ -470,7 +456,17 @@ namespace Forge {
 			 */
 			ElementTypePtr ToArray(void) const override
 			{
-				return nullptr;
+				if (this->IsEmpty())
+					return nullptr;
+
+				ElementTypePtr array_ptr = (ElementTypePtr)malloc(this->m_count * sizeof(ElementType));
+				
+				I32 index = 0;
+
+				for (EntryNode* curr_node = this->m_head; curr_node; curr_node = curr_node->m_next, index++)
+					Memory::CopyConstruct(array_ptr + index, curr_node->m_data, 1);
+
+				return array_ptr;
 			}
 
 			/**
@@ -490,7 +486,15 @@ namespace Forge {
 			 */
 			ElementTypePtr ToArray(ElementTypePtr array_ptr) const override
 			{
-				return nullptr;
+				if (this->IsEmpty())
+					return nullptr;
+				 
+				I32 index = 0;
+
+				for (EntryNode* curr_node = this->m_head; curr_node; curr_node = curr_node->m_next, index++)
+					Memory::CopyConstruct(array_ptr + index, curr_node->m_data, 1);
+
+				return array_ptr;
 			}
 
 		public:
@@ -503,11 +507,18 @@ namespace Forge {
 			 * exception.
 			 *
 			 * @param[in] function The function to perform on each element.
+			 * 
+			 * @throws InvalidOperationException if collection is empty.
 			 */
 			Void ForEach(Common::TDelegate<Void(ElementTypeRef)> function) override
 			{
-				EntryNode* curr_node = this->m_head;
-				do { function.Invoke(curr_node->m_data); } while (curr_node = curr_node->m_next);
+				if (this->IsEmpty())
+				{
+					// Throw Exception
+				}
+
+				for (EntryNode* curr_node = this->m_head; curr_node; curr_node = curr_node->m_next)
+					function.Invoke(curr_node->m_data);
 			}
 
 		public:
@@ -521,9 +532,16 @@ namespace Forge {
 			 * @return Size storing the index of the first occurrence of the
 			 * specified element, or -1 if this collection does not contain the
 			 * element or it is empty.
+			 * 
+			 * @throws InvalidOperationException if collection is empty.
 			 */
 			I64 FirstIndexOf(ConstElementTypeRef element) const override
 			{
+				if (this->IsEmpty())
+				{
+					// Throw Exception
+				}
+
 				EntryNode* curr_node = this->m_head;
 
 				for (I32 index = 0; curr_node; index++)
@@ -547,9 +565,16 @@ namespace Forge {
 			 * @return Size storing the index of the last occurrence of the
 			 * specified element, or -1 if this collection does not contain the
 			 * element or it is empty.
+			 * 
+			 * @throws InvalidOperationException if collection is empty.
 			 */
 			I64 LastIndexOf(ConstElementTypeRef element) const override
 			{
+				if (this->IsEmpty())
+				{
+					// Throw Exception
+				}
+
 				EntryNode* curr_node = this->m_tail;
 
 				for (I32 index = this->m_count - 1; curr_node; index--)
@@ -565,136 +590,6 @@ namespace Forge {
 
 		public:
 			/**
-			 * @brief Retreives the last element in this collection.
-			 *
-			 * @return ConstElementTypeRef storing the last element in this
-			 * collection.
-			 *
-			 * @Throws InvalidOperationException if this collection is empty.
-			 */
-			ConstElementTypeRef PeekBack() const override
-			{
-				if (!this->m_tail)
-				{
-					// Throw Exception
-				}
-
-				return this->m_tail->m_data;
-			}
-
-			/**
-			 * @brief Retreives the first element in this collection.
-			 *
-			 * @return ConstElementTypeRef storing the first element in this
-			 * collection.
-			 *
-			 * @Throws InvalidOperationException if this collection is empty.
-			 */
-			ConstElementTypeRef PeekFront() const override
-			{
-				if (!this->m_head)
-				{
-					// Throw Exception
-				}
-
-				return this->m_head->m_data;
-			}
-
-		public:
-			/**
-			 * @brief Inserts a new element at the end of this collection, after
-			 * its current last element.
-			 *
-			 * @param[in] element The element to insert in this collection.
-			 */
-			Void PushBack(ElementType&& element) override
-			{
-				EntryNode* elem_node = new EntryNode(std::move(element));
-
-				if (!this->m_tail)
-					this->m_head = this->m_tail = elem_node;
-				else
-				{
-					elem_node->m_prev = this->m_tail;
-					this->m_tail->m_next = elem_node;
-					this->m_tail = elem_node;
-				}
-
-				this->m_count++;
-			}
-
-			/**
-			 * @brief Inserts a new element at the start of this collection. before
-			 * its current first element.
-			 *
-			 * @param[in] element The element to insert in this collection.
-			 */
-			Void PushFront(ElementType&& element) override
-			{
-				this->InsertAt(0, std::move(element));
-			}
-
-			/**
-			 * @brief Inserts a new element at the end of this collection, after
-			 * its current last element.
-			 *
-			 * @param[in] element The element to insert in this collection.
-			 */
-			Void PushBack(ConstElementTypeRef element) override
-			{
-				EntryNode* elem_node = new EntryNode(element);
-
-				if (!this->m_tail)
-					this->m_head = this->m_tail = elem_node;
-				else
-				{
-					elem_node->m_prev = this->m_tail;
-					this->m_tail->m_next = elem_node;
-					this->m_tail = elem_node;
-				}
-
-				this->m_count++;
-			}
-
-			/**
-			 * @brief Inserts a new element at the start of this collection. before
-			 * its current first element.
-			 *
-			 * @param[in] element The element to insert in this collection.
-			 */
-			Void PushFront(ConstElementTypeRef element) override
-			{
-				this->InsertAt(0, element);
-			}
-
-			/**
-			 * @brief Removes the element at the end of this collection, effectivly
-			 * reducing the collection count by one.
-			 *
-			 * This function has the same functionality as Pop
-			 *
-			 * @Throws InvalidOperationException if this collection is empty.
-			 */
-			Void PopBack(void) override
-			{
-				this->RemoveAt(this->m_count - 1);
-			}
-
-			/**
-			 * @brief Removes the element at the front of this collection, effectivly
-			 * reducing the collection count by one.
-			 *
-			 * This function has the same functionality as Pop
-			 *
-			 * @Throws InvalidOperationException if this collection is empty.
-			 */
-			Void PopFront(void) override
-			{
-				this->RemoveAt(0);
-			}
-
-		public:
-			/**
 			 * @brief Inserts the specified element in the specified index in this
 			 * collection.
 			 *
@@ -704,39 +599,56 @@ namespace Forge {
 			 * @param[in] index   The index to insert the element at.
 			 * @param[in] element The element to insert in this collection.
 			 *
-			 * @throw IndexOutOfRangeException if index to insert element is out
-			 * of range.
-			 *
 			 * @throw MemoryOutOfBoundsException if this collection's max capacity
 			 * has been reached.
+			 * 
+			 * @throw IndexOutOfRangeException if index to insert element is out
+			 * of range.
 			 */
 			Void InsertAt(Size index, ElementType&& element) override
 			{
-				if (index < 0 || index >= this->m_count)
+				if (this->m_count >= this->m_max_capacity)
 				{
 					// Throw Exception
 				}
 
-				if (this->m_count >= this->m_max_capacity)
+				if (index < 0 || index > this->m_count)
 				{
 					// Throw Exception
 				}
 
 				EntryNode* elem_node = new EntryNode(std::move(element));
 
-				EntryNode* next_node = this->m_head;
+				if (!this->m_head || !this->m_tail)
+				{
+					this->m_head = this->m_tail = elem_node;
+				}
+				else if (index == 0)
+				{
+					elem_node->m_next = this->m_head;
+					this->m_head->m_prev = elem_node;
+					this->m_head = elem_node;
+				}
+				else if (index == this->m_count)
+				{
+					elem_node->m_prev = this->m_tail;
+					this->m_tail->m_next = elem_node;
+					this->m_tail = elem_node;
+				}
+				else
+				{
+					EntryNode* next_node = this->m_head;
 
-				while (next_node->m_next && (index--) > 0)
-					next_node = next_node->m_next;
-				
-				EntryNode* prev_node = next_node->m_prev;
-				
-				elem_node->m_next = next_node;
-				elem_node->m_prev = prev_node;
-				next_node->m_prev = elem_node;
+					while (next_node->m_next && (index--) > 0)
+						next_node = next_node->m_next;
 
-				if(prev_node)
+					EntryNode* prev_node = next_node->m_prev;
+
+					elem_node->m_next = next_node;
+					elem_node->m_prev = prev_node;
+					next_node->m_prev = elem_node;
 					prev_node->m_next = elem_node;
+				}
 
 				this->m_count++;
 			}
@@ -752,41 +664,56 @@ namespace Forge {
 			 * @param[in] index   The index to insert the element at.
 			 * @param[in] element The element to insert in this collection.
 			 *
-			 * @throw IndexOutOfRangeException if index to insert element is out
-			 * of range.
-			 *
 			 * @throw MemoryOutOfBoundsException if this collection's max capacity
 			 * has been reached.
+			 * 
+			 * @throw IndexOutOfRangeException if index to insert element is out
+			 * of range.
 			 */
 			Void InsertAt(Size index, ConstElementTypeRef element) override
 			{
-				if (index < 0 || index >= this->m_count)
-				{
-					// Throw Exception
-				}
-
 				if (this->m_count >= this->m_max_capacity)
 				{
 					// Throw Exception
 				}
 
-				EntryNode* elem_node = new EntryNode(element);
-				
-				EntryNode* next_node = this->m_head;
+				if (index < 0 || index > this->m_count)
+				{
+					// Throw Exception
+				}
 
-				while (next_node->m_next && (index--) > 0)
-					next_node = next_node->m_next;
+				EntryNode* elem_node = new EntryNode(std::move(element));
 
-				EntryNode* prev_node = next_node->m_prev;
-
-				elem_node->m_next = next_node;
-				elem_node->m_prev = prev_node;
-				next_node->m_prev = elem_node;
-
-				if (!prev_node)
+				if (!this->m_head || !this->m_tail)
+				{
+					this->m_head = this->m_tail = elem_node;
+				}
+				else if (index == 0)
+				{
+					elem_node->m_next = this->m_head;
+					this->m_head->m_prev = elem_node;
 					this->m_head = elem_node;
+				}
+				else if (index == this->m_count)
+				{
+					elem_node->m_prev = this->m_tail;
+					this->m_tail->m_next = elem_node;
+					this->m_tail = elem_node;
+				}
 				else
+				{
+					EntryNode* next_node = this->m_head;
+
+					while (next_node->m_next && (index--) > 0)
+						next_node = next_node->m_next;
+
+					EntryNode* prev_node = next_node->m_prev;
+
+					elem_node->m_next = next_node;
+					elem_node->m_prev = prev_node;
+					next_node->m_prev = elem_node;
 					prev_node->m_next = elem_node;
+				}
 
 				this->m_count++;
 			}
@@ -803,19 +730,19 @@ namespace Forge {
 			 *
 			 * @param[in] index The numerical index to remove the element at.
 			 *
+			 * @throws InvalidOperationException if this collection is empty.
+			 * 
 			 * @throw IndexOutOfRangeException if index to insert element is out
 			 * of range.
-			 *
-			 * @Throws InvalidOperationException if this collection is empty.
 			 */
 			Void RemoveAt(Size index) override
 			{
-				if (index < 0 || index >= this->m_count)
+				if (this->IsEmpty())
 				{
 					// Throw Exception
 				}
 
-				if (!this->m_count)
+				if (index < 0 || index >= this->m_count)
 				{
 					// Throw Exception
 				}
@@ -829,7 +756,9 @@ namespace Forge {
 				EntryNode* prev_node = curr_node->m_prev;
 
 				if (!next_node && !prev_node)
+				{
 					this->m_head = this->m_tail = nullptr;
+				}
 				else if (!next_node)
 				{
 					this->m_tail = prev_node;
@@ -853,140 +782,15 @@ namespace Forge {
 
 		public:
 			/**
-			 * @brief Removes the first occurance of the specified element from
-			 * this collection.
-			 *
-			 * This function explicitly calls the destructor of the element
-			 * but does not deallocate the memory it was stored at.
-			 *
-			 * @param[in] element ElementType to remove from this collection.
-			 *
-			 * @return True if removal was successful and the element was found.
-			 */
-			Bool Remove(ConstElementTypeRef element) override
-			{
-				if (Size index = this->FirstIndexOf(element) != -1)
-				{
-					this->RemoveAt(index);
-					return true;
-				}
-
-				return false;
-			}
-
-			/**
-			 * @brief Searches this collection for the specified element.
-			 *
-			 * @param[in] element ElementType to search for in this collection.
-			 *
-			 * @return True if the specified element was found in this collection.
-			 */
-			Bool Contains(ConstElementTypeRef element) const override
-			{
-				return this->FirstIndexOf(element) != -1;
-			}
-
-		public:
-			/**
-			 * @brief Inserts all the elements in the specified collection to this
-			 * collection.
-			 *
-			 * The order in which the elements are inserted into this collection
-			 * depends on how the specified collection is iterated on.
-			 *
-			 * @param[in] collection The collection containing elements to be added
-			 * to this collection.
-			 *
-			 * @return True if insertion was succesfull and collection is not empty.
-			 */
-			Bool InsertAll(AbstractCollection<ElementType>& collection) override
-			{
-				if (collection.IsEmpty())
-					return false;
-
-				if (this->m_max_capacity - collection.GetMaxCapacity() < 0)
-					return false;
-
-				collection.ForEach([this](ElementTypeRef element) -> Void
-					{
-						this->PushBack(element);
-					}
-				);
-
-				return true;
-			}
-
-			/**
-			 * @brief Removes all the elements in the specified collection from this
-			 * collection.
-			 *
-			 * This function explicitly calls the destructor of the elements
-			 * but does not deallocate the memory it was stored at.
-			 *
-			 * @param[in] collection The collection containing elements to be
-			 * removed from this collection.
-			 *
-			 * @return True if removal was successful, the elements were found and
-			 * the collection is not empty.
-			 */
-			Bool RemoveAll(AbstractCollection<ElementType>& collection) override
-			{
-				if (!this->m_count || collection.IsEmpty())
-					return false;
-
-				Bool return_value;
-
-				collection.ForEach([this, &return_value](ElementTypeRef element) -> Void
-					{
-						return_value = this->Remove(element);
-
-						if (!return_value)
-							return;
-					}
-				);
-
-				return return_value;
-			}
-
-			/**
-			 * @brief Searches for all the elements in the specified collection in
-			 * this collection.
-			 *
-			 * @param[in] collection The collection containing elements to be
-			 * search for in this collection.
-			 *
-			 * @return True if the specified elements were found and the collection
-			 * is not empty.
-			 */
-			Bool ContainsAll(AbstractCollection<ElementType>& collection) override
-			{
-				if (!this->m_count || collection.IsEmpty())
-					return false;
-
-				Bool return_value;
-
-				collection.ForEach([this, &return_value](ElementTypeRef element) -> Void
-					{
-						return_value = this->Contains(element);
-
-						if (!return_value)
-							return;
-					}
-				);
-
-				return return_value;
-			}
-
-		public:
-			/**
 			 * @brief Removes all the elements from this collection.
 			 */
 			Void Clear(void) override
 			{
-				if (!this->m_head)
+				if (this->IsEmpty())
 					return;
 				
-				while (this->m_count > 0) this->PopBack();
+				while (this->m_count > 0) 
+					this->PopBack();
 			}
 		};
 	}

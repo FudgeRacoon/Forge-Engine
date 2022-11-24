@@ -90,6 +90,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Core\Public\Algorithm\AlgorithmUtilities.h" />
     <ClInclude Include="Source\Core\Public\Common\Common.h" />
     <ClInclude Include="Source\Core\Public\Common\Compiler.h" />
     <ClInclude Include="Source\Core\Public\Common\Endianness.h" />
