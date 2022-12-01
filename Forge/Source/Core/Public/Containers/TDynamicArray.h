@@ -46,6 +46,9 @@ namespace Forge {
 		public:
 			struct Iterator
 			{
+			public:
+				using ElementType = InElementType;
+
 			private:
 				ElementTypePtr m_ptr;
 
@@ -70,7 +73,7 @@ namespace Forge {
 				~Iterator() = default;
 
 			public:
-				Iterator operator =(Iterator&& other)
+				Iterator& operator =(Iterator&& other)
 				{
 					Memory::MemoryCopy(this, &other, sizeof(Iterator));
 
@@ -78,7 +81,7 @@ namespace Forge {
 
 					return *this;
 				}
-				Iterator operator =(const Iterator& other)
+				Iterator& operator =(const Iterator& other)
 				{
 					Memory::MemoryCopy(this, const_cast<Iterator*>(&other), sizeof(Iterator));
 
@@ -86,17 +89,27 @@ namespace Forge {
 				}
 
 			public:
+				Iterator operator +(Size inc)
+				{
+					return Iterator(this->m_ptr + inc);
+				}
+				Iterator operator -(Size inc)
+				{
+					return Iterator(this->m_ptr - inc);
+				}
+
+			public:
 				Iterator operator --(I32)
 				{
 					Iterator temp(this->m_ptr);
 
-					this->m_ptr++;
+					this->m_ptr--;
 
 					return temp;
 				}
 				Iterator operator --(void)
 				{
-					this->m_ptr++;
+					this->m_ptr--;
 
 					return *this;
 				}
@@ -115,6 +128,12 @@ namespace Forge {
 					this->m_ptr++;
 
 					return *this;
+				}
+
+			public:
+				Size operator -(const Iterator& other)
+				{
+					return ((reinterpret_cast<Size>(this->m_ptr) - reinterpret_cast<Size>(other.m_ptr)) / sizeof(ElementType)) + 1;
 				}
 
 			public:
@@ -141,6 +160,9 @@ namespace Forge {
 			};
 			struct ConstIterator
 			{
+			public:
+				using ElementType = InElementType;
+
 			private:
 				ElementTypePtr m_ptr;
 
@@ -165,7 +187,7 @@ namespace Forge {
 				~ConstIterator() = default;
 
 			public:
-				ConstIterator operator =(ConstIterator&& other)
+				ConstIterator& operator =(ConstIterator&& other)
 				{
 					Memory::MemoryCopy(this, &other, sizeof(Iterator));
 
@@ -173,11 +195,21 @@ namespace Forge {
 
 					return *this;
 				}
-				ConstIterator operator =(const ConstIterator& other)
+				ConstIterator& operator =(const ConstIterator& other)
 				{
-					Memory::MemoryCopy(this, const_cast<ConstIterator*>(&other), sizeof(Iterator));
+					Memory::MemoryCopy(this, const_cast<Iterator*>(&other), sizeof(Iterator));
 
 					return *this;
+				}
+
+			public:
+				ConstIterator operator +(Size inc)
+				{
+					return ConstIterator(this->m_ptr + inc);
+				}
+				ConstIterator operator -(Size inc)
+				{
+					return ConstIterator(this->m_ptr - inc);
 				}
 
 			public:
@@ -185,13 +217,13 @@ namespace Forge {
 				{
 					ConstIterator temp(this->m_ptr);
 
-					this->m_ptr++;
+					this->m_ptr--;
 
 					return temp;
 				}
 				ConstIterator operator --(void)
 				{
-					this->m_ptr++;
+					this->m_ptr--;
 
 					return *this;
 				}
@@ -210,6 +242,12 @@ namespace Forge {
 					this->m_ptr++;
 
 					return *this;
+				}
+
+			public:
+				Size operator -(const ConstIterator& other)
+				{
+					return ((reinterpret_cast<Size>(this->m_ptr) - reinterpret_cast<Size>(other.m_ptr)) / sizeof(ElementType)) + 1;
 				}
 
 			public:

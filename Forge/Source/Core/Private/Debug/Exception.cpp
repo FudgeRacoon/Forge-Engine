@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include "Core/Public/RTTI/SmartPointer.h"
+#include "Core/Public/Types/SmartPointer.h"
 
 #include "Core/Public/Memory/MemoryUtilities.h"
 

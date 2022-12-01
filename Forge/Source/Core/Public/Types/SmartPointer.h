@@ -1,7 +1,7 @@
 #ifndef SMART_POINTER_H
 #define SMART_POINTER_H
 
-#include "RefCounter.h"
+#include "Core/Public/RTTI/RefCounter.h"
 
 #include "Core/Public/CoreFwd.h"
 
@@ -54,8 +54,6 @@ namespace Forge {
 			TSharedPtr(void)
 				: m_raw_ptr(nullptr) 
 			{
-				FORGE_STATIC_ASSERT((IsBaseOf<ValueType, RefCounted>::Value))
-
 				m_deleter_callback = [](ValueTypePtr ptr) -> Void
 				{
 					// delete ptr;
@@ -65,7 +63,7 @@ namespace Forge {
 			TSharedPtr(ValueTypePtr ptr)
 				: m_raw_ptr(ptr)
 			{
-				FORGE_STATIC_ASSERT((IsBaseOf<ValueType, RefCounted>::Value))
+				
 
 				m_deleter_callback = [](ValueTypePtr ptr) -> Void
 				{
@@ -76,7 +74,7 @@ namespace Forge {
 			TSharedPtr(ValueTypePtr ptr, DeleterCallback del)
 				: m_raw_ptr(nullptr), m_deleter_callback(del) 
 			{
-				FORGE_STATIC_ASSERT((IsBaseOf<ValueType, RefCounted>::Value))
+				
 			}
 		   
 		public:
@@ -389,12 +387,12 @@ namespace Forge {
 			TWeakPtr(void)
 				: m_raw_ptr(nullptr) 
 			{
-				FORGE_STATIC_ASSERT((IsBaseOf<ValueType, RefCounted>::Value))
+				
 			}
 			TWeakPtr(ValueTypePtr ptr)
 				: m_raw_ptr(ptr) 
 			{
-				FORGE_STATIC_ASSERT((IsBaseOf<ValueType, RefCounted>::Value))
+				
 			}
 
 		public:

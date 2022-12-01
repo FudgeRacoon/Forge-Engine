@@ -1,10 +1,10 @@
 #ifndef ABSTRACT_COLLECTION_H
 #define ABSTRACT_COLLECTION_H
 
-
 #include "Core/Public/Common/Compiler.h"
-#include "Core/Public/Common/TDelegate.h"
 #include "Core/Public/Common/TypeDefinitions.h"
+
+#include "Core/Public/Types/TDelegate.h"
 
 namespace Forge {
 	namespace Containers
@@ -12,7 +12,7 @@ namespace Forge {
 		template<typename InElementType>
 		class AbstractCollection
 		{
-		private:
+		public:
 			using ElementType         = InElementType;
 			using ElementTypeRef      = InElementType&;
 			using ElementTypePtr      = InElementType*;

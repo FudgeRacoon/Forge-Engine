@@ -24,9 +24,6 @@
     <ClInclude Include="Source\Core\Public\Common\PreprocessorUtilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Public\Common\Endianness.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\Public\Memory\AbstractAllocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -96,13 +93,7 @@
     <ClInclude Include="Source\Core\Public\RTTI\RefCounter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Public\Math\StringHash.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\Public\RTTI\SmartPointer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\Public\Math\Hash\AbstractHash.h">
+    <ClInclude Include="Source\Core\Public\Types\SmartPointer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Public\Debug\Debug.h">
@@ -141,16 +132,49 @@
     <ClInclude Include="Source\Core\Public\Containers\TDynamicStack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Public\Containers\TUniquePtr.h">
+    <ClInclude Include="Source\Core\Public\Types\TUniquePtr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Public\Common\TDelegate.h">
+    <ClInclude Include="Source\Core\Public\Types\TDelegate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\Public\Containers\TDynamicQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Public\Algorithm\AlgorithmUtilities.h">
+    <ClInclude Include="Source\Core\Public\Algorithm\RangeUtilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\Algorithm\StringUtilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\Algorithm\BinraryFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\Algorithm\GeneralUtilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\Types\TPair.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\Types\TTuple.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\Algorithm\Hash\AbstractHash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\Algorithm\Hash\HashResult.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\Types\String\String.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\Types\String\AbstractString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\Types\String\StringView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Public\Types\String\StringBuilder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -185,10 +209,10 @@
     <ClCompile Include="Source\Core\Private\RTTI\Object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Private\Common\Endianness.cpp">
+    <ClCompile Include="Source\Core\Private\Memory\FreeListAllocator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Private\Memory\FreeListAllocator.cpp">
+    <ClCompile Include="Source\Core\Private\Types\String\AbstractString.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

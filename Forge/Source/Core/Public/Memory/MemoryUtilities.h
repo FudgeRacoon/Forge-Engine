@@ -258,9 +258,9 @@ namespace Forge {
 		 * store the wanted number of copies. If the count is larger than the
 		 * allocated space undefined behaviour might occur.
 		 *
-		 * @param[out] dst      The destination array where the copies will be stored.
-		 * @param[in]  copy     The copy of the object to store in the array.
-		 * @param[in]  ui_count The number of element copies to store in the array.
+		 * @param[out] dst   The destination array where the copies will be stored.
+		 * @param[in]  copy  The copy of the object to store in the array.
+		 * @param[in]  count The number of element copies to store in the array.
 		 */
 		template<typename _Type>
 		FORGE_FORCE_INLINE Void Move(_Type* dst, _Type&& temp, Size count)
@@ -275,9 +275,9 @@ namespace Forge {
 		 * store the wanted number of copies. If the count is larger than the
 		 * allocated space undefined behaviour might occur.
 		 *
-		 * @param[out] dst      The destination array where the copies will be stored.
-		 * @param[in]  copy     The copy of the object to store in the array.
-		 * @param[in]  ui_count The number of element copies to store in the array.
+		 * @param[out] dst   The destination array where the copies will be stored.
+		 * @param[in]  copy  The copy of the object to store in the array.
+		 * @param[in]  count The number of element copies to store in the array.
 		 */
 		template<typename _Type>
 		FORGE_FORCE_INLINE Void Copy(_Type* dst, const _Type& copy, Size count)

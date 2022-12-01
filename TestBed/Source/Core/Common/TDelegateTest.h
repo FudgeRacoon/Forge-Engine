@@ -3,7 +3,7 @@
 
 #include <gtest/gtest.h>
 
-#include "Core/Public/Common/TDelegate.h"
+#include "Core/Public/Types/TDelegate.h"
 
 using namespace Forge::Common;
 

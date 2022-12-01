@@ -1,6 +1,6 @@
 #include "Core/Public/Debug/Exception/ExceptionFactory.h"
 
-#include "Core/Public/RTTI/SmartPointer.h"
+#include "Core/Public/Types/SmartPointer.h"
 
 namespace Forge {
 	namespace Debug

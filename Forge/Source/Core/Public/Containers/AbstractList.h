@@ -11,7 +11,7 @@ namespace Forge {
 		template<typename InElementType>
 		class AbstractList : public AbstractCollection<InElementType>
 		{
-		private:
+		public:
 			using ElementType         = InElementType;
 			using ElementTypeRef      = InElementType&;
 			using ElementTypePtr      = InElementType*;
@@ -436,14 +436,15 @@ namespace Forge {
 
 				I32 index = 0;
 
-				do
+				while (index < this->m_count)
 				{
 					ConstElementTypeRef element = this->GetByIndex(index);
 
 					if (!collection.Contains(element))
 						return false;
-
-				} while (++index < this->m_count);
+					else
+						index++;
+				}
 
 				return true;
 			}

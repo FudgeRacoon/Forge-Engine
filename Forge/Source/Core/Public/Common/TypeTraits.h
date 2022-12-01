@@ -5,6 +5,8 @@
 
 #include "TypeDefinitions.h"
 
+#include "Core/Public/Algorithm/BinraryFunctions.h"
+
 namespace Forge {
 	namespace Common
 	{
@@ -20,38 +22,38 @@ namespace Forge {
 		/**
 		 * @brief Tests if a type is pod (plain old data).
 		 */
-		template<typename _Type>
-		struct TIsPod { enum { Value = __is_pod(_Type) }; };
+		template<typename InType>
+		struct TIsPod { enum { Value = __is_pod(InType) }; };
 		
 		/**
 		 * @brief Tests if two types are assignable.
 		 */
-		template<typename _Type_1, typename _Type_2> 
-		struct TIsAssignable { enum { Value = std::is_assignable<_Type_1, _Type_2>::value }; };
+		template<typename InType_1, typename InType_2> 
+		struct TIsAssignable { enum { Value = std::is_assignable<InType_1, InType_2>::value }; };
 
 		/**
 		 * @brief Tests if a type has a default constructor.
 		 */
-		template<typename _Type>
-		struct TIsTriviallyConstructible { enum { Value = __has_trivial_constructor(_Type) }; };
+		template<typename InType>
+		struct TIsTriviallyConstructible { enum { Value = __has_trivial_constructor(InType) }; };
 
 		/**
 		 * @brief Tests if a type has a default destructor.
 		 */
-		template<typename _Type>
-		struct TIsTriviallyDestructible { enum { Value = __has_trivial_destructor(_Type) }; };
+		template<typename InType>
+		struct TIsTriviallyDestructible { enum { Value = __has_trivial_destructor(InType) }; };
 
 		/**
 		 * @brief Tests if a type has a default copy constructor.
 		 */
-		template<typename _Type>
-		struct TIsTriviallyCopyConstructible { enum { Value = __has_trivial_copy(_Type) }; };
+		template<typename InType>
+		struct TIsTriviallyCopyConstructible { enum { Value = __has_trivial_copy(InType) }; };
 
 		/**
 		 * @brief Tests if a type has a default assignment operator.
 		 */
-		template<typename _Type>
-		struct TIsTriviallyCopyAssignable { enum { Value = __has_trivial_assign(_Type) }; };
+		template<typename InType>
+		struct TIsTriviallyCopyAssignable { enum { Value = __has_trivial_assign(InType) }; };
 
 		/**
 		 * @brief Tests whether two typenames are the same.
@@ -59,8 +61,8 @@ namespace Forge {
 		template<typename Type_1, typename Type_2>
 		struct TAreSameType { enum { Value = false }; };
 
-		template<typename _Type>
-		struct TAreSameType<_Type, _Type> { enum { Value = true }; };
+		template<typename InType>
+		struct TAreSameType<InType, InType> { enum { Value = true }; };
 
 		/**
 		 * @brief Tests whether the predicate is true, if so returns the type.
@@ -75,25 +77,25 @@ namespace Forge {
 		 * @brief Tests whether class is derived from base.
 		 */
 		template<typename Derived, typename Base>
-		struct IsBaseOf { enum { Value = __is_base_of(Base, Derived) }; };
+		struct IsBaseOf { static constexpr Bool value = __is_base_of(Base, Derived); };
 
 		/**
 		 * @brief Tests whether a type is const.
 		 */
-		template<typename Type>
-		struct TIsConst { enum { Value = false }; };
+		template<typename InType>
+		struct TIsConst { static constexpr Bool value = false; };
 
-		template<typename _Type>
-		struct TIsConst<const _Type> { enum { Value = true }; };
+		template<typename InType>
+		struct TIsConst<const InType> { static constexpr Bool value = true; };
 
 		/**
 		 * @brief Tests wether a type is pointer.
 		 */
-		template<typename _Type>
+		template<typename InType>
 		struct TIsPointer { enum { Value = false }; };
 
-		template<typename _Type>
-		struct TIsPointer<_Type*> { enum { Value = true }; };
+		template<typename InType>
+		struct TIsPointer<InType*> { enum { Value = true }; };
 
 		/**
 		 * @brief Tests whether a type is l-value reference.
@@ -101,22 +103,40 @@ namespace Forge {
 		template<typename Type>
 		struct TIsLValueReference { enum { Value = false }; };
 
-		template<typename _Type>
-		struct TIsLValueReference<_Type&> { enum { Value = true }; };
+		template<typename InType>
+		struct TIsLValueReference<InType&> { enum { Value = true }; };
 
 		/**
 		 * @brief Tests whether a type is r-value reference.
 		 */
-		template<typename _Type>
+		template<typename InType>
 		struct TIsRValueReference { enum { Value = false }; };
 
-		template<typename _Type>
-		struct TIsRValueReference<_Type&&> { enum { Value = true }; };
+		template<typename InType>
+		struct TIsRValueReference<InType&&> { enum { Value = true }; };
+		
+		/**
+		 * @brief Tests whether a type is a binary functions.
+		 */
+		template<typename InType>
+		struct TIsBinaryFunction { enum { Value = false }; };
+
+		template<typename InType> struct TIsBinaryFunction<Algorithm::Plus<InType>>     { enum { Value = true}; };
+		template<typename InType> struct TIsBinaryFunction<Algorithm::Minus<InType>>    { enum { Value = true }; };
+		template<typename InType> struct TIsBinaryFunction<Algorithm::Divide<InType>>   { enum { Value = true }; };
+		template<typename InType> struct TIsBinaryFunction<Algorithm::Modulus<InType>>  { enum { Value = true }; };
+		template<typename InType> struct TIsBinaryFunction<Algorithm::Multiply<InType>> { enum { Value = true }; };
+
+		template<typename InType> struct TIsBinaryFunction<Algorithm::LessThan<InType>>           { enum { Value = true }; };
+		template<typename InType> struct TIsBinaryFunction<Algorithm::NotEqualTo<InType>>         { enum { Value = true }; };
+		template<typename InType> struct TIsBinaryFunction<Algorithm::GreaterThan<InType>>        { enum { Value = true }; };
+		template<typename InType> struct TIsBinaryFunction<Algorithm::LessThanOrEqual<InType>>    { enum { Value = true }; };
+		template<typename InType> struct TIsBinaryFunction<Algorithm::GreaterThanOrEqual<InType>> { enum { Value = true }; };
 
 		/**
 		 * @brief Test whether a type is arithmetic.
 		 */
-		template<typename _Type>
+		template<typename InType>
 		struct TIsArithmetic { enum { Value = false }; };
 
 		template<> struct TIsArithmetic<Char> { enum { Value = true }; };
@@ -134,13 +154,13 @@ namespace Forge {
 		template<> struct TIsArithmetic<F32> { enum { Value = true }; };
 		template<> struct TIsArithmetic<F64> { enum { Value = true }; };
 
-		template<typename _Type>
-		struct TIsArithmetic<const _Type> { enum { Value = TIsArithmetic<_Type>::Value }; };
+		template<typename InType>
+		struct TIsArithmetic<const InType> { enum { Value = TIsArithmetic<InType>::Value }; };
 
 		/**
 		 * @brief Tests wether a type is signed.
 		 */
-		template<typename _Type>
+		template<typename InType>
 		struct TIsSigned { enum { Value = false }; };
 
 		template<> struct TIsSigned<I8>  { enum { Value = true }; };
@@ -151,61 +171,61 @@ namespace Forge {
 		template<> struct TIsSigned<F32> { enum { Value = true }; };
 		template<> struct TIsSigned<F64> { enum { Value = true }; };
 
-		template<typename _Type>
-		struct TIsSigned<const _Type> { enum { Value = TIsSigned<_Type>::Value }; };
+		template<typename InType>
+		struct TIsSigned<const InType> { enum { Value = TIsSigned<InType>::Value }; };
 
 		/**
 		 * @brief Tests whether typename is floating point.
 		 */
-		template<typename _Type>
+		template<typename InType>
 		struct TIsFloatingPoint { enum { Value = false }; };
 
 		template<> struct TIsFloatingPoint<F32> { enum { Value = true }; };
 		template<> struct TIsFloatingPoint<F64> { enum { Value = true }; };
 
-		template<typename _Type>
-		struct TIsFloatingPoint<const _Type> { enum { Value = TIsFloatingPoint<_Type>::Value }; };
+		template<typename InType>
+		struct TIsFloatingPoint<const InType> { enum { Value = TIsFloatingPoint<InType>::Value }; };
 
 		/**
 		 * @brief Checks whether a type is double precision.
 		 */
-		template<typename _Type>
+		template<typename InType>
 		struct TIsDoublePrecision { enum { Value = false }; };
 
 		template<> struct TIsDoublePrecision<F64> { enum { Value = true }; };
 
-		template<typename _Type>
-		struct TIsDoublePrecision<const _Type> { enum { Value = TIsDouble<_Type>::Value }; };
+		template<typename InType>
+		struct TIsDoublePrecision<const InType> { enum { Value = TIsDouble<InType>::Value }; };
 
 		/**
 		 * @brief Removes constant qualifiers from a type.
 		 */
-		template<typename _Type>
-		struct TRemoveConst { using Type = _Type; };
+		template<typename InType>
+		struct TRemoveConst { using Type = InType; };
 
-		template<typename _Type>
-		struct TRemoveConst<const _Type> { using Type = _Type; };
+		template<typename InType>
+		struct TRemoveConst<const InType> { using Type = InType; };
 
 		/**
 		 * @brief Removes pointer qualifier from a type.
 		 */
-		template<typename _Type>
-		struct TRemovePointer { using Type = _Type; };
+		template<typename InType>
+		struct TRemovePointer { using Type = InType; };
 
-		template<typename _Type>
-		struct TRemovePointer<_Type*> { using Type = _Type; };
+		template<typename InType>
+		struct TRemovePointer<InType*> { using Type = InType; };
 
 		/**
 		 * @brief Removes reference qualifiers from a type.
 		 */
-		template<typename _Type>
-		struct TRemoveRefernce { using Type = _Type; };
+		template<typename InType>
+		struct TRemoveRefernce { using Type = InType; };
 
-		template<typename _Type>
-		struct TRemoveRefernce<_Type&> { using Type = _Type; };
+		template<typename InType>
+		struct TRemoveRefernce<InType&> { using Type = InType; };
 
-		template<typename _Type>
-		struct TRemoveRefernce<_Type&&> { using Type = _Type; };
+		template<typename InType>
+		struct TRemoveRefernce<InType&&> { using Type = InType; };
 	}
 }
 

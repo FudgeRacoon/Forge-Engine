@@ -3,12 +3,13 @@
 
 #include "Core/Public/CoreFwd.h"
 
-#include "Core/Public/Math/StringHash.h"
-
 #include "Core/Public/Common/Compiler.h"
 #include "Core/Public/Common/TypeDefinitions.h"
 
-using namespace Forge::Math;
+class ConstStringHash
+{
+
+};
 
 namespace Forge {
 	namespace RTTI

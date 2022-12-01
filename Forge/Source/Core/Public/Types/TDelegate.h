@@ -3,9 +3,9 @@
 
 #include <utility>
 
-#include "Compiler.h"
-#include "TypeDefinitions.h"
-#include "PreprocessorUtilities.h"
+#include "Core/Public/Common/Compiler.h"
+#include "Core/Public/Common/TypeDefinitions.h"
+#include "Core/Public/Common/PreprocessorUtilities.h"
 
 #include "Core/Public/Memory/MemoryUtilities.h"
 
@@ -338,8 +338,12 @@ namespace Forge {
 			 */
 			Void Invalidate(void)
 			{
-				if(this->m_func_address)
+				if (this->m_func_address)
+				{
 					Memory::MemorySet(this->m_func_address, 0, this->m_func_container_size);
+
+					free(this->m_func_address);
+				}
 
 				this->m_instance_ptr = nullptr;
 				this->m_func_container_size = 0;
