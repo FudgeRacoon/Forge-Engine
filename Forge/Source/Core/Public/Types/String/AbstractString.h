@@ -3,6 +3,8 @@
 
 #include "Core/Public/Common/TypeDefinitions.h"
 
+#include "Core/Public/Algorithm/StringUtilities.h"
+
 namespace Forge {
 	namespace Type
 	{
@@ -19,6 +21,12 @@ namespace Forge {
 			IGNORE_CASE_SENSETIVITY
 		};
 
+		/**
+		 * @brief Abstract base class for strings which implements read-only
+		 * operations.
+		 * 
+		 * @author Karim Hisham
+		 */
 		class AbstractString
 		{
 		private:
@@ -54,13 +62,6 @@ namespace Forge {
 			virtual Bool IsEmpty(void) const;
 
 		public:
-			/**
-			 * @brief Gets the number of bytes in the string.
-			 * 
-			 * @return Size storing the number of bytes in the string.
-			 */
-			virtual Size GetSize(void) const;
-
 			/**
 			 * @brief Gets the number of characters in the string.
 			 * 
@@ -103,6 +104,11 @@ namespace Forge {
 			 * 
 			 * @return Size storing the first position of the character that
 			 * matches the given character, or -1 if not found.
+			 * 
+			 * @throws InvalidOperationException if the string is empty.
+			 * 
+			 * @throws InvalidArgumentException if the given position is less than
+			 * zero or bigger than the character count.
 			 */
 			virtual Size FindFirstOf(ConstChar ch, Size pos = 0) const;
 
@@ -119,6 +125,11 @@ namespace Forge {
 			 *
 			 * @return Size storing the last position of the character that
 			 * matches the given character, or -1 if not found.
+			 *
+			 * @throws InvalidOperationException if the string is empty.
+			 * 
+			 * @throws InvalidArgumentException if the given position is less than
+			 * zero or bigger than the character count.
 			 */
 			virtual Size FindLastOf(ConstChar ch, Size pos = 0) const;
 
@@ -135,6 +146,11 @@ namespace Forge {
 			 *
 			 * @return Size storing the first position of the character that
 			 * does not match the given character, or -1 if not found.
+			 * 
+			 * @throws InvalidOperationException if the string is empty.
+			 * 
+			 * @throws InvalidArgumentException if the given position is less than
+			 * zero or bigger than the character count.
 			 */
 			virtual Size FindFirstNotOf(ConstChar ch, Size pos = 0) const;
 			
@@ -151,6 +167,11 @@ namespace Forge {
 			 *
 			 * @return Size storing the last position of the character that
 			 * does not match the given character, or -1 if not found.
+			 * 
+			 * @throws InvalidOperationException if the string is empty.
+			 *  
+			 * @throws InvalidArgumentException if the given position is less than
+			 * zero or bigger than the character count.
 			 */
 			virtual Size FindLastNotOf(ConstChar ch, Size pos = 0) const;
 			
@@ -169,6 +190,12 @@ namespace Forge {
 			 * @return Size storing the first position of the character that
 			 * matches the given character in the character array, or -1 if not
 			 * found.
+			 * 
+			 * @throws InvalidOperationException if the string is null.
+			 *  
+			 * @throws InvalidArgumentException if the given position is less than
+			 * zero or bigger than the character count or if character arrray is
+			 * null.
 			 */
 			virtual Size FindFirstOf(ConstCharPtr str, Size pos = 0) const;
 
@@ -187,6 +214,12 @@ namespace Forge {
 			 * @return Size storing the last position of the character that
 			 * matches the given character in the character array, or -1 if not
 			 * found.
+			 * 
+			 * @throws InvalidOperationException if the string is null.
+			 *  
+			 * @throws InvalidArgumentException if the given position is less than
+			 * zero or bigger than the character count or if character arrray is
+			 * null.
 			 */
 			virtual Size FindLastOf(ConstCharPtr str, Size pos = 0) const;
 
@@ -204,7 +237,13 @@ namespace Forge {
 			 *
 			 * @return Size storing the first position of the character that
 			 * does not match the given character in the character array, or -1 if
-			 * not found
+			 * not found.
+			 * 
+			 * @throws InvalidOperationException if the string is null.
+			 *  
+			 * @throws InvalidArgumentException if the given position is less than
+			 * zero or bigger than the character count or if character arrray is
+			 * null.
 			 */
 			virtual Size FindFirstNotOf(ConstCharPtr str, Size pos = 0) const;
 
@@ -223,6 +262,12 @@ namespace Forge {
 			 * @return Size storing the last position of the character that
 			 * does not match the given character in the character array, or -1 if
 			 * not found.
+			 * 
+			 * @throws InvalidOperationException if the string is null.
+			 *  
+			 * @throws InvalidArgumentException if the given position is less than
+			 * zero or bigger than the character count or if character arrray is
+			 * null.
 			 */
 			virtual Size FindLastNotOf(ConstCharPtr str, Size pos = 0) const;
 
@@ -329,6 +374,26 @@ namespace Forge {
 			 */
 			virtual Bool LexicographicalCompare(ConstSelfTypeRef str);
 		};
+
+		FORGE_FORCE_INLINE Bool AbstractString::IsFull(void) const
+		{
+			return this->m_count == this->m_max_capacity;
+		}
+
+		FORGE_FORCE_INLINE Bool AbstractString::IsEmpty(void) const
+		{
+			return this->m_count == 0;
+		}
+
+		FORGE_FORCE_INLINE Size AbstractString::GetCount(void) const
+		{
+			return this->m_count;
+		}
+
+		FORGE_FORCE_INLINE Size AbstractString::GetMaxCapacity(void) const
+		{
+			return this->m_max_capacity;
+		}
 	}
 }
 
