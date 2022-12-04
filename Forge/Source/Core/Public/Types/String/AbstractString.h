@@ -3,7 +3,10 @@
 
 #include "Core/Public/Common/TypeDefinitions.h"
 
+#include "Core/Public/Memory/MemoryUtilities.h"
+
 #include "Core/Public/Algorithm/StringUtilities.h"
+#include "Core/Public/Algorithm/GeneralUtilities.h"
 
 namespace Forge {
 	namespace Type
@@ -11,12 +14,12 @@ namespace Forge {
 		enum StringSearchCase
 		{
 			/**
-			 * Upper/Lower characters must match for strings to be considered equaL.
+			 * @brief Upper/Lower characters must match for strings to be considered equaL.
 			 */
 			CASE_SENSETIVE,
 
 			/**
-			 * Upper/Lower characters does not matter when making a comparison.
+			 * @brief Upper/Lower characters does not matter when making a comparison.
 			 */
 			IGNORE_CASE_SENSETIVITY
 		};
@@ -37,13 +40,13 @@ namespace Forge {
 			using ConstSelfTypeRef = const AbstractString&;
 			using ConstSelfTypePtr = const AbstractString*;
 
-		public:
-			Bool operator ==(ConstSelfTypeRef other) const;
-			Bool operator !=(ConstSelfTypeRef other) const;
-
 		private:
-			Size m_count;
-			Size m_max_capacity;
+			ConstSize m_count;
+			ConstSize m_max_capacity;
+		
+		public:
+			ConstBool operator ==(ConstSelfTypeRef other) const;
+			ConstBool operator !=(ConstSelfTypeRef other) const;
 
 		public:
 			/**
@@ -51,7 +54,7 @@ namespace Forge {
 			 *
 			 * @return True if the string is full.
 			 */
-			virtual Bool IsFull(void) const;
+			virtual ConstBool IsFull(void) const;
 
 			/**
 			 * @brief Checks whether the string is empty and not storing any
@@ -59,24 +62,24 @@ namespace Forge {
 			 *
 			 * @return True if the string is empty.
 			 */
-			virtual Bool IsEmpty(void) const;
+			virtual ConstBool IsEmpty(void) const;
 
 		public:
 			/**
 			 * @brief Gets the number of characters in the string.
 			 * 
-			 * @return Size storing the number of characters in the string.
+			 * @return ConstSize storing the number of characters in the string.
 			 */
-			virtual Size GetCount(void) const;
+			virtual ConstSize GetCount(void) const;
 
 			/**
 			 * @brief Gets the maximum number of characters that can be stored in
 			 * the string.
 			 *
-			 * @return Size storing the maximum number of characters that can be
+			 * @return ConstSize storing the maximum number of characters that can be
 			 * stored in the string.
 			 */
-			virtual Size GetMaxCapacity(void) const;
+			virtual ConstSize GetMaxCapacity(void) const;
 
 			/**
 			 * @brief Gets a direct pointer to the memory array managed by the
@@ -86,7 +89,7 @@ namespace Forge {
 			 * contiguous memory locations. This allows the pointer to be
 			 * offsetted to access different characters.
 			 *
-			 * @return ConstCharTypePtr storing address of the memory array.
+			 * @return ConstCharPtr storing address of the memory array.
 			 */
 			virtual ConstCharPtr GetRawData(void) const = 0;
 
@@ -102,7 +105,7 @@ namespace Forge {
 			 * @param ch  The character to search for in the string.
 			 * @param pos The position to start the search from.
 			 * 
-			 * @return Size storing the first position of the character that
+			 * @return ConstSize storing the first position of the character that
 			 * matches the given character, or -1 if not found.
 			 * 
 			 * @throws InvalidOperationException if the string is empty.
@@ -110,7 +113,7 @@ namespace Forge {
 			 * @throws InvalidArgumentException if the given position is less than
 			 * zero or bigger than the character count.
 			 */
-			virtual Size FindFirstOf(ConstChar ch, Size pos = 0) const;
+			virtual ConstSize FindFirstOf(ConstChar ch, ConstSize pos = 0) const;
 
 			/**
 			 * @brief Searches the string for the last character that matches a
@@ -123,7 +126,7 @@ namespace Forge {
 			 * @param ch  The character to search for in the string.
 			 * @param pos The position to start the search from.
 			 *
-			 * @return Size storing the last position of the character that
+			 * @return ConstSize storing the last position of the character that
 			 * matches the given character, or -1 if not found.
 			 *
 			 * @throws InvalidOperationException if the string is empty.
@@ -131,7 +134,7 @@ namespace Forge {
 			 * @throws InvalidArgumentException if the given position is less than
 			 * zero or bigger than the character count.
 			 */
-			virtual Size FindLastOf(ConstChar ch, Size pos = 0) const;
+			virtual ConstSize FindLastOf(ConstChar ch, ConstSize pos = 0) const;
 
 			/**
 			 * @brief Searches the string for the first character that does not 
@@ -144,7 +147,7 @@ namespace Forge {
 			 * @param ch  The character to search for in the string.
 			 * @param pos The position to start the search from.
 			 *
-			 * @return Size storing the first position of the character that
+			 * @return ConstSize storing the first position of the character that
 			 * does not match the given character, or -1 if not found.
 			 * 
 			 * @throws InvalidOperationException if the string is empty.
@@ -152,7 +155,7 @@ namespace Forge {
 			 * @throws InvalidArgumentException if the given position is less than
 			 * zero or bigger than the character count.
 			 */
-			virtual Size FindFirstNotOf(ConstChar ch, Size pos = 0) const;
+			virtual ConstSize FindFirstNotOf(ConstChar ch, ConstSize pos = 0) const;
 			
 			/**
 			 * @brief Searches the string for the last character that does not 
@@ -165,7 +168,7 @@ namespace Forge {
 			 * @param ch  The character to search for in the string.
 			 * @param pos The position to start the search from.
 			 *
-			 * @return Size storing the last position of the character that
+			 * @return ConstSize storing the last position of the character that
 			 * does not match the given character, or -1 if not found.
 			 * 
 			 * @throws InvalidOperationException if the string is empty.
@@ -173,7 +176,7 @@ namespace Forge {
 			 * @throws InvalidArgumentException if the given position is less than
 			 * zero or bigger than the character count.
 			 */
-			virtual Size FindLastNotOf(ConstChar ch, Size pos = 0) const;
+			virtual ConstSize FindLastNotOf(ConstChar ch, ConstSize pos = 0) const;
 			
 			/**
 			 * @brief Searches the string for the first character that matches a
@@ -187,17 +190,17 @@ namespace Forge {
 			 * @param str The character array to search for in the string.
 			 * @param pos The position to start the search from.
 			 *
-			 * @return Size storing the first position of the character that
+			 * @return ConstSize storing the first position of the character that
 			 * matches the given character in the character array, or -1 if not
 			 * found.
 			 * 
-			 * @throws InvalidOperationException if the string is null.
+			 * @throws InvalidOperationException if the string is empty.
 			 *  
 			 * @throws InvalidArgumentException if the given position is less than
-			 * zero or bigger than the character count or if character arrray is
-			 * null.
+			 * zero or bigger than the character count or if given character array
+			 * is null.
 			 */
-			virtual Size FindFirstOf(ConstCharPtr str, Size pos = 0) const;
+			virtual ConstSize FindFirstOf(ConstCharPtr str, ConstSize pos = 0) const;
 
 			/**
 			 * @brief Searches the string for the last character that matches a
@@ -211,17 +214,17 @@ namespace Forge {
 			 * @param str The character array to search for in the string.
 			 * @param pos The position to start the search from.
 			 *
-			 * @return Size storing the last position of the character that
+			 * @return ConstSize storing the last position of the character that
 			 * matches the given character in the character array, or -1 if not
 			 * found.
 			 * 
-			 * @throws InvalidOperationException if the string is null.
+			 * @throws InvalidOperationException if the string is empty.
 			 *  
 			 * @throws InvalidArgumentException if the given position is less than
-			 * zero or bigger than the character count or if character arrray is
-			 * null.
+			 * zero or bigger than the character count or if given character array
+			 * is null.
 			 */
-			virtual Size FindLastOf(ConstCharPtr str, Size pos = 0) const;
+			virtual ConstSize FindLastOf(ConstCharPtr str, ConstSize pos = 0) const;
 
 			/**
 			 * @brief Searches the string for the first character that does not
@@ -235,17 +238,17 @@ namespace Forge {
 			 * @param str The character array to search for in the string.
 			 * @param pos The position to start the search from.
 			 *
-			 * @return Size storing the first position of the character that
+			 * @return ConstSize storing the first position of the character that
 			 * does not match the given character in the character array, or -1 if
 			 * not found.
 			 * 
-			 * @throws InvalidOperationException if the string is null.
+			 * @throws InvalidOperationException if the string is empty.
 			 *  
 			 * @throws InvalidArgumentException if the given position is less than
-			 * zero or bigger than the character count or if character arrray is
-			 * null.
+			 * zero or bigger than the character count or if given character array
+			 * is null.
 			 */
-			virtual Size FindFirstNotOf(ConstCharPtr str, Size pos = 0) const;
+			virtual ConstSize FindFirstNotOf(ConstCharPtr str, ConstSize pos = 0) const;
 
 			/**
 			 * @brief Searches the string for the last character that does not
@@ -259,17 +262,17 @@ namespace Forge {
 			 * @param str The character array to search for in the string.
 			 * @param pos The position to start the search from.
 			 *
-			 * @return Size storing the last position of the character that
+			 * @return ConstSize storing the last position of the character that
 			 * does not match the given character in the character array, or -1 if
 			 * not found.
 			 * 
-			 * @throws InvalidOperationException if the string is null.
+			 * @throws InvalidOperationException if the string is empty.
 			 *  
 			 * @throws InvalidArgumentException if the given position is less than
-			 * zero or bigger than the character count or if character arrray is
-			 * null.
+			 * zero or bigger than the character count or if given character array
+			 * is null.
 			 */
-			virtual Size FindLastNotOf(ConstCharPtr str, Size pos = 0) const;
+			virtual ConstSize FindLastNotOf(ConstCharPtr str, ConstSize pos = 0) const;
 
 		public:
 			/**
@@ -279,10 +282,15 @@ namespace Forge {
 			 * @param substr The sub-string to search for in the string.
 			 * @param pos    The position to start the search from.
 			 * 
-			 * @return Size storing the position of the sub-string that matches
+			 * @return ConstSize storing the position of the sub-string that matches
 			 * the given sub-string, or -1 if not found.
+			 * 
+			 * @throws InvalidOperationException if the string is empty.
+			 *  
+			 * @throws InvalidArgumentException if the given position is less than
+			 * zero or bigger than the character count or if given substring is null.
 			 */
-			virtual Size FindSubString(ConstCharPtr substr, Size pos = 0) const;
+			virtual ConstSize FindSubString(ConstCharPtr substr, ConstSize pos = 0) const;
 
 			/**
 			 * @brief Searches the string for a given sub-string starting from a
@@ -291,10 +299,15 @@ namespace Forge {
 			 * @param substr The sub-string to search for in the string.
 			 * @param pos    The position to start the search from.
 			 *
-			 * @return Size storing the position of the sub-string that matches
+			 * @return ConstSize storing the position of the sub-string that matches
 			 * the given sub-string, or -1 if not found.
+			 * 
+			 * @throws InvalidOperationException if the string is empty.
+			 *  
+			 * @throws InvalidArgumentException if the given position is less than
+			 * zero or bigger than the character count or if given substring is empty.
 			 */
-			virtual Size FindSubString(ConstSelfTypeRef substr, Size pos = 0) const;
+			virtual ConstSize FindSubString(ConstSelfTypeRef substr, ConstSize pos = 0) const;
 
 		public:
 			/**
@@ -304,8 +317,13 @@ namespace Forge {
 			 * @param search_case The search case to use when comparing strings.
 			 * 
 			 * @return True if the given string is at the start of this string.
+			 * 
+			 * @throws InvalidOperationException if the string is empty.
+			 *  
+			 * @throws InvalidArgumentException if the given position is less than
+			 * zero or bigger than the character count or if given substring is empty.
 			 */
-			virtual Bool StartsWith(ConstCharPtr substr, StringSearchCase search_case) const;
+			virtual ConstBool StartsWith(ConstCharPtr substr, StringSearchCase search_case) const;
 
 			/**
 			 * @brief Checks wether a given string is at the start of this string.
@@ -314,8 +332,13 @@ namespace Forge {
 			 * @param search_case The search case to use when comparing strings.
 			 * 
 			 * @return True if the given string is at the start of this string.
+			 * 
+			 * @throws InvalidOperationException if the string is empty.
+			 *  
+			 * @throws InvalidArgumentException if the given position is less than
+			 * zero or bigger than the character count or if given substring is empty.
 			 */
-			virtual Bool StartsWith(ConstSelfTypeRef substr, StringSearchCase search_case) const;
+			virtual ConstBool StartsWith(ConstSelfTypeRef substr, StringSearchCase search_case) const;
 
 			/**
 			 * @brief Checks wether a given string is at the end of this string.
@@ -324,8 +347,13 @@ namespace Forge {
 			 * @param search_case The search case to use when comparing strings.
 			 *
 			 * @return True if the given string is at the end of this string.
+			 * 
+			 * @throws InvalidOperationException if the string is empty.
+			 *  
+			 * @throws InvalidArgumentException if the given position is less than
+			 * zero or bigger than the character count or if given substring is empty.
 			 */
-			virtual Bool EndsWith(ConstCharPtr substr, StringSearchCase search_case) const;
+			virtual ConstBool EndsWith(ConstCharPtr substr, StringSearchCase search_case) const;
 
 			/**
 			 * @brief Checks wether a given string is at the end of this string.
@@ -334,8 +362,13 @@ namespace Forge {
 			 * @param search_case The search case to use when comparing strings.
 			 *
 			 * @return True if the given string is at the end of this string.
+			 * 
+			 * @throws InvalidOperationException if the string is empty.
+			 *  
+			 * @throws InvalidArgumentException if the given position is less than
+			 * zero or bigger than the character count or if given substring is empty.
 			 */
-			virtual Bool EndsWith(ConstSelfTypeRef substr, StringSearchCase search_case) const;
+			virtual ConstBool EndsWith(ConstSelfTypeRef substr, StringSearchCase search_case) const;
 
 		public:
 			/**
@@ -353,8 +386,12 @@ namespace Forge {
 			 * @param str The string to compare with this string
 			 * 
 			 * @return True if the string compares less than the given string.
+			 * 
+			 * @throws InvalidOperationException if the string is empty.
+			 * 
+			 * @throws InvalidArgumentException if given string is empty.
 			 */
-			virtual Bool LexicographicalCompare(ConstCharPtr str);
+			virtual ConstBool LexicographicalCompare(ConstCharPtr str);
 
 			/**
 			 * @brief Returns true if the string compares lexicographically less
@@ -371,26 +408,30 @@ namespace Forge {
 			 * @param str The string to compare with this string
 			 *
 			 * @return True if the string compares less than the given string.
+			 * 
+			 * @throws InvalidOperationException if the string is empty.
+			 * 
+			 * @throws InvalidArgumentException if given string is empty.
 			 */
-			virtual Bool LexicographicalCompare(ConstSelfTypeRef str);
+			virtual ConstBool LexicographicalCompare(ConstSelfTypeRef str);
 		};
 
-		FORGE_FORCE_INLINE Bool AbstractString::IsFull(void) const
+		FORGE_FORCE_INLINE ConstBool AbstractString::IsFull(void) const
 		{
 			return this->m_count == this->m_max_capacity;
 		}
 
-		FORGE_FORCE_INLINE Bool AbstractString::IsEmpty(void) const
+		FORGE_FORCE_INLINE ConstBool AbstractString::IsEmpty(void) const
 		{
 			return this->m_count == 0;
 		}
 
-		FORGE_FORCE_INLINE Size AbstractString::GetCount(void) const
+		FORGE_FORCE_INLINE ConstSize AbstractString::GetCount(void) const
 		{
 			return this->m_count;
 		}
 
-		FORGE_FORCE_INLINE Size AbstractString::GetMaxCapacity(void) const
+		FORGE_FORCE_INLINE ConstSize AbstractString::GetMaxCapacity(void) const
 		{
 			return this->m_max_capacity;
 		}

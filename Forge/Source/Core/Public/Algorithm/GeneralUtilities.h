@@ -249,6 +249,25 @@ namespace Forge {
 		}
 		
 		/**
+		 * @brief Clamps the value passed between two boundries, low and high.
+		 *
+		 * If the value is less than the low boundry return the low boundry value
+		 * and if the value is larger than the high boundry return the high boundry.
+		 *
+		 * @param val The value to clamp.
+		 * @param low  The low boundry to clamp to.
+		 * @param high The high boundry to clamp to.
+		 *
+		 * @return ConstInTypeRef storing the clampped value.
+		 */
+		template<typename InType>
+		FORGE_FORCE_INLINE auto Clamp(const InType& val, const InType& low, const InType& high)
+			-> const InType&
+		{
+			return val < low ? low : val > high ? high : val;
+		}
+
+		/**
 		 * @brief Returns the smallest between two values.
 		 *
 		 * @param lhs  The left-hand side value to compare.
@@ -258,9 +277,9 @@ namespace Forge {
 		 * 
 		 * @return ConstInTypeRef storing the smallest value.
 		 */
-		template<typename InType, typename Comparer>
-		FORGE_FORCE_INLINE auto Min(const InType& lhs, const InType& rhs, Comparer comp)
-			-> typename Common::TEnableIf<Common::TIsBinaryFunction<Comparer>::Value, const InType&>::Value
+		template<typename InType, typename InComparer>
+		FORGE_FORCE_INLINE auto Min(const InType& lhs, const InType& rhs, InComparer comp)
+			-> typename Common::TEnableIf<Common::TIsBinaryFunction<InComparer>::Value, const InType&>::Value
 		{
 			return comp(lhs, rhs) ? lhs : rhs;
 		}
@@ -275,9 +294,9 @@ namespace Forge {
 		 *
 		 * @return ConstInTypeRef storing the smallest value.
 		 */
-		template<typename InType, typename Comparer>
-		FORGE_FORCE_INLINE auto Max(const InType& lhs, const InType& rhs, Comparer comp)
-			-> typename Common::TEnableIf<Common::TIsBinaryFunction<Comparer>::Value, const InType&>::Value
+		template<typename InType, typename InComparer>
+		FORGE_FORCE_INLINE auto Max(const InType& lhs, const InType& rhs, InComparer comp)
+			-> typename Common::TEnableIf<Common::TIsBinaryFunction<InComparer>::Value, const InType&>::Value
 		{
 			return comp(lhs, rhs) ? lhs : rhs;
 		}
@@ -303,25 +322,6 @@ namespace Forge {
 
 		/**
 		 * @brief Clamps the value passed between two boundries, low and high.
-		 * 
-		 * If the value is less than the low boundry return the low boundry value
-		 * and if the value is larger than the high boundry return the high boundry.
-		 * 
-		 * @param val The value to clamp.
-		 * @param low  The low boundry to clamp to.
-		 * @param high The high boundry to clamp to.
-		 * 
-		 * @return ConstInTypeRef storing the clampped value.
-		 */
-		template<typename InType>
-		FORGE_FORCE_INLINE auto Clamp(const InType& val, const InType& low, const InType& high)
-			-> const InType&
-		{
-			return val < low ? low : val > high ? high : val;
-		}
-
-		/**
-		 * @brief Clamps the value passed between two boundries, low and high.
 		 *
 		 * If the value is less than the low boundry return the low boundry value
 		 * and if the value is larger than the high boundry return the high boundry.
@@ -334,11 +334,51 @@ namespace Forge {
 		 *
 		 * @return ConstInTypeRef storing the clampped value.
 		 */
-		template<typename InType, typename Comparer>
-		FORGE_FORCE_INLINE auto Clamp(const InType& val, const InType& low, const InType& high, Comparer comp)
-			-> typename Common::TEnableIf<Common::TIsBinaryFunction<Comparer>::Value, const InType&>::Value
+		template<typename InType, typename InComparer>
+		FORGE_FORCE_INLINE auto Clamp(const InType& val, const InType& low, const InType& high, InComparer comp)
+			-> typename Common::TEnableIf<Common::TIsBinaryFunction<InComparer>::Value, const InType&>::Value
 		{
 			return comp(val, low) ? low : comp(high, val) ? high : val;
+		}
+
+		/**
+		 * @brief Checks wether the value passed is between two boundries, low and
+		 * high.
+		 *
+		 * This operation considers the low boundry part of the set of values
+		 * between the two boundries passed.
+		 *
+		 * @param val  The value to check if within bounds.
+		 * @param low  The low boundry to check against.
+		 * @param high The high boundry to check against.
+		 *
+		 * @return True if the passed value is between the two boundries passed.
+		 */
+		template<typename InType>
+		FORGE_FORCE_INLINE auto IsWithinValueBoundsInclusive(const InType& val, const InType& low, const InType& high)
+			-> Bool
+		{
+			return val >= low && val < high;
+		}
+
+		/**
+		 * @brief Checks wether the value passed is between two boundries, low and
+		 * high.
+		 *
+		 * This operation considers the low boundry not part of the set of values
+		 * between the two boundries passed.
+		 *
+		 * @param val  The value to check if within bounds.
+		 * @param low  The low boundry to check against.
+		 * @param high The high boundry to check against.
+		 *
+		 * @return True if the passed value is between the two boundries passed.
+		 */
+		template<typename InType>
+		FORGE_FORCE_INLINE auto IsWithinValueBoundsExclusive(const InType& val, const InType& low, const InType& high)
+			-> Bool
+		{
+			return val > low && val < high;
 		}
 	}
 }

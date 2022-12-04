@@ -3,114 +3,108 @@
 namespace Forge {
 	namespace Type
 	{
-		Size AbstractString::FindFirstOf(ConstChar ch, Size pos = 0) const
+		ConstBool AbstractString::operator ==(AbstractString::ConstSelfTypeRef other) const
 		{
-			if (!this->m_count)
-			{
-				// Throw Exception
-			}
+			if (this->GetCount() != other.m_count)
+				return false;
 
-			if (pos < 0 || pos >= this->m_count)
-			{
-				// Throw Exception
-			}
+			return Memory::MemoryCompare(this->GetRawData(), other.GetRawData(), this->GetCount());
+		}
+
+		ConstBool AbstractString::operator !=(AbstractString::ConstSelfTypeRef other) const
+		{
+			if (this->GetCount() != other.m_count)
+				return true;
+
+			return !(Memory::MemoryCompare(this->GetRawData(), other.GetRawData(), this->GetCount()));
+		}
+
+		ConstSize AbstractString::FindFirstOf(ConstChar ch, ConstSize pos = 0) const
+		{
+			/*if (this->IsEmpty())
+				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
+
+			/*if (Algorithm::IsWithinBoundsInclusive(pos, 0, this->GetCount()))
+				FORGE_EXCEPT(Debug::Exception::ERR_ARGUMENT_EXCEPTION, "Position can not be less than zero or greater than string length");*/
 
 			ConstCharPtr data = this->GetRawData();
 
-			for (I32 i = pos; i < this->m_count; i++)
+			for (I32 i = pos; i < this->GetCount(); i++)
 				if (*(data + i) == ch)
 					return i;
 
 			return -1;
 		}
 
-		Size AbstractString::FindLastOf(ConstChar ch, Size pos = 0) const
+		ConstSize AbstractString::FindLastOf(ConstChar ch, ConstSize pos = 0) const
 		{
-			if (!this->m_count)
-			{
-				// Throw Exception
-			}
+			/*if (this->IsEmpty())
+				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
 
-			if (pos < 0 || pos >= this->m_count)
-			{
-				// Throw Exception
-			}
+			/*if (Algorithm::IsWithinBoundsInclusive(pos, 0, this->GetCount()))
+				FORGE_EXCEPT(Debug::Exception::ERR_ARGUMENT_EXCEPTION, "Position can not be less than zero or greater than string length");*/
 
 			ConstCharPtr data = this->GetRawData();
 
-			for (I32 i = (this->m_count - 1) - pos; i >= 0; i--)
+			for (I32 i = (this->GetCount() - 1) - pos; i >= 0; i--)
 				if (*(data + i) == ch)
 					return i;
 
 			return -1;
 		}
 
-		Size AbstractString::FindFirstNotOf(ConstChar ch, Size pos = 0) const
+		ConstSize AbstractString::FindFirstNotOf(ConstChar ch, ConstSize pos = 0) const
 		{
-			if (!this->m_count)
-			{
-				// Throw Exception
-			}
+			/*if (this->IsEmpty())
+				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
 
-			if (pos < 0 || pos >= this->m_count)
-			{
-				// Throw Exception
-			}
+			/*if (Algorithm::IsWithinBoundsInclusive(pos, 0, this->GetCount()))
+				FORGE_EXCEPT(Debug::Exception::ERR_ARGUMENT_EXCEPTION, "Position can not be less than zero or greater than string length");*/
 
 			ConstCharPtr data = this->GetRawData();
 
-			for (I32 i = pos; i < this->m_count; i++)
+			for (I32 i = pos; i < this->GetCount(); i++)
 				if (*(data + i) != ch)
 					return i;
 
 			return -1;
 		}
 
-		Size AbstractString::FindLastNotOf(ConstChar ch, Size pos = 0) const
+		ConstSize AbstractString::FindLastNotOf(ConstChar ch, ConstSize pos = 0) const
 		{
-			if (!this->m_count)
-			{
-				// Throw Exception
-			}
+			/*if (this->IsEmpty())
+				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
 
-			if (pos < 0 || pos >= this->m_count)
-			{
-				// Throw Exception
-			}
+			/*if (Algorithm::IsWithinBoundsInclusive(pos, 0, this->GetCount()))
+				FORGE_EXCEPT(Debug::Exception::ERR_ARGUMENT_EXCEPTION, "Position can not be less than zero or greater than string length");*/
 
 			ConstCharPtr data = this->GetRawData();
 
-			for (I32 i = (this->m_count - 1) - pos; i >= 0; i--)
+			for (I32 i = (this->GetCount() - 1) - pos; i >= 0; i--)
 				if (*(data + i) != ch)
 					return i;
 
 			return -1;
 		}
 
-		Size AbstractString::FindFirstOf(ConstCharPtr str, Size pos = 0) const
+		ConstSize AbstractString::FindFirstOf(ConstCharPtr str, ConstSize pos = 0) const
 		{
-			if (!this->m_count)
-			{
-				// Throw Exception
-			}
+			/*if (this->IsEmpty())
+				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
 
-			if (pos < 0 || pos >= this->m_count)
-			{
-				// Throw Exception
-			}
+			/*if (Algorithm::IsWithinBoundsInclusive(pos, 0, this->GetCount()))
+				FORGE_EXCEPT(Debug::Exception::ERR_ARGUMENT_EXCEPTION, "Position can not be less than zero or greater than string length");*/
 
-			if (!str)
-			{
-				// Throw Exception
-			}
+			/*if (Algorithm::IStringNullOrEmpty(str))
+				FORGE_EXCEPT(Debug::Exception::ERR_ARGUMENT_EXCEPTION, "Character array must not be null");*/
 
 			ConstCharPtr data = this->GetRawData();
 
-			for (I32 i = pos; i < this->m_count; i++)
+			for (I32 i = pos; i < this->GetCount(); i++)
 			{
 				ConstCharPtr tmp = str;
 
-				while (*tmp != '\0')
+				while (Algorithm::IStringNullOrEmpty(tmp))
 					if (*(data + i) == *(tmp++))
 						return i;
 			}
@@ -118,30 +112,24 @@ namespace Forge {
 			return -1;
 		}
 
-		Size AbstractString::FindLastOf(ConstCharPtr str, Size pos = 0) const
+		ConstSize AbstractString::FindLastOf(ConstCharPtr str, ConstSize pos = 0) const
 		{
-			if (!this->m_count)
-			{
-				// Throw Exception
-			}
+			/*if (this->IsEmpty())
+				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
 
-			if (pos < 0 || pos >= this->m_count)
-			{
-				// Throw Exception
-			}
+			/*if (Algorithm::IsWithinBoundsInclusive(pos, 0, this->GetCount()))
+				FORGE_EXCEPT(Debug::Exception::ERR_ARGUMENT_EXCEPTION, "Position can not be less than zero or greater than string length");*/
 
-			if (!str)
-			{
-				// Throw Exception
-			}
+			/*if (Algorithm::IStringNullOrEmpty(str))
+				FORGE_EXCEPT(Debug::Exception::ERR_ARGUMENT_EXCEPTION, "Character array must not be null");*/
 
 			ConstCharPtr data = this->GetRawData();
 
-			for (I32 i = (this->m_count - 1) - pos; i >= 0; i--)
+			for (I32 i = (this->GetCount() - 1) - pos; i >= 0; i--)
 			{
 				ConstCharPtr tmp = str;
 
-				while (*tmp != '\0')
+				while (Algorithm::IStringNullOrEmpty(tmp))
 					if (*(data + i) == *(tmp++))
 						return i;
 			}
@@ -149,30 +137,24 @@ namespace Forge {
 			return -1;
 		}
 
-		Size AbstractString::FindFirstNotOf(ConstCharPtr str, Size pos = 0) const
+		ConstSize AbstractString::FindFirstNotOf(ConstCharPtr str, ConstSize pos = 0) const
 		{
-			if (!this->m_count)
-			{
-				// Throw Exception
-			}
+			/*if (this->IsEmpty())
+				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
 
-			if (pos < 0 || pos >= this->m_count)
-			{
-				// Throw Exception
-			}
+			/*if (Algorithm::IsWithinBoundsInclusive(pos, 0, this->GetCount()))
+				FORGE_EXCEPT(Debug::Exception::ERR_ARGUMENT_EXCEPTION, "Position can not be less than zero or greater than string length");*/
 
-			if (!str)
-			{
-				// Throw Exception
-			}
+			/*if (Algorithm::IStringNullOrEmpty(str))
+				FORGE_EXCEPT(Debug::Exception::ERR_ARGUMENT_EXCEPTION, "Character array must not be null");*/
 
 			ConstCharPtr data = this->GetRawData();
 
-			for (I32 i = pos; i < this->m_count; i++)
+			for (I32 i = pos; i < this->GetCount(); i++)
 			{
 				ConstCharPtr tmp = str;
 
-				while (*tmp != '\0')
+				while (Algorithm::IStringNullOrEmpty(tmp))
 					if (*(data + i) != *(tmp++))
 						return i;
 			}
@@ -180,30 +162,24 @@ namespace Forge {
 			return -1;
 		}
 
-		Size AbstractString::FindLastNotOf(ConstCharPtr str, Size pos = 0) const
+		ConstSize AbstractString::FindLastNotOf(ConstCharPtr str, ConstSize pos = 0) const
 		{
-			if (!this->m_count)
-			{
-				// Throw Exception
-			}
+			/*if (this->IsEmpty())
+				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
 
-			if (pos < 0 || pos >= this->m_count)
-			{
-				// Throw Exception
-			}
+			/*if (Algorithm::IsWithinBoundsInclusive(pos, 0, this->GetCount()))
+				FORGE_EXCEPT(Debug::Exception::ERR_ARGUMENT_EXCEPTION, "Position can not be less than zero or greater than string length");*/
 
-			if (!str)
-			{
-				// Throw Exception
-			}
+			/*if (Algorithm::IStringNullOrEmpty(str))
+				FORGE_EXCEPT(Debug::Exception::ERR_ARGUMENT_EXCEPTION, "Character array must not be null");*/
 
 			ConstCharPtr data = this->GetRawData();
 
-			for (I32 i = (this->m_count - 1) - pos; i >= 0; i--)
+			for (I32 i = (this->GetCount() - 1) - pos; i >= 0; i--)
 			{
 				ConstCharPtr tmp = str;
 
-				while (*tmp != '\0')
+				while (Algorithm::IStringNullOrEmpty(tmp))
 					if (*(data + i) != *(tmp++))
 						return i;
 			}
@@ -211,65 +187,120 @@ namespace Forge {
 			return -1;
 		}
 
-		Size AbstractString::FindSubString(ConstCharPtr substr, Size pos = 0) const
+		ConstSize AbstractString::FindSubString(ConstCharPtr substr, ConstSize pos = 0) const
 		{
-			if (!this->m_count)
-			{
-				// Throw Exception
-			}
+			/*if (this->IsEmpty())
+				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
 
-			if (pos < 0 || pos >= this->m_count)
-			{
-				// Throw Exception
-			}
+			/*if (Algorithm::IsWithinBoundsInclusive(pos, 0, this->GetCount()))
+				FORGE_EXCEPT(Debug::Exception::ERR_ARGUMENT_EXCEPTION, "Position can not be less than zero or greater than string length");*/
 
-			if (!substr)
-			{
-				// Throw Exception
-			}
+			/*if (Algorithm::IStringNullOrEmpty(substr))
+				FORGE_EXCEPT(Debug::Exception::ERR_ARGUMENT_EXCEPTION, "Substring must not be null");*/
 
 			ConstCharPtr data = this->GetRawData();
 
 			ConstSize substr_size = Algorithm::GetStringLength(substr);
 
-			for(I32 i = 0; i < this->m_count - substr_size; i++)
+			for (I32 i = pos; i < this->GetCount() - substr_size; i++)
+				for (I32 j = 0; j < substr_size; j++)
+				{
+					if (*(data + (i + j)) != *(substr + j))
+						break;
 
+					return i;
+				}
+
+			return -1;
 		}
 
-		Size AbstractString::FindSubString(ConstSelfTypeRef substr, Size pos = 0) const
+		ConstSize AbstractString::FindSubString(ConstSelfTypeRef substr, ConstSize pos = 0) const
 		{
-		
-		
+			/*if (this->IsEmpty())
+				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
+
+			/*if (Algorithm::IsWithinBoundsInclusive(pos, 0, this->GetCount()))
+				FORGE_EXCEPT(Debug::Exception::ERR_ARGUMENT_EXCEPTION, "Position can not be less than zero or greater than string length");*/
+
+			/*if (substr.IsEmpty())
+				FORGE_EXCEPT(Debug::Exception::ERR_ARGUMENT_EXCEPTION, "Substring must no be empty");*/
+
+			ConstCharPtr data = this->GetRawData();
+			ConstCharPtr substr_data = substr.GetRawData();
+
+			ConstSize substr_size = substr.GetCount();
+
+			for (I32 i = pos; i < this->GetCount() - substr_size; i++)
+				for (I32 j = 0; j < substr_size; j++)
+				{
+					if (*(data + (i + j)) != *(substr_data + j))
+						break;
+
+					return i;
+				}
+
+			return -1;
 		}
 
-		Bool AbstractString::StartsWith(ConstCharPtr substr, StringSearchCase search_case) const
+		ConstBool AbstractString::StartsWith(ConstCharPtr substr, StringSearchCase search_case) const
 		{
-		
+			return this->FindSubString(substr) == 0;
 		}
 
-		Bool AbstractString::StartsWith(ConstSelfTypeRef substr, StringSearchCase search_case) const
+		ConstBool AbstractString::StartsWith(ConstSelfTypeRef substr, StringSearchCase search_case) const
 		{
-		
+			return this->FindSubString(substr) == 0;
 		}
 
-		Bool AbstractString::EndsWith(ConstCharPtr substr, StringSearchCase search_case) const
+		ConstBool AbstractString::EndsWith(ConstCharPtr substr, StringSearchCase search_case) const
 		{
-		
+			ConstSize index = this->FindSubString(substr);
+			ConstSize substr_size = Algorithm::GetStringLength(this->GetRawData() + index);
+
+			return (this->GetCount() - index) == substr_size;
 		}
 
-		Bool AbstractString::EndsWith(ConstSelfTypeRef substr, StringSearchCase search_case) const
+		ConstBool AbstractString::EndsWith(ConstSelfTypeRef substr, StringSearchCase search_case) const
 		{
-		
+			ConstSize index = this->FindSubString(substr);
+			ConstSize substr_size = Algorithm::GetStringLength(this->GetRawData() + index);
+
+			return this->GetCount() - index == substr_size;
 		}
 
-		Bool AbstractString::LexicographicalCompare(ConstCharPtr str)
+		ConstBool AbstractString::LexicographicalCompare(ConstCharPtr str)
 		{
-		
+			/*if (this->IsEmpty())
+				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
+
+			/*if (Algorithm::IStringNullOrEmpty(str))
+				FORGE_EXCEPT(Debug::Exception::ERR_ARGUMENT_EXCEPTION, "Character array must not be null");*/
+
+			ConstCharPtr data = this->GetRawData();
+
+			for (I32 i = 0; i < Algorithm::Max(this->GetCount(), Algorithm::GetStringLength(str)); i++)
+				if (*(data + i) < *(str + i))
+					return true;
+				else
+					return false;
 		}
 
-		Bool AbstractString::LexicographicalCompare(ConstSelfTypeRef str)
+		ConstBool AbstractString::LexicographicalCompare(ConstSelfTypeRef str)
 		{
-		
+			/*if (this->IsEmpty())
+				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
+
+			/*if (Algorithm::IStringNullOrEmpty(str))
+				FORGE_EXCEPT(Debug::Exception::ERR_ARGUMENT_EXCEPTION, "Character array must not be null");*/
+
+			ConstCharPtr data = this->GetRawData();
+			ConstCharPtr str_data = str.GetRawData();
+
+			for (I32 i = 0; i < Algorithm::Max(this->GetCount(), str.GetCount(); i++)
+				if (*(data + i) < *(str_data + i))
+					return true;
+				else
+					return false;
 		}
 	}
 }

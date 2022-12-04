@@ -15,7 +15,7 @@ namespace Forge {
 		 * 
 		 * @return True if the given given string is not null or empty. 
 		 */
-		FORGE_FORCE_INLINE Bool IsStringNullOrEmpty(ConstCharPtr str)
+		FORGE_FORCE_INLINE Bool IStringNullOrEmpty(ConstCharPtr str)
 		{
 			return str == nullptr || *str == '\0';
 		}

@@ -532,11 +532,8 @@ namespace Forge {
 		 */
 		FORGE_FORCE_INLINE Bool WithinAddressBounds(VoidPtr start_address, VoidPtr address, Size total_size)
 		{
-			if (reinterpret_cast<U64>(start_address) > reinterpret_cast<U64>(address) ||
-				reinterpret_cast<U64>(start_address) + total_size < reinterpret_cast<U64>(address))
-				return false;
-			else
-				return true;
+			return reinterpret_cast<U64>(address) >= reinterpret_cast<U64>(start_address) &&
+				   reinterpret_cast<U64>(address) <  reinterpret_cast<U64>(start_address) + total_size;		   
 		}
 	}
 }

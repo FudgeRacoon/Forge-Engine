@@ -20,7 +20,7 @@ namespace Forge {
 			using ConstSelfTypePtr = const String*;
 
 		private:
-
+			CharPtr m_buffer;
 		};
 	}
 }
