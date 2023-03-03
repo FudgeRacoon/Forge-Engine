@@ -100,7 +100,7 @@ namespace Forge {
 		/**
 		 * @brief Tests whether a type is l-value reference.
 		 */
-		template<typename Type>
+		template<typename InType>
 		struct TIsLValueReference { enum { Value = false }; };
 
 		template<typename InType>

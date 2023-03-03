@@ -19,7 +19,7 @@ namespace Forge {
 			return !(Memory::MemoryCompare(this->GetRawData(), other.GetRawData(), this->GetCount()));
 		}
 
-		ConstSize AbstractString::FindFirstOf(ConstChar ch, ConstSize pos = 0) const
+		ConstSize AbstractString::FindFirstOf(ConstChar ch, ConstSize pos) const
 		{
 			/*if (this->IsEmpty())
 				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
@@ -36,7 +36,7 @@ namespace Forge {
 			return -1;
 		}
 
-		ConstSize AbstractString::FindLastOf(ConstChar ch, ConstSize pos = 0) const
+		ConstSize AbstractString::FindLastOf(ConstChar ch, ConstSize pos) const
 		{
 			/*if (this->IsEmpty())
 				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
@@ -53,7 +53,7 @@ namespace Forge {
 			return -1;
 		}
 
-		ConstSize AbstractString::FindFirstNotOf(ConstChar ch, ConstSize pos = 0) const
+		ConstSize AbstractString::FindFirstNotOf(ConstChar ch, ConstSize pos) const
 		{
 			/*if (this->IsEmpty())
 				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
@@ -70,7 +70,7 @@ namespace Forge {
 			return -1;
 		}
 
-		ConstSize AbstractString::FindLastNotOf(ConstChar ch, ConstSize pos = 0) const
+		ConstSize AbstractString::FindLastNotOf(ConstChar ch, ConstSize pos) const
 		{
 			/*if (this->IsEmpty())
 				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
@@ -87,7 +87,7 @@ namespace Forge {
 			return -1;
 		}
 
-		ConstSize AbstractString::FindFirstOf(ConstCharPtr str, ConstSize pos = 0) const
+		ConstSize AbstractString::FindFirstOf(ConstCharPtr str, ConstSize pos) const
 		{
 			/*if (this->IsEmpty())
 				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
@@ -112,7 +112,7 @@ namespace Forge {
 			return -1;
 		}
 
-		ConstSize AbstractString::FindLastOf(ConstCharPtr str, ConstSize pos = 0) const
+		ConstSize AbstractString::FindLastOf(ConstCharPtr str, ConstSize pos) const
 		{
 			/*if (this->IsEmpty())
 				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
@@ -137,7 +137,7 @@ namespace Forge {
 			return -1;
 		}
 
-		ConstSize AbstractString::FindFirstNotOf(ConstCharPtr str, ConstSize pos = 0) const
+		ConstSize AbstractString::FindFirstNotOf(ConstCharPtr str, ConstSize pos) const
 		{
 			/*if (this->IsEmpty())
 				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
@@ -162,7 +162,7 @@ namespace Forge {
 			return -1;
 		}
 
-		ConstSize AbstractString::FindLastNotOf(ConstCharPtr str, ConstSize pos = 0) const
+		ConstSize AbstractString::FindLastNotOf(ConstCharPtr str, ConstSize pos) const
 		{
 			/*if (this->IsEmpty())
 				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
@@ -187,7 +187,7 @@ namespace Forge {
 			return -1;
 		}
 
-		ConstSize AbstractString::FindSubString(ConstCharPtr substr, ConstSize pos = 0) const
+		ConstSize AbstractString::FindSubString(ConstCharPtr substr, ConstSize pos) const
 		{
 			/*if (this->IsEmpty())
 				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
@@ -214,7 +214,7 @@ namespace Forge {
 			return -1;
 		}
 
-		ConstSize AbstractString::FindSubString(ConstSelfTypeRef substr, ConstSize pos = 0) const
+		ConstSize AbstractString::FindSubString(ConstSelfTypeRef substr, ConstSize pos) const
 		{
 			/*if (this->IsEmpty())
 				FORGE_EXCEPT(Debug::Exception::ERR_INVALID_OPERATION_EXCEPTION, "String must not be empty");*/
@@ -296,7 +296,7 @@ namespace Forge {
 			ConstCharPtr data = this->GetRawData();
 			ConstCharPtr str_data = str.GetRawData();
 
-			for (I32 i = 0; i < Algorithm::Max(this->GetCount(), str.GetCount(); i++)
+			for (I32 i = 0; i < Algorithm::Min(this->GetCount(), str.GetCount()); i++)
 				if (*(data + i) < *(str_data + i))
 					return true;
 				else

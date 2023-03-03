@@ -161,7 +161,7 @@ namespace Forge {
 		 * object may be moved, allowing efficient transfer of resources to another
 		 * object.
 		 *
-		 * @\param arg The object to be moved.
+		 * @param arg The object to be moved.
 		 *
 		 * @return InType&& storing an r-value reference to the object.
 		 */

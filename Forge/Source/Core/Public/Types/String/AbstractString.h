@@ -21,7 +21,7 @@ namespace Forge {
 			/**
 			 * @brief Upper/Lower characters does not matter when making a comparison.
 			 */
-			IGNORE_CASE_SENSETIVITY
+			CASE_INSENSITIVE
 		};
 
 		/**
@@ -40,13 +40,20 @@ namespace Forge {
 			using ConstSelfTypeRef = const AbstractString&;
 			using ConstSelfTypePtr = const AbstractString*;
 
-		private:
-			ConstSize m_count;
-			ConstSize m_max_capacity;
+		protected:
+			Size m_count;
+			Size m_max_capacity;
 		
 		public:
 			ConstBool operator ==(ConstSelfTypeRef other) const;
 			ConstBool operator !=(ConstSelfTypeRef other) const;
+
+		public:
+			AbstractString(Size count, Size max_capacity)
+				: m_count(count), m_max_capacity(max_capacity) {}
+
+		public:
+			virtual ~AbstractString() = default;
 
 		public:
 			/**

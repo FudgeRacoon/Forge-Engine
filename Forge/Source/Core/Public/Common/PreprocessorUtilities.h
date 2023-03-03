@@ -26,6 +26,8 @@
 #define FORGE_LINE_LITERAL FORGE_STRINGIZE(__LINE__)
 #define FORGE_FILE_LITERAL FORGE_STRINGIZE(__FILE__)
 
+#define FORGE_ENUM_DECL(NAME, VALUE) NAME = VALUE,
+
 #define FORGE_CLASS_NONCOPYABLE(Typename)                  \
 	public:                                                \
 		Typename(Typename&& rhs) = delete;                 \

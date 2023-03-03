@@ -99,6 +99,7 @@
     <ClInclude Include="Source\Core\Public\Common\Common.h" />
     <ClInclude Include="Source\Core\Public\Common\Compiler.h" />
     <ClInclude Include="Source\Core\Public\Common\PreprocessorUtilities.h" />
+    <ClInclude Include="Source\Core\Public\Math\TRectangle.h" />
     <ClInclude Include="Source\Core\Public\Types\String\AbstractString.h" />
     <ClInclude Include="Source\Core\Public\Types\String\String.h" />
     <ClInclude Include="Source\Core\Public\Types\String\StringBuilder.h" />
@@ -143,7 +144,13 @@
     <ClInclude Include="Source\Core\Public\RTTI\RefCounter.h" />
     <ClInclude Include="Source\Core\Public\Types\SmartPointer.h" />
     <ClInclude Include="Source\Core\Public\RTTI\TypeInfo.h" />
-    <ClInclude Include="Source\Core\Public\Singleton.h" />
+    <ClInclude Include="Source\Core\Public\Types\Singleton.h" />
+    <ClInclude Include="Source\Platform\Public\Base\AbstractPlatform.h" />
+    <ClInclude Include="Source\Platform\Public\Base\AbstractWindow.h" />
+    <ClInclude Include="Source\Platform\Public\Platform.h" />
+    <ClInclude Include="Source\Platform\Public\Window.h" />
+    <ClInclude Include="Source\Platform\Public\WindowDesc.h" />
+    <ClInclude Include="Source\Platform\Public\Windows\WindowsWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Core\Private\Debug\Exception.cpp" />
@@ -158,6 +165,8 @@
     <ClCompile Include="Source\Core\Private\RTTI\TypeInfo.cpp" />
     <ClCompile Include="Source\Core\Private\Types\String\AbstractString.cpp" />
     <ClCompile Include="Source\Core\Public\Debug\Exception\Exceptions\MemoryOutOfBoundsException.h" />
+    <ClCompile Include="Source\Platform\Private\Base\AbstractWindow.cpp" />
+    <ClCompile Include="Source\Platform\Public\Windows\WindowsPlatform.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,7 +1,6 @@
 #ifndef COMPILER_H
 #define COMPILER_H
 
-/// Detect plaftorm
 #if defined(__ANDROID__)
 	#define FORGE_PLATFORM_ANDROID
 	#error "Android is not currently supported."
@@ -17,11 +16,8 @@
 	#error "Unable to detect platform."
 #endif
 
-/// Detect compiler
 #if defined(__clang__)
 	#define FORGE_COMPILER_CLANG
-#elif defined(__INTEL_COMPILER)
-	#define FORGE_COMPILER_INTEL
 #elif defined(__EMSCRIPTEN__)
 	#define FORGE_COMPILER_EMSCRIPTEN
 #elif defined(__GNUC__)
@@ -34,20 +30,21 @@
 	#error "Unable to detect compiler."
 #endif
 
-/// Detect CPU architectures
-#if defined(__x86_64__)    \
- || defined(_M_X64)        \
- || defined(__aarch64__)   \
- || defined(__mips64)      \
- || defined(__powerpc64__) \
- || defined(__ppc64__)     \
- || defined(__LP64__)
-	#define FORGE_ARCH_64BIT
+#if defined(__arm__) || defined(__aarch64__) || defined(_M_ARM) || defined(_M_ARM64)
+	#define FORGE_CPU_ARM
+#elif defined(_M_IX86) || defined (_M_X64) || defined(__i386__) || defined(__x86_64__)
+	#define FORGE_CPU_X86
 #else
-	#define FORGE_ARCH_32BIT
+	#error "Unable to detect CPU."
 #endif
 
-/// Platform name
+
+#if defined(__x86_64__) || defined(_M_X64) || defined(__aarch64__)
+	#define FORGE_ARCHITECTURE_64BIT
+#else
+	#define FORGE_ARCHITECTURE_32BIT
+#endif
+
 #if defined(FORGE_PLATFORM_ANDROID)
 	#define FORGE_PLATFORM_NAME "Android"
 #elif defined(FORGE_PLAFTORM_LINUX)
@@ -58,15 +55,11 @@
 	#define FORGE_PLATFORM_NAME "Windows"
 #endif
 
-/// Compiler name
 #if defined(FORGE_COMPILER_CLANG)
 	#define FORGE_COMPILER_NAME "Clang " \
 			#__clang_major__ "."         \
 			#__clang_minor__ "."         \
 			#__clang_patchlevel__
-#elif defined(FORGE_COMPILER_INTEL)
-	#define FORGE_COMPILER_NAME "Intel Compiler " \
-			#__INTEL_COMPILER
 #elif defined(FORGE_COMPILER_EMSCRIPTEN)
 	#define FORGE_COMPILER_NAME "Emscripten " \
 			#__EMSCRIPTEN_major__ "."         \
@@ -103,14 +96,12 @@
 	#endif
 #endif
 
-/// CPU architecture name
-#if defined(FORGE_ARCH_32BIT)
-	#define FORGE_ARCH_NAME "32-Bit"
-#elif defined(FORGE_ARCH_64BIT)
+#if defined(FORGE_ARCHITECTURE_64BIT)
 	#define FORGE_ARCH_NAME "64-Bit"
+#elif defined(FORGE_ARCHITECTURE_32BIT)
+	#define FORGE_ARCH_NAME "32-Bit"
 #endif
 
-/// Compiler specific modifiers
 #if defined(FORGE_COMPILER_CLANG)
 	#error "Clang is not currently supported."
 #elif defined(FORGE_COMPILER_INTEL)

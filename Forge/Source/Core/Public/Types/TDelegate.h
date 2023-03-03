@@ -1,13 +1,13 @@
 #ifndef T_DELEGATE_HPP
 #define T_DELEGATE_HPP
 
-#include <utility>
-
 #include "Core/Public/Common/Compiler.h"
 #include "Core/Public/Common/TypeDefinitions.h"
 #include "Core/Public/Common/PreprocessorUtilities.h"
 
 #include "Core/Public/Memory/MemoryUtilities.h"
+
+#include "Core/Public/Algorithm/GeneralUtilities.h"
 
 namespace Forge {
 	namespace Common
@@ -29,20 +29,20 @@ namespace Forge {
 		 * 
 		 * @author Karim Hisham
 		 */
-		template<typename ReturnType, typename... Params>
-		class TDelegate<ReturnType(Params...)>
+		template<typename InReturnType, typename... InParams>
+		class TDelegate<InReturnType(InParams...)>
 		{
 		private:
-			using SelfType         = TDelegate<ReturnType(Params...)>;
-			using SelfTypeRef      = TDelegate<ReturnType(Params...)>&;
-			using SelfTypePtr      = TDelegate<ReturnType(Params...)>*;
-			using ConstSelfType    = const TDelegate<ReturnType(Params...)>;
-			using ConstSelfTypeRef = const TDelegate<ReturnType(Params...)>&;
-			using ConstSelfTypePtr = const TDelegate<ReturnType(Params...)>*;
+			using SelfType         = TDelegate<InReturnType(InParams...)>;
+			using SelfTypeRef      = TDelegate<InReturnType(InParams...)>&;
+			using SelfTypePtr      = TDelegate<InReturnType(InParams...)>*;
+			using ConstSelfType    = const TDelegate<InReturnType(InParams...)>;
+			using ConstSelfTypeRef = const TDelegate<InReturnType(InParams...)>&;
+			using ConstSelfTypePtr = const TDelegate<InReturnType(InParams...)>*;
 
 		private:
-			using SignatureFunc = ReturnType(Params...);
-			using InvokableFunc = ReturnType(*)(ConstSelfTypeRef, Params...);
+			using SignatureFunc = InReturnType(InParams...);
+			using InvokableFunc = InReturnType(*)(ConstSelfTypeRef, InParams...);
 
 		private:
 			template<typename InLambdaFunctor>
@@ -78,14 +78,14 @@ namespace Forge {
 			 * passed.
 			 *
 			 * @param[in] self_type The calling delegate object to this function.
-			 * @param[in] params    The parameters to pass to the bound function.
+			 * @param[in] InParams    The parameters to pass to the bound function.
 			 *
-			 * @return ReturnType storing the return value of the bound function.
+			 * @return InReturnType storing the return value of the bound function.
 			 */
 			template<typename InFunction>
-			static ReturnType InvokeLambda(ConstSelfTypeRef self_type, Params... params)
+			static InReturnType InvokeLambda(ConstSelfTypeRef self_type, InParams... InParams)
 			{
-				return reinterpret_cast<LambdaStorage<InFunction>*>(self_type.m_func_address)->m_lambda(params...);
+				return reinterpret_cast<LambdaStorage<InFunction>*>(self_type.m_func_address)->m_lambda(InParams...);
 			}
 
 			/**
@@ -97,14 +97,14 @@ namespace Forge {
 			 * passed.
 			 *
 			 * @param[in] self_type The calling delegate object to this function.
-			 * @param[in] params    The parameters to pass to the bound function.
+			 * @param[in] InParams    The parameters to pass to the bound function.
 			 *
-			 * @return ReturnType storing the return value of the bound function.
+			 * @return InReturnType storing the return value of the bound function.
 			 */
 			template<typename InFunction>
-			static ReturnType InvokeFunction(ConstSelfTypeRef self_type, Params... params)
+			static InReturnType InvokeFunction(ConstSelfTypeRef self_type, InParams... InParams)
 			{
-				return (*(reinterpret_cast<InFunction*>(self_type.m_func_address)))(params...);
+				return (*(reinterpret_cast<InFunction*>(self_type.m_func_address)))(InParams...);
 			}
 
 			/**
@@ -116,16 +116,16 @@ namespace Forge {
 			 * passed.
 			 *
 			 * @param[in] self_type The calling delegate object to this function.
-			 * @param[in] params    The parameters to pass to the bound function.
+			 * @param[in] InParams    The parameters to pass to the bound function.
 			 *
-			 * @return ReturnType storing the return value of the bound function.
+			 * @return InReturnType storing the return value of the bound function.
 			 */
 			template<typename InFunction, typename InClass>
-			static ReturnType InvokeClassFunction(ConstSelfTypeRef self_type, const Params... params)
+			static InReturnType InvokeClassFunction(ConstSelfTypeRef self_type, const InParams... InParams)
 			{
 				InFunction function = *(reinterpret_cast<InFunction*>(self_type.m_func_address));
 
-				return (static_cast<InClass*>(self_type.m_instance_ptr)->*function)(params...);
+				return (static_cast<InClass*>(self_type.m_instance_ptr)->*function)(InParams...);
 			}
 
 			/**
@@ -137,16 +137,16 @@ namespace Forge {
 			 * passed.
 			 *
 			 * @param[in] self_type The calling delegate object to this function.
-			 * @param[in] params    The parameters to pass to the bound function.
+			 * @param[in] InParams    The parameters to pass to the bound function.
 			 *
-			 * @return ReturnType storing the return value of the bound function.
+			 * @return InReturnType storing the return value of the bound function.
 			 */
 			template<typename InFunction, typename InClass>
-			static ReturnType InvokeClassConstFunction(ConstSelfTypeRef self_type, Params... params)
+			static InReturnType InvokeClassConstFunction(ConstSelfTypeRef self_type, InParams... InParams)
 			{
 				InFunction function = *(reinterpret_cast<InFunction*>(self_type.m_func_address));
 
-				return (static_cast<const InClass*>(self_type.m_const_instance_ptr)->*function)(params...);
+				return (static_cast<const InClass*>(self_type.m_const_instance_ptr)->*function)(InParams...);
 			}
 
 		public:
@@ -156,7 +156,7 @@ namespace Forge {
 			 * Constructs an empty delegate object with the invokable to null.
 			 */
 			TDelegate(void)
-				: m_func_container_size(sizeof(ReturnType(*)(Params...))), m_func_address(nullptr), m_invokable(nullptr) {}
+				: m_func_container_size(sizeof(InReturnType(*)(InParams...))), m_func_address(nullptr), m_invokable(nullptr) {}
 
 			/**
 			 * @brief Global invokable constructor.
@@ -173,7 +173,7 @@ namespace Forge {
 
 					this->m_func_address = (BytePtr)malloc(function_size);
 					
-					if (function_size > 1 && function_size <= sizeof(ReturnType(*)(Params...)))
+					if (function_size > 1 && function_size <= sizeof(InReturnType(*)(InParams...)))
 						Memory::MemoryCopy(this->m_func_address, &function, function_size);
 					else
 						Memory::MemorySet(this->m_func_address, 0, function_size);
@@ -241,16 +241,16 @@ namespace Forge {
 			 * @brief Move constructor.
 			 */
 			TDelegate(SelfType&& other)
-				: m_func_container_size(sizeof(ReturnType(*)(Params...))), m_func_address(nullptr), m_invokable(nullptr)
+				: m_func_container_size(sizeof(InReturnType(*)(InParams...))), m_func_address(nullptr), m_invokable(nullptr)
 			{
-				*this = std::move(other);
+				*this = Forge::Algorithm::Move(other);
 			}
 
 			/**
 			 * @brief Copy constructor.
 			 */
 			TDelegate(ConstSelfTypeRef other)
-				: m_func_container_size(sizeof(ReturnType(*)(Params...))), m_func_address(nullptr), m_invokable(nullptr)
+				: m_func_container_size(sizeof(InReturnType(*)(InParams...))), m_func_address(nullptr), m_invokable(nullptr)
 			{
 				*this = other;
 			}
@@ -326,7 +326,7 @@ namespace Forge {
 			{
 				return this->m_instance_ptr == other.m_instance_ptr &&
 					   this->m_invokable == other.m_invokable &&
-					   Memory::MemoryCompare(this->m_func_address, other.m_func_address, sizeof(ReturnType(*)(Params...)));
+					   Memory::MemoryCompare(this->m_func_address, other.m_func_address, sizeof(InReturnType(*)(InParams...)));
 			}
 
 		public:
@@ -354,20 +354,20 @@ namespace Forge {
 			/**
 			 * @brief Invokes the currently bound invokable.
 			 *
-			 * @param[in] params The parameters to pass to the bound invokable.
+			 * @param[in] InParams The parameters to pass to the bound invokable.
 			 *
-			 * @return ReturnType storing the return value of the bound invokable.
+			 * @return InReturnType storing the return value of the bound invokable.
 			 * 
 			 * @throws InvalidOperationException if the delegate object is invalid.
 			 */
-			ReturnType Invoke(Params... params)
+			InReturnType Invoke(InParams... InParams)
 			{
 				if (!this->IsValid())
 				{
 					// Throw Exception
 				}
 
-				return (this->m_invokable)(*this, params...);
+				return (this->m_invokable)(*this, InParams...);
 			}
 		};
 	}

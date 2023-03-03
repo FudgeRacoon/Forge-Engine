@@ -280,7 +280,7 @@ namespace Forge {
 			 * Constructs an empty dynamic array.
 			 */
 			TDynamicArray(void)
-				: m_version(0), AbstractList<ElementType>(0, ~((Size)0)) {}
+				: m_version(0), m_capacity(0), AbstractList<ElementType>(0, ~((Size)0)) {}
 
 			/**
 			 * @brief Move element constructor.
@@ -288,7 +288,7 @@ namespace Forge {
 			 * Constructs a dynamic array with a copy of an element.
 			 */
 			TDynamicArray(ElementType&& element, Size count)
-				: m_version(0), AbstractList<ElementType>(count, ~((Size)0))
+				: m_version(0), m_capacity(count), AbstractList<ElementType>(count, ~((Size)0))
 			{
 				this->m_mem_block = (ElementTypePtr)malloc(this->m_count * sizeof(ElementType));
 
@@ -301,7 +301,7 @@ namespace Forge {
 			 * Constructs a dynamic array with a copy of an element.
 			 */
 			TDynamicArray(ConstElementTypeRef element, Size count)
-				: m_version(0), AbstractList<ElementType>(count, ~((Size)0))
+				: m_version(0), m_capacity(count), AbstractList<ElementType>(count, ~((Size)0))
 			{
 				this->m_mem_block = (ElementTypePtr)malloc(this->m_count * sizeof(ElementType));
 
@@ -314,7 +314,7 @@ namespace Forge {
 			 * Constructs a static array with an initializer list.
 			 */
 			TDynamicArray(std::initializer_list<ElementType> init_list)
-				: m_version(0), AbstractList<ElementType>(init_list.size(), ~((Size)0))
+				: m_version(0), m_capacity(init_list.size()), AbstractList<ElementType>(init_list.size(), ~((Size)0))
 			{
 				this->m_mem_block = (ElementTypePtr)malloc(this->m_count * sizeof(ElementType));
 
