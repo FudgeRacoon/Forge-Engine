@@ -1,6 +1,8 @@
 #ifndef WINDOWS_PLATFORM_H
 #define WINDOWS_PLATFORM_H
 
+#include <Windows.h>
+
 #include "Platform/Public/Base/AbstractPlatform.h"
 
 #if defined(FORGE_PLATFORM_WINDOWS)
@@ -8,16 +10,19 @@
 namespace Forge {
 	namespace Platform
 	{
-		class FORGE_API WindowsPlatform : public AbstractPlatform
+		/**
+		 * @brief Windows runtime platform service implemenation.
+		 * 
+		 * @author Karim Hisham.
+		 */
+		class FORGE_API WindowsPlatform : public AbstractPlatform, public TSingleton<WindowsPlatform>
 		{
-		public:
-			/**
-			* @brief Gets the system CPU information.
-			*
-			* @returns CPUInfo storing CPU information.
-			*/
-			CPUInfo GetCPUInfo(Void) override;
+		FORGE_CLASS_SINGLETON(WindowsPlatform)
 
+		public:
+			ConstCharPtr m_application_window_class = "ForgeEngine";
+
+		public:
 			/**
 			 * @brief Gets the system memory statistics.
 			 *
@@ -34,11 +39,33 @@ namespace Forge {
 
 		public:
 			/**
+			 * @brief Gets the DPI of the primary display monitor.
+			 *
+			 * @returns I32 storing the DPI of the primary display monitor.
+			 */
+			I32 GetPrimaryMonitorDPI(Void) override;
+
+			/**
+			 * @brief Gets the size of the primary display monitor in pixels.
+			 *
+			 * @returns Vector2 storing the size of the primary display monitor.
+			 */
+			F32 GetPrimiaryMonitorDPIScale(Void) override;
+
+			/**
 			 * @brief Gets the size of the primary display monitor in pixels.
 			 *
 			 * @returns Vector2 storing the size of the primary display monitor.
 			 */
 			Vector2 GetPrimaryMonitorSize(Void) override;
+
+			/**
+			 * @brief Gets the virtual size of all display monitors output
+			 * attached.
+			 *
+			 * @returns Vector2 storing the size of all display monitors.
+			 */
+			Vector2 GetVirtualMonitorSize(Void) override;
 
 		public:
 			/**
@@ -92,9 +119,12 @@ namespace Forge {
 			 *
 			 * This function should be called at the very start of the engine start up.
 			 *
+			 * @param handle The handle of the process if required by the platfrom
+			 * service.
+			 *
 			 * @returns True if platform initialization was succesful, otherwise false.
 			 */
-			Bool Initialize(Void) override;
+			Bool Initialize(VoidPtr handle) override;
 
 			/**
 			 * @brief Terminates the runtime platform service.
@@ -112,9 +142,17 @@ namespace Forge {
 			 * In order to recieve system and input events this function should
 			 * be called inside the engine main loop.
 			 */
-			Void PumpMessages(Void) override;
+			Bool PumpMessages(Void) override;
 
 		public:
+			/**
+			 * @brief Indicates to the processor that a cache line will be needed
+			 * in the near future..
+			 *
+			 * @param address The address of the cache line to be loaded.
+			 */
+			Void PrefetchMemory(VoidPtr address) override;
+
 			/**
 			 * @brief Allocates a block of memory with a specified alignment
 			 * boundry.
@@ -161,7 +199,117 @@ namespace Forge {
 			 * @param address The address of the allocated pages.
 			 */
 			Void DeallocatePages(VoidPtr address) override;
+
+		public:
+			/**
+			 * @brief Creates a new process that runs simultaneously with the
+			 * current process.
+			 *
+			 * @param filename The filename of the process to create.
+			 * @param args The command line arguments of the process to create.
+			 * @param working_directory The working directory of the process.
+			 *
+			 * @returns I32 storing the termination status of the created process.
+			 */
+			I32 StartProcess(ConstCharPtr filename, ConstCharPtr args, ConstCharPtr working_directory) override;
+
+			/**
+			 * @brief Executes a new process that blocks execution of the current
+			 * process until it finishes.
+			 *
+			 * @param filename The filename of the process to create.
+			 * @param args The command line arguments of the process to create.
+			 * @param working_directory The working directory of the process.
+			 *
+			 * @returns I32 storing the termination status of the created process.
+			 */
+			I32 ExecuteProcess(ConstCharPtr filename, ConstCharPtr args, ConstCharPtr working_directory) override;
+
+		public:
+			/**
+			 * @brief Creates a platform native window object.
+			 *
+			 * @param description The window description.
+			 *
+			 * @returns WindowPtr storing the address of the created window.
+			 */
+			WindowPtr ConstructWindow(WindowDesc& description) override;
+
+			/**
+			 * @brief Creates a platform native window object.
+			 *
+			 * @param title The window title.
+			 *
+			 * @returns WindowPtr storing the address of the created window.
+			 */
+			WindowPtr ConstructWindow(ConstCharPtr title) override;
+
+			/**
+			 * @brief Creates a platform native window object.
+			 *
+			 * @param title The window title.
+			 * @param position The window position.
+			 *
+			 * @returns WindowPtr storing the address of the created window.
+			 */
+			WindowPtr ConstructWindow(ConstCharPtr title, const Vector2& position) override;
+
+			/**
+			 * @brief Creates a platform native window object.
+			 *
+			 * @param title The window title.
+			 * @param position The window position.
+			 * @param size The window size.
+			 *
+			 * @returns WindowPtr storing the address of the created window.
+			 */
+			WindowPtr ConstructWindow(ConstCharPtr title, const Vector2& position, const Vector2& size) override;
+
+		public:
+			/**
+			 * @brief Loads the specified library into the address space of the
+			 * process.
+			 *
+			 * @param filename The filename of the library.
+			 *
+			 * @returns VoidPtr storing the handle of the loaded library.
+			 */
+			VoidPtr LoadExternalLibrary(ConstCharPtr filename) override;
+
+			/**
+			 * @brief Frees the specified library from the address space of the
+			 * process.
+			 *
+			 * @param handle The handle of the library.
+			 *
+			 * @returns True if freeing was succesful, otherwise false.
+			 */
+		    Bool FreeExternalLibrary(VoidPtr handle) override;
+
+			/**
+			 * @brief Gets the specified symbol from loaded library.
+			 *
+			 * A symbol may be an external function or variable.
+			 *
+			 * @param handle The handle of the library.
+			 * @param symbol The symbol to retreive from the library.
+			 *
+			 * @returns VoidPtr storing the address of the symbol.
+			 */
+			VoidPtr GetExternalLibrarySymbol(VoidPtr handle, ConstCharPtr symbol) override;
+
+		public:
+			/**
+			 * @brief Suspends the execution of the current thread, until the time
+			 * out interval elapses.
+			 *
+			 * @param milliseconds The time interval for which execution is
+			 * suspended, in milliseconds.
+			 */
+			Void Sleep(I32 milliseconds) override;
 		};
+
+		FORGE_TYPEDEF_DECL(WindowsPlatform, Platform)
 	}
 }
 

@@ -66,7 +66,7 @@ namespace Forge {
 			InvokableFunc m_invokable;
 
 		private:
-			 mutable BytePtr m_func_address;
+			 mutable BytePtr m_fptr_address;
 
 		private:
 			/**
@@ -83,9 +83,9 @@ namespace Forge {
 			 * @return InReturnType storing the return value of the bound function.
 			 */
 			template<typename InFunction>
-			static InReturnType InvokeLambda(ConstSelfTypeRef self_type, InParams... InParams)
+			static InReturnType InvokeLambda(ConstSelfTypeRef self_type, InParams... params)
 			{
-				return reinterpret_cast<LambdaStorage<InFunction>*>(self_type.m_func_address)->m_lambda(InParams...);
+				return reinterpret_cast<LambdaStorage<InFunction>*>(self_type.m_fptr_address)->m_lambda(params...);
 			}
 
 			/**
@@ -102,9 +102,9 @@ namespace Forge {
 			 * @return InReturnType storing the return value of the bound function.
 			 */
 			template<typename InFunction>
-			static InReturnType InvokeFunction(ConstSelfTypeRef self_type, InParams... InParams)
+			static InReturnType InvokeFunction(ConstSelfTypeRef self_type, InParams... params)
 			{
-				return (*(reinterpret_cast<InFunction*>(self_type.m_func_address)))(InParams...);
+				return (*(reinterpret_cast<InFunction*>(self_type.m_fptr_address)))(params...);
 			}
 
 			/**
@@ -121,11 +121,11 @@ namespace Forge {
 			 * @return InReturnType storing the return value of the bound function.
 			 */
 			template<typename InFunction, typename InClass>
-			static InReturnType InvokeClassFunction(ConstSelfTypeRef self_type, const InParams... InParams)
+			static InReturnType InvokeClassFunction(ConstSelfTypeRef self_type, InParams... params)
 			{
-				InFunction function = *(reinterpret_cast<InFunction*>(self_type.m_func_address));
+				InFunction function = *(reinterpret_cast<InFunction*>(self_type.m_fptr_address));
 
-				return (static_cast<InClass*>(self_type.m_instance_ptr)->*function)(InParams...);
+				return (static_cast<InClass*>(self_type.m_instance_ptr)->*function)(params...);
 			}
 
 			/**
@@ -142,11 +142,11 @@ namespace Forge {
 			 * @return InReturnType storing the return value of the bound function.
 			 */
 			template<typename InFunction, typename InClass>
-			static InReturnType InvokeClassConstFunction(ConstSelfTypeRef self_type, InParams... InParams)
+			static InReturnType InvokeClassConstFunction(ConstSelfTypeRef self_type, InParams... params)
 			{
-				InFunction function = *(reinterpret_cast<InFunction*>(self_type.m_func_address));
+				InFunction function = *(reinterpret_cast<InFunction*>(self_type.m_fptr_address));
 
-				return (static_cast<const InClass*>(self_type.m_const_instance_ptr)->*function)(InParams...);
+				return (static_cast<const InClass*>(self_type.m_const_instance_ptr)->*function)(params...);
 			}
 
 		public:
@@ -156,7 +156,7 @@ namespace Forge {
 			 * Constructs an empty delegate object with the invokable to null.
 			 */
 			TDelegate(void)
-				: m_func_container_size(sizeof(InReturnType(*)(InParams...))), m_func_address(nullptr), m_invokable(nullptr) {}
+				: m_func_container_size(sizeof(InReturnType(*)(InParams...))), m_fptr_address(nullptr), m_invokable(nullptr) {}
 
 			/**
 			 * @brief Global invokable constructor.
@@ -171,28 +171,28 @@ namespace Forge {
 				{
 					ConstSize function_size = sizeof(InFunction);
 
-					this->m_func_address = (BytePtr)malloc(function_size);
+					this->m_fptr_address = (BytePtr)malloc(function_size);
 					
 					if (function_size > 1 && function_size <= sizeof(InReturnType(*)(InParams...)))
-						Memory::MemoryCopy(this->m_func_address, &function, function_size);
+						Memory::MemoryCopy(this->m_fptr_address, &function, function_size);
 					else
-						Memory::MemorySet(this->m_func_address, 0, function_size);
+						Memory::MemorySet(this->m_fptr_address, 0, function_size);
 
 					this->m_instance_ptr = nullptr;
 					this->m_func_container_size = function_size;
-					this->m_invokable = &InvokeFunction<InFunction>;
+					this->m_invokable = reinterpret_cast<InvokableFunc>(&InvokeFunction<InFunction>);
 				}
 				else
 				{
 					ConstSize lambda_size = sizeof(LambdaStorage<InFunction>);
 
-					this->m_func_address = (BytePtr)malloc(lambda_size);
+					this->m_fptr_address = (BytePtr)malloc(lambda_size);
 						
-					new (this->m_func_address) LambdaStorage<InFunction>(function);
+					new (this->m_fptr_address) LambdaStorage<InFunction>(function);
 				
 					this->m_instance_ptr = nullptr;
 					this->m_func_container_size = lambda_size;
-					this->m_invokable = &InvokeLambda<InFunction>;
+					this->m_invokable = reinterpret_cast<InvokableFunc>(&InvokeLambda<InFunction>);
 				}
 			}
 			
@@ -207,9 +207,9 @@ namespace Forge {
 			{
 				ConstSize function_size = sizeof(InFunction);
 
-				this->m_func_address = (BytePtr)malloc(function_size);
+				this->m_fptr_address = (BytePtr)malloc(function_size);
 
-				Memory::MemoryCopy(this->m_func_address, &function, function_size);
+				Memory::MemoryCopy(this->m_fptr_address, &function, function_size);
 
 				this->m_instance_ptr = instance;
 				this->m_func_container_size = function_size;
@@ -227,9 +227,9 @@ namespace Forge {
 			{
 				ConstSize function_size = sizeof(InFunction);
 
-				this->m_func_address = (BytePtr)malloc(function_size);
+				this->m_fptr_address = (BytePtr)malloc(function_size);
 
-				Memory::MemoryCopy(this->m_func_address, &function, function_size);
+				Memory::MemoryCopy(this->m_fptr_address, &function, function_size);
 
 				this->m_const_instance_ptr = instance;
 				this->m_func_container_size = function_size;
@@ -241,7 +241,7 @@ namespace Forge {
 			 * @brief Move constructor.
 			 */
 			TDelegate(SelfType&& other)
-				: m_func_container_size(sizeof(InReturnType(*)(InParams...))), m_func_address(nullptr), m_invokable(nullptr)
+				: m_func_container_size(sizeof(InReturnType(*)(InParams...))), m_fptr_address(nullptr), m_invokable(nullptr)
 			{
 				*this = Forge::Algorithm::Move(other);
 			}
@@ -250,7 +250,7 @@ namespace Forge {
 			 * @brief Copy constructor.
 			 */
 			TDelegate(ConstSelfTypeRef other)
-				: m_func_container_size(sizeof(InReturnType(*)(InParams...))), m_func_address(nullptr), m_invokable(nullptr)
+				: m_func_container_size(sizeof(InReturnType(*)(InParams...))), m_fptr_address(nullptr), m_invokable(nullptr)
 			{
 				*this = other;
 			}
@@ -276,7 +276,7 @@ namespace Forge {
 			
 				other.m_instance_ptr = nullptr;
 				other.m_func_container_size = 0;
-				other.m_func_address = nullptr;
+				other.m_fptr_address = nullptr;
 				other.m_invokable = nullptr;
 
 				return *this;
@@ -289,9 +289,9 @@ namespace Forge {
 			{
 				this->Invalidate();
 
-				this->m_func_address = (BytePtr)malloc(other.m_func_container_size);
+				this->m_fptr_address = (BytePtr)malloc(other.m_func_container_size);
 
-				Memory::MemoryCopy(this->m_func_address, other.m_func_address, other.m_func_container_size);
+				Memory::MemoryCopy(this->m_fptr_address, other.m_fptr_address, other.m_func_container_size);
 
 				this->m_instance_ptr = other.m_instance_ptr;
 				this->m_func_container_size = other.m_func_container_size;
@@ -326,7 +326,7 @@ namespace Forge {
 			{
 				return this->m_instance_ptr == other.m_instance_ptr &&
 					   this->m_invokable == other.m_invokable &&
-					   Memory::MemoryCompare(this->m_func_address, other.m_func_address, sizeof(InReturnType(*)(InParams...)));
+					   Memory::MemoryCompare(this->m_fptr_address, other.m_fptr_address, sizeof(InReturnType(*)(InParams...)));
 			}
 
 		public:
@@ -338,16 +338,16 @@ namespace Forge {
 			 */
 			Void Invalidate(void)
 			{
-				if (this->m_func_address)
+				if (this->m_fptr_address)
 				{
-					Memory::MemorySet(this->m_func_address, 0, this->m_func_container_size);
+					Memory::MemorySet(this->m_fptr_address, 0, this->m_func_container_size);
 
-					free(this->m_func_address);
+					free(this->m_fptr_address);
 				}
 
 				this->m_instance_ptr = nullptr;
 				this->m_func_container_size = 0;
-				this->m_func_address = nullptr;
+				this->m_fptr_address = nullptr;
 				this->m_invokable = nullptr;
 			}
 
@@ -360,14 +360,14 @@ namespace Forge {
 			 * 
 			 * @throws InvalidOperationException if the delegate object is invalid.
 			 */
-			InReturnType Invoke(InParams... InParams)
+			InReturnType Invoke(InParams... params)
 			{
 				if (!this->IsValid())
 				{
 					// Throw Exception
 				}
 
-				return (this->m_invokable)(*this, InParams...);
+				return (this->m_invokable)(*this, params...);
 			}
 		};
 	}

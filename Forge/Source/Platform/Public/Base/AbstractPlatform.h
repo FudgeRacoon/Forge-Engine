@@ -1,9 +1,18 @@
 #ifndef ABSTRACT_PLATFORM
 #define ABSTRACT_PLATFORM
 
+#include "Platform/Public/Window.h"
+#include "Core/Public/Math/TVector.h"
 #include "Core/Public/Common/Common.h"
-
 #include "Core/Public/Types/Singleton.h"
+#include "Core/Public/Types/TDelegate.h"
+#include "Core/Public/Memory/MemoryUtilities.h"
+#include "Core/Public/Algorithm/GeneralUtilities.h"
+
+using namespace Forge::Math;
+using namespace Forge::Common;
+using namespace Forge::Memory;
+using namespace Forge::Algorithm;
 
 namespace Forge {
 	namespace Platform
@@ -13,22 +22,24 @@ namespace Forge {
 			/**
 			 * @brief Running on mac platform.
 			 */
-			PLATFORM_MAC = 1,
+			FORGE_ENUM_DECL(MAC, 0x0)
 
 			/**
 			 * @brief Running on linux platform.
 			 */
-			PLATFORM_LINUX = 2,
+			FORGE_ENUM_DECL(LINUX, 0x1)
 
 			/**
 			 * @brief Running on android platform.
 			 */
-			PLATFORM_ANDROID = 3,
+			FORGE_ENUM_DECL(ANDROID, 0x2)
 
 			/**
 			 * @brief Running on windows platform.
 			 */
-			PLATFORM_WINDOWS = 4,
+			FORGE_ENUM_DECL(WINDOWS, 0x3)
+
+			MAX
 		};
 
 		enum class ArchitectureType
@@ -36,35 +47,40 @@ namespace Forge {
 			/**
 			 * @brief Running on x86 32-bit.
 			 */
-			ARCHITECTURE_X86 = 1,
+			FORGE_ENUM_DECL(X86, 0x0)
 
 			/**
 			 * @brief Running on x86 64-bit.
 			 */
-			ARCHITECTURE_X64 = 2,
+			FORGE_ENUM_DECL(X64, 0x1)
 
 			/**
 			 * @brief Running on ARM 32-bit.
 			 */
-			ARCHITECTURE_ARM = 3,
+			FORGE_ENUM_DECL(ARM, 0x2)
 
 			/**
 			 * @brief Running on ARM 64-bit.
 			 */
-			ARCHITECTURE_ARM64 = 4
+			FORGE_ENUM_DECL(ARM64, 0x3)
+
+			MAX
 		};
 
-		class FORGE_API AbstractPlatform : public Forge::TSingleton<AbstractPlatform>
+		/**
+		 * @brief Runtime platform service.
+		 * 
+		 * This class provides all the necessary functions to call platform native
+		 * routines, such as creating new processes and threads, retreiving info
+		 * about hardware components, memory managment etc.
+		 * 
+		 * @author Karim Hisham.
+		 */
+		class FORGE_API AbstractPlatform
 		{
-		FORGE_CLASS_SINGLETON(AbstractPlatform)
-
 		public:
 			struct CPUInfo
 			{
-				/**
-				 * @brief The CPU clock speed in Hz.
-				 */
-				U32 processor_clock_speed = 0;
 
 				/**
 				 * @brief The number of physical processor cores.
@@ -72,10 +88,15 @@ namespace Forge {
 				U32 processor_core_count = 0;
 
 				/**
+				 * @brief The CPU clock speed in Hz.
+				 */
+				F32 processor_clock_speed = 0.0f;
+
+				/**
 				 * @brief The number of logical processor cores.
 				 */
-				U32 logical_processor_count = 0;
-				
+				U32 processor_logical_count = 0;
+
 				/**
 				 * @brief The number of physical processor packages.
 				 */
@@ -84,22 +105,22 @@ namespace Forge {
 				/**
 				 * @brief The size of L1 processor cache in bytes.
 				 */
-				U32 processor_l1_cache_count = 0;
+				F32 processor_l1_cache_size = 0;
 
 				/**
 				 * @brief The size of L2 processor cache in bytes.
 				 */
-				U32 processor_l2_cache_count = 0;
+				F32 processor_l2_cache_size = 0;
 
 				/**
 				 * @brief The size of L3 processor cache in bytes.
 				 */
-				U32 processor_l3_cache_count = 0;
+				F32 processor_l3_cache_size = 0;
 
 				/**
 				 * @brief The processor cache line size in bytes.
 				 */
-				U32 processor_cache_line_size = 0;
+				F32 processor_cache_line_size = 0;
 			};
 
 			struct MemoryStats
@@ -137,6 +158,31 @@ namespace Forge {
 				 */
 				U32 used_virtual_memory = 0;
 			};
+		
+		protected:
+			VoidPtr m_instance_handle;
+
+		protected:
+			CharPtr m_user_name;
+			CharPtr m_locale_name;
+			CharPtr m_machine_name;
+
+		protected:
+			CPUInfo            m_cpu_info;
+			MemoryStats		   m_memory_stats;
+			ProcessMemoryStats m_process_memory_stats;
+
+		protected:
+			TDelegate<Void(WindowPtr)>                     m_window_close_callback;
+			TDelegate<Void(WindowPtr, Bool)>               m_window_focus_callback;
+			TDelegate<Void(WindowPtr, Bool)>               m_window_minimize_callback;
+			TDelegate<Void(WindowPtr, Bool)>               m_window_maximize_callback;
+			TDelegate<Void(WindowPtr, U32, U32)>           m_window_move_callback;
+			TDelegate<Void(WindowPtr, U32, U32)>           m_window_resize_callback;
+			TDelegate<Void(WindowPtr, I32, I32)>           m_mouse_move_callback;
+			TDelegate<Void(WindowPtr, I32, I32)>           m_mouse_scroll_callback;
+			TDelegate<Void(WindowPtr, I32, I32, I32)>      m_mouse_button_callback;
+			TDelegate<Void(WindowPtr, I32, I32, I32, I32)> m_keyboard_button_callback;
 
 		public:
 			/**
@@ -155,7 +201,7 @@ namespace Forge {
 			 *
 			 * @param message The information message to display.
 			 */
-			Void Info(ConstCharPtr message); // TODO: Change ConstCharPtr to const StringView&
+			Void Info(ConstCharPtr message);															// TODO: Change ConstCharPtr to const StringView&
 
 			/**
 			 * @brief Shows a warning message to the user.
@@ -165,7 +211,7 @@ namespace Forge {
 			 *
 			 * @param message The warning message to display.
 			 */
-			Void Warn(ConstCharPtr message); // TODO: Change ConstCharPtr to const StringView&
+			Void Warn(ConstCharPtr message);															// TODO: Change ConstCharPtr to const StringView&
 
 			/**
 			 * @brief Shows an error message to the user.
@@ -175,7 +221,7 @@ namespace Forge {
 			 *
 			 * @param message The error message to display.
 			 */
-			Void Error(ConstCharPtr message); // TODO: Change ConstCharPtr to const StringView&
+			Void Error(ConstCharPtr message);															// TODO: Change ConstCharPtr to const StringView&
 
 			/**
 			 * @brief Shows a fatal message to the user.
@@ -188,7 +234,52 @@ namespace Forge {
 			 * @param context The platform dependent context for stacktrace and
 			 * minidump collecting.
 			 */
-			Void Fatal(ConstCharPtr message, VoidPtr context); // TODO: Change ConstCharPtr to const StringView&
+			Void Fatal(ConstCharPtr message, VoidPtr context);											// TODO: Change ConstCharPtr to const StringView&
+
+		public:
+			/**
+			 * @brief Performs a fatal crash to the program.
+			 * 
+			 * @param line The source line.
+			 * @param file The source file.
+			 */
+			Void Crash(I32 line, ConstCharPtr file);													// TODO: Change ConstCharPtr to const StringView&
+
+			/**
+			 * @brief Performs a fatal crash to the program occured on memory
+			 * allocation failure.
+			 *
+			 * @param line The source line.
+			 * @param file The source file.
+			 */
+			Void OutOfMemory(I32 line, ConstCharPtr file);												// TODO: Change ConstCharPtr to const StringView&
+
+			/**
+			 * @brief Performs a fatal crash to the program due to code not being
+			 * implemented.
+			 *
+			 * @param line The source line.
+			 * @param file The source file.
+			 */
+			Void MissingCode(I32 line, ConstCharPtr file);												// TODO: Change ConstCharPtr to const StringView&
+
+			/**
+			 * @brief Performs a fatal crash to the program due to an assertion
+			 * failure check.
+			 *
+			 * @param line The source line.
+			 * @param file The source file.
+			 */
+			Void AssertionCheck(I32 line, ConstCharPtr file, ConstCharPtr message);						// TODO: Change ConstCharPtr to const StringView&
+			
+		public:
+			/**
+			 * @brief Gets the runtime platform handle.
+			 *
+			 * @returns VoidPtr storing the platform handle, or nullptr if not
+			 * supported.
+			 */
+			VoidPtr GetPlatformHandle(Void);
 
 		public:
 			/**
@@ -207,12 +298,35 @@ namespace Forge {
 
 		public:
 			/**
+			 * @brief Gets the current user name.
+			 *
+			 * @return ConstCharPtr storing the current user name.
+			 */
+			ConstCharPtr GetUserLogName(Void);												// TODO: Change ConstCharPtr to const String
+
+			/**
+			 * @brief Gets the computer machine name.
+			 *
+			 * @return ConstCharPtr storing the computer machine name.
+			 */
+			ConstCharPtr GetMachineName(Void);												// TODO: Change ConstCharPtr to const String
+
+			/**
+			 * @brief Gets the current locale culutre.
+			 *
+			 * @return ConstCharPtr storing the current locale culture.
+			 */
+			ConstCharPtr GetUserLocaleName(Void);											// TODO: Change ConstCharPtr to const String
+
+		public:
+			/**
 			 * @brief Gets the system CPU information.
 			 * 
 			 * @returns CPUInfo storing CPU information.
 			 */
-			virtual CPUInfo GetCPUInfo(Void) = 0;
+			CPUInfo GetCPUInfo(Void);
 
+		public:
 			/**
 			 * @brief Gets the system memory statistics.
 			 *
@@ -229,11 +343,33 @@ namespace Forge {
 
 		public:
 			/**
+			 * @brief Gets the DPI of the primary display monitor.
+			 *
+			 * @returns I32 storing the DPI of the primary display monitor.
+			 */
+			virtual I32 GetPrimaryMonitorDPI(Void) = 0;
+
+			/**
+			 * @brief Gets the size of the primary display monitor in pixels.
+			 *
+			 * @returns Vector2 storing the size of the primary display monitor.
+			 */
+			virtual F32 GetPrimiaryMonitorDPIScale(Void) = 0;
+
+			/**
 			 * @brief Gets the size of the primary display monitor in pixels.
 			 * 
 			 * @returns Vector2 storing the size of the primary display monitor.
 			 */
 			virtual Vector2 GetPrimaryMonitorSize(Void) = 0;
+
+			/**
+			 * @brief Gets the virtual size of all display monitors output
+			 * attached.
+			 *
+			 * @returns Vector2 storing the size of all display monitors.
+			 */
+			virtual Vector2 GetVirtualMonitorSize(Void) = 0;
 
 		public:
 			/**
@@ -283,13 +419,101 @@ namespace Forge {
 
 		public:
 			/**
+			 * @brief Sets the callback function to call when the window is
+			 * closing.
+			 *
+			 * @param callback The callback function to call at close event.
+			 */
+			Void SetWindowCloseCallback(TDelegate<Void(WindowPtr)> callback);
+
+			/**
+			 * @brief Sets the callback function to call when the window is
+			 * focused.
+			 *
+			 * @param callback The callback function to call at focus event.
+			 */
+			Void SetWindowFocusCallback(TDelegate<Void(WindowPtr, Bool)> callback);
+
+			/**
+			 * @brief Sets the callback function to call when the window is
+			 * minimized.
+			 *
+			 * @param callback The callback function to call at minimize event.
+			 */
+			Void SetWindowMinimizeCallback(TDelegate<Void(WindowPtr, Bool)> callback);
+
+			/**
+			 * @brief Sets the callback function to call when the window is
+			 * maximized.
+			 *
+			 * @param callback The callback function to call at maximize event.
+			 */
+			Void SetWindowMaximizeCallback(TDelegate<Void(WindowPtr, Bool)> callback);
+
+			/**
+			 * @brief Sets the callback function to call when the window is
+			 * moved.
+			 *
+			 * @param callback The callback function to call at move event.
+			 */
+			Void SetWindowMoveCallback(TDelegate<Void(WindowPtr, U32, U32)> callback);
+
+			/**
+			 * @brief Sets the callback function to call when the window is
+			 * resized.
+			 *
+			 * @param callback The callback function to call at resize event.
+			 */
+			Void SetWindowResizeCallback(TDelegate<Void(WindowPtr, U32, U32)> callback);
+
+			/**
+			 * @brief Sets the callback function to call when the mouse cursor is
+			 * moved.
+			 *
+			 * @param callback The callback function to call at mouse cursor move
+			 * event.
+			 */
+			Void SetMouseMoveCallback(TDelegate<Void(WindowPtr, I32, I32)> callback);
+
+			/**
+			 * @brief Sets the callback function to call when the mouse cursor is
+			 * moved.
+			 *
+			 * @param callback The callback function to call at mouse cursor move
+			 * event.
+			 */
+			Void SetMouseScrollCallback(TDelegate<Void(WindowPtr, I32, I32)> callback);
+
+			/**
+			 * @brief Sets the callback function to call when the mouse cursor is
+			 * moved.
+			 *
+			 * @param callback The callback function to call at mouse cursor move
+			 * event.
+			 */
+			Void SetMouseButtonCallback(TDelegate<Void(WindowPtr, I32, I32, I32)> callback);
+
+			/**
+			 * @brief Sets the callback function to call when the mouse cursor is
+			 * moved.
+			 *
+			 * @param callback The callback function to call at mouse cursor move
+			 * event.
+			 */
+			Void SetKeyboardCallback(TDelegate<Void(WindowPtr, I32, I32, I32, I32)> callback);
+			
+		public:
+			/**
 			 * @brief Initializes the runtime platform service.
 			 *
 			 * This function should be called at the very start of the engine start up.
 			 *
+			 * @param handle The handle of the process if required by the platfrom
+			 * service.
+			 * 
 			 * @returns True if platform initialization was succesful, otherwise false.
 			 */
-			virtual Bool Initialize(Void) = 0;
+			virtual Bool Initialize(VoidPtr handle) = 0;
 
 			/**
 			 * @brief Terminates the runtime platform service.
@@ -304,12 +528,20 @@ namespace Forge {
 			 * @brief Retrieves messages from the platform message queue and
 			 * dispatches them to the window associated with the current thread.
 			 *
-			 * In order to recieve system and input events this function should
-			 * be called inside the engine main loop.
+			 * this function should be called inside the engine main loop In order
+			 * to recieve system and input events.
 			 */
-			virtual Void PumpMessages(Void) = 0;
+			virtual Bool PumpMessages(Void) = 0;
 
 		public:
+			/**
+			 * @brief Indicates to the processor that a cache line will be needed
+			 * in the near future..
+			 * 
+			 * @param address The address of the cache line to be loaded. 
+			 */
+			virtual Void PrefetchMemory(VoidPtr address) = 0;
+
 			/**
 			 * @brief Allocates a block of memory with a specified alignment
 			 * boundry.
@@ -356,6 +588,114 @@ namespace Forge {
 			 * @param address The address of the allocated pages.
 			 */
 			virtual Void DeallocatePages(VoidPtr address) = 0;
+			
+		public:
+			/**
+			 * @brief Creates a new process that runs simultaneously with the
+			 * current process.
+			 * 
+			 * @param filename The filename of the process to create.
+			 * @param args The command line arguments of the process to create.
+			 * @param working_directory The working directory of the process.
+			 * 
+			 * @returns I32 storing the termination status of the created process.
+			 */
+			virtual I32 StartProcess(ConstCharPtr filename, ConstCharPtr args, ConstCharPtr working_directory) = 0;
+
+			/**
+			 * @brief Executes a new process that blocks execution of the current
+			 * process until it finishes.
+			 *
+			 * @param filename The filename of the process to create.
+			 * @param args The command line arguments of the process to create.
+			 * @param working_directory The working directory of the process.
+			 *
+			 * @returns I32 storing the termination status of the created process.
+			 */
+			virtual I32 ExecuteProcess(ConstCharPtr filename, ConstCharPtr args, ConstCharPtr working_directory) = 0;
+
+		public:
+			/**
+			 * @brief Creates a platform native window object.
+			 * 
+			 * @param description The window description.
+			 * 
+			 * @returns WindowPtr storing the address of the created window.
+			 */
+			virtual WindowPtr ConstructWindow(WindowDesc& description) = 0;
+
+			/**
+			 * @brief Creates a platform native window object.
+			 *
+			 * @param title The window title.
+			 *
+			 * @returns WindowPtr storing the address of the created window.
+			 */
+			virtual WindowPtr ConstructWindow(ConstCharPtr title) = 0;
+
+			/**
+			 * @brief Creates a platform native window object.
+			 *
+			 * @param title The window title.
+			 * @param position The window position.
+			 *
+			 * @returns WindowPtr storing the address of the created window.
+			 */
+			virtual WindowPtr ConstructWindow(ConstCharPtr title, const Vector2& position) = 0;
+
+			/**
+			 * @brief Creates a platform native window object.
+			 *
+			 * @param title The window title.
+			 * @param position The window position.
+			 * @param size The window size.
+			 *
+			 * @returns WindowPtr storing the address of the created window.
+			 */
+			virtual WindowPtr ConstructWindow(ConstCharPtr title, const Vector2& position, const Vector2& size) = 0;
+
+		public:
+			/**
+			 * @brief Loads the specified library into the address space of the 
+			 * process.
+			 * 
+			 * @param filename The filename of the library.
+			 * 
+			 * @returns VoidPtr storing the handle of the loaded library. 
+			 */
+			virtual VoidPtr LoadExternalLibrary(ConstCharPtr filename) = 0;
+
+			/**
+			 * @brief Frees the specified library from the address space of the
+			 * process.
+			 *
+			 * @param handle The handle of the library.
+			 *
+			 * @returns True if freeing was succesful, otherwise false.
+			 */
+			virtual Bool FreeExternalLibrary(VoidPtr handle) = 0;
+
+			/**
+			 * @brief Gets the specified symbol from loaded library.
+			 *
+			 * A symbol may be an external function or variable.
+			 * 
+			 * @param handle The handle of the library.
+			 * @param symbol The symbol to retreive from the library.
+			 *
+			 * @returns VoidPtr storing the address of the symbol.
+			 */
+			virtual VoidPtr GetExternalLibrarySymbol(VoidPtr handle, ConstCharPtr symbol) = 0;
+ 
+		public:
+			/**
+			 * @brief Suspends the execution of the current process, until the time
+			 * out interval elapses.
+			 * 
+			 * @param milliseconds The time interval for which execution is
+			 * suspended, in milliseconds.
+			 */
+			virtual Void Sleep(I32 milliseconds) = 0;
 		};
 	}
 }

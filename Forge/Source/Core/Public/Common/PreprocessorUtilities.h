@@ -13,7 +13,7 @@
 #define IMPL_FORGE_STRINGIZE(s) #s
 #define FORGE_STRINGIZE(s) IMPL_FORGE_STRINGIZE(s)
 
-#define IMPL_FORGE_CONCATENATE(s1, s2) s1 ## s2
+#define IMPL_FORGE_CONCATENATE(s1, s2) s1##s2
 #define FORGE_CONCATENATE(s1, s2) IMPL_FORGE_CONCATENATE(s1, s2)
 
 #define IMPL_FORGE_CONCATENATE_VARIADIC(s, ...) s ## __VA_ARGS__
@@ -26,7 +26,11 @@
 #define FORGE_LINE_LITERAL FORGE_STRINGIZE(__LINE__)
 #define FORGE_FILE_LITERAL FORGE_STRINGIZE(__FILE__)
 
-#define FORGE_ENUM_DECL(NAME, VALUE) NAME = VALUE,
+#define FORGE_ENUM_DECL(__NAME__, __VALUE__) __NAME__ = __VALUE__,
+
+#define FORGE_TYPEDEF_DECL(__NAME__, __ALIAS__)								\
+	typedef       __NAME__		       __ALIAS__,        *__ALIAS__##Ptr;	\
+	typedef const __NAME__		Const##__ALIAS__, *Const##__ALIAS__##Ptr;
 
 #define FORGE_CLASS_NONCOPYABLE(Typename)                  \
 	public:                                                \
@@ -45,13 +49,13 @@
 			FORGE_DEBUG_BREAK																					 \
 		}											                                                             \
 
-	#define FORGE_STATIC_ASSERT(__EXPR__)            \
-		enum                                         \
-		{                                            \
-			FORGE_CONCATENATE(assert_fail, __LINE__) \
-				= 1 / (int) (!!(__EXPR__))           \
-		};
-#elif defined(FORGE_NDEBUG)
+#define FORGE_STATIC_ASSERT(__EXPR__)            \
+	enum                                         \
+	{                                            \
+		FORGE_CONCATENATE(assert_fail, __LINE__) \
+			= 1 / (int) (!!(__EXPR__))           \
+	};
+#else
 	#define FORGE_ASSERT(__EXPR__)
 	#define FORGE_STATIC_ASSERT(__EXPR__)
 #endif

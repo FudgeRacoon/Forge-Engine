@@ -1,17 +1,17 @@
 #ifndef WINDOW_DESC_H
 #define WINDOW_DESC_H
 
-#include "Core/Public/Types/TPair.h"
+#include "Core/Public/Math/TVector.h"
 #include "Core/Public/Common/Common.h"
 
 typedef const char* String;
-typedef Forge::TPair<Forge::F32, Forge::F32> Vector2;
+
+using namespace Forge::Math;
 
 namespace Forge {
 	namespace Platform
 	{
 		class AbstractWindow;
-		typedef AbstractWindow		Window, *WindowPtr;
 
 		enum class WindowCursorType
 		{
@@ -112,17 +112,20 @@ namespace Forge {
 			 * @brief The window title.
 			 */
 			String m_window_title;
-			
+		
+		public:
 			/**
 			 * @brief The window opacity if transaprency is supported.
 			 */
 			F32 m_window_opacity = 1.0f;
 
+		public:
 			/**
 			 * @brief The parent window pointer to this window.
 			 */
-			WindowPtr m_window_parent = nullptr;
+			AbstractWindow* m_window_parent = nullptr;
 
+		public:
 			/**
 			 * @brief The type of cursor used by this window. 
 			 */
@@ -131,30 +134,22 @@ namespace Forge {
 			/**
 			 * @brief The starting position mode of this window.
 			 */
-			WindowStartPositionMode m_window_start_position = WindowStartPositionMode::MANUAL;
+			WindowStartPositionMode m_window_start_position = WindowStartPositionMode::CENTER_SCREEN;
+
+		public:
+			/**
+			 * @brief The window client size.
+			 */
+			Vector2 m_client_size = { 640, 480 };
 
 			/**
-			 * @brief The window size including border.
+			 * @brief The window client position in screen coordinates.
 			 */
-			Vector2 m_window_size = { 640, 480 };
-
+			Vector2 m_client_position = { 100, 400 };
+		
+		public:
 			/**
-			 * @brief The window minimum size including border.
-			 */
-			Vector2 m_window_min_size = { 100, 100 };
-			
-			/**
-			 * @brief The window maximum size including border.
-			 */
-			Vector2 m_window_max_size = { 7680, 4320 };
-			
-			/**
-			 * @brief The window position in screen coordinates.
-			 */
-			Vector2 m_window_position = { 100, 400 };
-
-			/**
-			 * @brief Is the window visible?
+			 * @brief Is the window initially visible?
 			 */
 			Bool m_is_visable = true;
 			
@@ -164,17 +159,27 @@ namespace Forge {
 			Bool m_is_movable = true;
 			
 			/**
+			 * @brief Is the window initially focused?
+			 */
+			Bool m_is_focused = true;
+
+			/**
 			 * @brief Is the window resizable?
 			 */
 			Bool m_is_resizable = true;
 
 			/**
-			 * @brief Is the window minimized?
+			 * @brief Is the window decorated?
+			 */
+			Bool m_is_decorated = true;
+
+			/**
+			 * @brief Is the window initially minimized?
 			 */
 			Bool m_is_minimized = false;
-			
+
 			/**
-			 * @brief Is the window maximized?
+			 * @brief Is the window initially maximized?
 			 */
 			Bool m_is_maximized = false;
 			
@@ -184,14 +189,25 @@ namespace Forge {
 			Bool m_is_fullscreen = false;
 			
 			/**
-			 * @brief Is the window borderless?
-			 */
-			Bool m_is_borderless = false;
-			
-			/**
 			 * @brief Is the window transparent?
 			 */
-			Bool m_is_transparent = false;
+			Bool m_is_transparent = true;
+
+		public:
+			/**
+			 * @brief Can the window capture input?
+			 */
+			Bool m_allow_input = true;
+
+			/**
+			 * @brief Can the window be minimized?
+			 */
+			Bool m_allow_minimize = true;
+
+			/**
+			 * @brief Can the window be maximized?
+			 */
+			Bool m_allow_maximize = true;
 		};
 	}
 }

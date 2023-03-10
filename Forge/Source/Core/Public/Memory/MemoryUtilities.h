@@ -346,9 +346,9 @@ namespace Forge {
 		 * @param[in]  count The number of elements to copy to the destination array.
 		 */
 		template<typename _Type>
-		FORGE_FORCE_INLINE Void CopyArray(_Type* dst, _Type* src, Size ui_count)
+		FORGE_FORCE_INLINE Void CopyArray(_Type* dst, _Type* src, Size count)
 		{
-			Internal::CopyArrayImpl(dst, src, ui_count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
+			Internal::CopyArrayImpl(dst, src, count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
 		}
 
 		/**

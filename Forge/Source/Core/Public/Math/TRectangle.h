@@ -1,6 +1,7 @@
 #ifndef RECTANLGE_H
 #define RECTANLGE_H
 
+#include "Core/Public/Math/TVector.h"
 #include "Core/Public/Common/Common.h"
 #include "Core/Public/Algorithm/GeneralUtilities.h"
 
@@ -42,19 +43,8 @@ namespace Forge {
 			 *
 			 * Constructs a rectangle with position and size vectors.
 			 */
-			TRectangle(const Vector2& position, const Vector2& size)
-				: m_x(position.m_first), m_y(position.m_second), m_width(size.m_first), m_height(size.m_second) {}
-
-		public:
-			/**
-			 * @brief Move Assignment Operator.
-			 */
-			TRectangle<InType>& operator =(TRectangle<InType>&& other) = default;
-
-			/**
-			 * @brief Copy Assignment Operator.
-			 */
-			TRectangle<InType>& operator =(const TRectangle<InType>& other) = default;
+			TRectangle(const TVector<InType, 2>& position, const TVector<InType, 2>& size)
+				: m_x(position.x), m_y(position.y), m_width(size.x), m_height(size.y) {}
 
 		public:
 			/**
@@ -223,9 +213,9 @@ namespace Forge {
 			/**
 			 * @brief Gets the size of the rectangle.
 			 *
-			 * @returns Vector2 storing the size of this rectangle.
+			 * @returns TVector<InType, 2> storing the size of this rectangle.
 			 */
-			FORGE_FORCE_INLINE Vector2 GetSize(Void)
+			FORGE_FORCE_INLINE TVector<InType, 2> GetSize(Void)
 			{
 				return { m_width, m_height };
 			}
@@ -233,11 +223,11 @@ namespace Forge {
 			/**
 			 * @brief Gets the center point of the rectangle.
 			 * 
-			 * @returns Vector2 storing the center point of this rectangle.
+			 * @returns TVector<InType, 2> storing the center point of this rectangle.
 			 */
-			FORGE_FORCE_INLINE Vector2 GetCenter(Void) 
+			FORGE_FORCE_INLINE TVector<InType, 2> GetCenter(Void)
 			{ 
-				return { (m_x + (m_x + m_width)) / 2, (m_y + (m_y + m_height)) / 2 }; 
+				return { (m_x + (m_x + m_width)) / 2, (m_y + (m_y + m_height)) / 2 };
 			}
 
 			/**
@@ -245,19 +235,19 @@ namespace Forge {
 			 * 
 			 * This is always half of the size of the rectangle.
 			 * 
-			 * @returns Vector2 storing the extents of this rectangle.
+			 * @returns TVector<InType, 2> storing the extents of this rectangle.
 			 */
-			FORGE_FORCE_INLINE Vector2 GetExtents(Void) 
+			FORGE_FORCE_INLINE TVector<InType, 2> GetExtents(Void) 
 			{ 
-				return { m_width / 2, m_height / 2 }; 
+				return { m_width / 2, m_height / 2 };
 			}
 
 			/**
 			 * @brief Gets the top left point of the rectangle.
 			 *
-			 * @returns Vector2 storing the left point of this rectangle.
+			 * @returns TVector<InType, 2> storing the left point of this rectangle.
 			 */
-			FORGE_FORCE_INLINE Vector2 GetTopLeft(Void)
+			FORGE_FORCE_INLINE TVector<InType, 2> GetTopLeft(Void)
 			{
 				return { m_x, m_y };
 			}
@@ -265,9 +255,9 @@ namespace Forge {
 			/**
 			 * @brief Gets the top right point of the rectangle.
 			 *
-			 * @returns Vector2 storing the right point point of this rectangle.
+			 * @returns TVector<InType, 2> storing the right point point of this rectangle.
 			 */
-			FORGE_FORCE_INLINE Vector2 GetTopRight(Void)
+			FORGE_FORCE_INLINE TVector<InType, 2> GetTopRight(Void)
 			{
 				return { m_x + m_width, m_y };
 			}
@@ -275,9 +265,9 @@ namespace Forge {
 			/**
 			 * @brief Gets the bottom left point of the rectangle.
 			 *
-			 * @returns Vector2 storing the bottom left point of this rectangle.
+			 * @returns TVector<InType, 2> storing the bottom left point of this rectangle.
 			 */
-			FORGE_FORCE_INLINE Vector2 GetBottomLeft(Void)
+			FORGE_FORCE_INLINE TVector<InType, 2> GetBottomLeft(Void)
 			{
 				return { m_x, m_y + m_height };
 			}
@@ -285,9 +275,9 @@ namespace Forge {
 			/**
 			 * @brief Gets the bottom right point of the rectangle.
 			 *
-			 * @returns Vector2 storing the bottom right point of this rectangle.
+			 * @returns TVector<InType, 2> storing the bottom right point of this rectangle.
 			 */
-			FORGE_FORCE_INLINE Vector2 GetBottomRight(Void)
+			FORGE_FORCE_INLINE TVector<InType, 2> GetBottomRight(Void)
 			{
 				return { m_x + m_width, m_y + m_height };
 			}
@@ -298,13 +288,13 @@ namespace Forge {
 			 * 
 			 * @param point The point to merge with this rectangle.
 			 */
-			Void Merge(const Vector2& point)
+			Void Merge(const TVector<InType, 2>& point)
 			{
-				m_x = Algorithm::Min(m_x, point.m_first);
-				m_y = Algorithm::Min(m_y, point.m_second);
+				m_x = Algorithm::Min(m_x, point.x);
+				m_y = Algorithm::Min(m_y, point.y);
 				
-				m_width = Algorithm::Max(m_x + m_width, point.m_first) - m_x;
-				m_height = Algorithm::Max(m_y + m_height, point.m_second) - m_y;
+				m_width = Algorithm::Max(m_x + m_width, point.x) - m_x;
+				m_height = Algorithm::Max(m_y + m_height, point.y) - m_y;
 			}
 			
 			/**
@@ -343,10 +333,10 @@ namespace Forge {
 			 * 
 			 * @returns True if the point intersects, otherwise false.
 			 */
-			Bool Contains(const Vector2& point)
+			Bool Contains(const TVector<InType, 2>& point)
 			{
-				if (m_x < point.m_first && m_x + m_width > point.m_first &&
-					m_y < point.m_second && m_y + m_height > point.m_second)
+				if (m_x < point.x && m_x + m_width > point.x &&
+					m_y < point.y && m_y + m_height > point.y)
 					return true;
 				else
 					return false;
@@ -368,6 +358,10 @@ namespace Forge {
 					return false;
 			}
 		};
+
+		typedef TRectangle<I32> RectangleI32;
+		typedef TRectangle<F32> RectangleF32;
+		typedef TRectangle<F64> RectangleF64;
 	}
 }
 
