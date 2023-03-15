@@ -174,7 +174,7 @@ namespace Forge {
 			 * 
 			 * @returns InType storing the value of the rectangle's x coordinate.
 			 */
-			FORGE_FORCE_INLINE InType GetX(Void) 
+			FORGE_FORCE_INLINE InType GetX(Void) const 
 			{ 
 				return m_x; 
 			}
@@ -184,7 +184,7 @@ namespace Forge {
 			 *
 			 * @returns InType storing the value of the rectangle's y coordinate.
 			 */
-			FORGE_FORCE_INLINE InType GetY(Void) 
+			FORGE_FORCE_INLINE InType GetY(Void) const
 			{ 
 				return m_y; 
 			}
@@ -194,7 +194,7 @@ namespace Forge {
 			 *
 			 * @returns InType storing the value of the rectangle's width.
 			 */
-			FORGE_FORCE_INLINE InType GetWidth(Void) 
+			FORGE_FORCE_INLINE InType GetWidth(Void) const
 			{ 
 				return m_width; 
 			}
@@ -204,7 +204,7 @@ namespace Forge {
 			 *
 			 * @returns InType storing the value of the rectangle's width.
 			 */
-			FORGE_FORCE_INLINE InType GetHeight(Void) 
+			FORGE_FORCE_INLINE InType GetHeight(Void) const
 			{ 
 				return m_height; 
 			}
@@ -215,7 +215,7 @@ namespace Forge {
 			 *
 			 * @returns TVector<InType, 2> storing the size of this rectangle.
 			 */
-			FORGE_FORCE_INLINE TVector<InType, 2> GetSize(Void)
+			FORGE_FORCE_INLINE TVector<InType, 2> GetSize(Void) const
 			{
 				return { m_width, m_height };
 			}
@@ -225,7 +225,7 @@ namespace Forge {
 			 * 
 			 * @returns TVector<InType, 2> storing the center point of this rectangle.
 			 */
-			FORGE_FORCE_INLINE TVector<InType, 2> GetCenter(Void)
+			FORGE_FORCE_INLINE TVector<InType, 2> GetCenter(Void) const
 			{ 
 				return { (m_x + (m_x + m_width)) / 2, (m_y + (m_y + m_height)) / 2 };
 			}
@@ -237,7 +237,7 @@ namespace Forge {
 			 * 
 			 * @returns TVector<InType, 2> storing the extents of this rectangle.
 			 */
-			FORGE_FORCE_INLINE TVector<InType, 2> GetExtents(Void) 
+			FORGE_FORCE_INLINE TVector<InType, 2> GetExtents(Void) const
 			{ 
 				return { m_width / 2, m_height / 2 };
 			}
@@ -247,7 +247,7 @@ namespace Forge {
 			 *
 			 * @returns TVector<InType, 2> storing the left point of this rectangle.
 			 */
-			FORGE_FORCE_INLINE TVector<InType, 2> GetTopLeft(Void)
+			FORGE_FORCE_INLINE TVector<InType, 2> GetTopLeft(Void) const
 			{
 				return { m_x, m_y };
 			}
@@ -257,7 +257,7 @@ namespace Forge {
 			 *
 			 * @returns TVector<InType, 2> storing the right point point of this rectangle.
 			 */
-			FORGE_FORCE_INLINE TVector<InType, 2> GetTopRight(Void)
+			FORGE_FORCE_INLINE TVector<InType, 2> GetTopRight(Void) const
 			{
 				return { m_x + m_width, m_y };
 			}
@@ -267,7 +267,7 @@ namespace Forge {
 			 *
 			 * @returns TVector<InType, 2> storing the bottom left point of this rectangle.
 			 */
-			FORGE_FORCE_INLINE TVector<InType, 2> GetBottomLeft(Void)
+			FORGE_FORCE_INLINE TVector<InType, 2> GetBottomLeft(Void) const
 			{
 				return { m_x, m_y + m_height };
 			}
@@ -277,7 +277,7 @@ namespace Forge {
 			 *
 			 * @returns TVector<InType, 2> storing the bottom right point of this rectangle.
 			 */
-			FORGE_FORCE_INLINE TVector<InType, 2> GetBottomRight(Void)
+			FORGE_FORCE_INLINE TVector<InType, 2> GetBottomRight(Void) const
 			{
 				return { m_x + m_width, m_y + m_height };
 			}

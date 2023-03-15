@@ -1,6 +1,8 @@
 #include "Platform/Public/Windows/WindowsWindow.h"
 #include "Platform/Public/Windows/WindowsPlatform.h"
 
+#include "GraphicsDevice/Public/OpenGL/Windows/GLWindowsGraphicsContext.h"
+
 #if defined(FORGE_PLATFORM_WINDOWS)
 
 namespace Forge {
@@ -59,13 +61,12 @@ namespace Forge {
 				m_window_description.m_client_size.y = monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top;
 			}
 
-			if (m_window_description.m_is_transparent)
-				ex_window_style |= WS_EX_LAYERED;
-
-			if (!m_window_description.m_allow_minimize)
+			if (!m_window_description.m_allow_minimize &&
+				!m_window_description.m_is_fullscreen)
 				window_style ^= WS_MINIMIZEBOX;
 
-			if (!m_window_description.m_allow_maximize)
+			if (!m_window_description.m_allow_maximize &&
+				!m_window_description.m_is_fullscreen)
 				window_style ^= WS_MAXIMIZEBOX;
 
 			m_window_handle = CreateWindowExA(
@@ -81,80 +82,342 @@ namespace Forge {
 				nullptr
 			);
 
+			if (m_window_description.m_is_transparent &&
+				!m_window_description.m_is_fullscreen)
+			{
+				LONG window_style = (GetWindowLong((HWND)m_window_handle, GWL_EXSTYLE) | WS_EX_LAYERED);
+
+				SetWindowLongPtr((HWND)m_window_handle, GWL_EXSTYLE, window_style);
+				
+				SetLayeredWindowAttributes((HWND)m_window_handle, 0, static_cast<BYTE>(m_window_description.m_window_opacity * 255.0f), LWA_ALPHA);
+			}
+
 			if (!m_window_description.m_allow_input)
-				this->Deactivate();
+				EnableWindow((HWND)m_window_handle, false);
+
+			m_graphics_context = new GLWindowsGraphicsContext(m_window_handle);
 		}
 
 		Vector2 WindowsWindow::GetWindowSize(Void) const
 		{
-			// TODO: Impelemt WindowsWindow::GetClientSize
-			return Vector2();
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
+			RECT windows_rect;
+
+			GetWindowRect((HWND)m_window_handle, &windows_rect);
+
+			return Vector2(static_cast<F32>(windows_rect.right - windows_rect.left), static_cast<F32>(windows_rect.bottom - windows_rect.top));
 		}
 		Vector2 WindowsWindow::GetWindowPosition(Void) const
 		{
-			// TODO: Impelemt WindowsWindow::GetClientPosition
-			return Vector2();
-		}
-		RectangleF32 WindowsWindow::GetClientBounds(Void) const
-		{
-			// TODO: Impelemt WindowsWindow::GetClientBounds
-			return RectangleF32();
-		}
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
 
+			RECT windows_rect;
+
+			GetWindowRect((HWND)m_window_handle, &windows_rect);
+
+			return Vector2(static_cast<F32>(windows_rect.left), static_cast<F32>(windows_rect.top));
+		}
+	
 		Vector2 WindowsWindow::GetClientToScreen(Vector2 client_position) const
 		{
-			// TODO: Impelemt WindowsWindow::GetClientToScreen
-			return Vector2();
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
+			POINT windows_point;
+			windows_point.x = static_cast<LONG>(client_position.x);
+			windows_point.y = static_cast<LONG>(client_position.y);
+
+			ClientToScreen((HWND)m_window_handle, &windows_point);
+
+			return Vector2(static_cast<F32>(windows_point.x), static_cast<F32>(windows_point.y));
 		}
 		Vector2 WindowsWindow::GetScreenToClient(Vector2 screen_position) const
 		{
-			// TODO: Impelemt WindowsWindow::GetScreenToClient
-			return Vector2();
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
+			POINT windows_point;
+			windows_point.x = static_cast<LONG>(screen_position.x);
+			windows_point.y = static_cast<LONG>(screen_position.y);
+
+			ScreenToClient((HWND)m_window_handle, &windows_point);
+
+			return Vector2(static_cast<F32>(windows_point.x), static_cast<F32>(windows_point.y));
 		}
 
-		Void WindowsWindow::SetTitle(ConstCharPtr title)																// TODO: Change ConstCharPtr to const StringView&
+		Void WindowsWindow::SetTitle(ConstCharPtr title)
 		{
-			// TODO: Impelemt WindowsWindow::SetTitle
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
+			if (!m_window_description.m_is_decorated)
+				return;
+
+			m_window_description.m_window_title = title;
+
+			SetWindowText((HWND)m_window_handle, static_cast<LPCSTR>(m_window_description.m_window_title));
 		}
 
 		Void WindowsWindow::SetOpacity(F32 opacity)
 		{
-			// TODO: Impelemt WindowsWindow::SetOpacity
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
+			if (!m_window_description.m_is_transparent)
+				return;
+
+			m_window_description.m_window_opacity = opacity;
+
+			SetLayeredWindowAttributes((HWND)m_window_handle, 0, static_cast<BYTE>(m_window_description.m_window_opacity), LWA_ALPHA);
 		}
 
-		Void WindowsWindow::SetClientSize(Vector2& size)
+		Void WindowsWindow::SetClientSize(const Vector2 size)
 		{
-			// TODO: Impelemt WindowsWindow::SetClientSize
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
+			//TODO: Check if new size is near equal to current size.
+
+			m_window_description.m_client_size.x = size.x;
+			m_window_description.m_client_size.y = size.y;
+
+			if (m_window_description.m_is_decorated)
+			{
+				WINDOWINFO winInfo;
+				MemorySet(&winInfo, 0, sizeof(WINDOWINFO));
+
+				winInfo.cbSize = sizeof(winInfo);
+				GetWindowInfo((HWND)m_window_handle, &winInfo);
+
+				RECT windows_rect = {
+					0,
+					0,
+					m_window_description.m_client_size.x,
+					m_window_description.m_client_size.y
+				};
+
+				AdjustWindowRectEx(&windows_rect, winInfo.dwStyle, FALSE, winInfo.dwExStyle);
+
+				m_window_description.m_client_size.x =  windows_rect.right - windows_rect.left;
+				m_window_description.m_client_size.y =  windows_rect.bottom - windows_rect.top;
+			}
+
+			SetWindowPos(
+				(HWND)m_window_handle,
+				nullptr,
+				0,
+				0,
+				m_window_description.m_client_size.x,
+				m_window_description.m_client_size.y,
+				SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOOWNERZORDER
+			);
 		}
-		Void WindowsWindow::SetWindowSize(Vector2& size)
+		Void WindowsWindow::SetClientPosition(const Vector2 position)
 		{
-			// TODO: Impelemt WindowsWindow::SetWindowSize
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
+			//TODO: Check if new position is near equal to current position.
+
+			m_window_description.m_client_position.x = position.x;
+			m_window_description.m_client_position.y = position.y;
+
+			if (m_window_description.m_is_decorated)
+			{
+				WINDOWINFO winInfo;
+				MemorySet(&winInfo, 0, sizeof(WINDOWINFO));
+
+				winInfo.cbSize = sizeof(winInfo);
+				GetWindowInfo((HWND)m_window_handle, &winInfo);
+
+				RECT windows_rect = { 
+					m_window_description.m_client_position.x, 
+					m_window_description.m_client_position.y, 
+					m_window_description.m_client_size.x,
+					m_window_description.m_client_size.y
+				};
+
+				AdjustWindowRectEx(&windows_rect, winInfo.dwStyle, FALSE, winInfo.dwExStyle);
+
+				m_window_description.m_client_position.x = windows_rect.left;
+				m_window_description.m_client_position.y = windows_rect.top;
+			}
+
+			SetWindowPos(
+				(HWND)m_window_handle,
+				nullptr,
+				m_window_description.m_client_position.x,
+				m_window_description.m_client_position.y,
+				0,
+				0,
+				SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER
+			);
 		}
-		Void WindowsWindow::SetClientPosition(Vector2& position)
+		Void WindowsWindow::SetClientBounds(const RectangleF32 bounds)
 		{
-			// TODO: Impelemt WindowsWindow::SetClientPosition
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
+			//TODO: Check if new bounds is near equal to current bounds.
+
+			m_window_description.m_client_position.x = bounds.GetX();
+			m_window_description.m_client_position.y = bounds.GetY();
+
+			m_window_description.m_client_size.x = bounds.GetWidth();
+			m_window_description.m_client_size.y = bounds.GetHeight();
+
+			if (m_window_description.m_is_decorated)
+			{
+				WINDOWINFO winInfo;
+				MemorySet(&winInfo, 0, sizeof(WINDOWINFO));
+
+				winInfo.cbSize = sizeof(winInfo);
+				GetWindowInfo((HWND)m_window_handle, &winInfo);
+
+				RECT windows_rect = { 
+					0, 
+					0, 
+					m_window_description.m_client_size.x, 
+					m_window_description.m_client_size.y 
+				};
+
+				AdjustWindowRectEx(&windows_rect, winInfo.dwStyle, FALSE, winInfo.dwExStyle);
+				
+				m_window_description.m_client_position.x += windows_rect.left;
+				m_window_description.m_client_position.y += windows_rect.top;
+
+				m_window_description.m_client_size.x = windows_rect.right - windows_rect.left;
+				m_window_description.m_client_size.y = windows_rect.bottom - windows_rect.top;
+			}
+
+			SetWindowPos(
+				(HWND)m_window_handle, 
+				nullptr, 
+				m_window_description.m_client_position.x, 
+				m_window_description.m_client_position.y, 
+				m_window_description.m_client_size.x, 
+				m_window_description.m_client_size.y, 
+				SWP_NOZORDER | SWP_NOACTIVATE
+			);
 		}
-		Void WindowsWindow::SetWindowPosition(Vector2& position)
+
+		Void WindowsWindow::SetWindowSize(const Vector2 size)
 		{
-			// TODO: Impelemt WindowsWindow::SetWindowPosition
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
+			SetWindowPos((HWND)m_window_handle, nullptr, 0, 0, size.x, size.y, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOOWNERZORDER);
 		}
-		Void WindowsWindow::SetClientBounds(RectangleF32& bounds)
+		Void WindowsWindow::SetWindowPosition(const Vector2 position)
 		{
-			// TODO: Impelemt WindowsWindow::SetClientBounds
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
+			SetWindowPos((HWND)m_window_handle, nullptr, position.x, position.y, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER);
 		}
 
 		Void WindowsWindow::SetCursorType(WindowCursorType cursor_type)
 		{
-			// TODO: Impelemt WindowsWindow::GetWindowCursorType
+			static const LPCSTR windows_cursors[] = {
+				IDC_ARROW,
+				IDC_CROSS,
+				IDC_HAND,
+				IDC_HELP,
+				IDC_IBEAM,
+				IDC_NO,
+				IDC_SIZEALL,
+				IDC_SIZENESW,
+				IDC_SIZENS,
+				IDC_SIZENWSE,
+				IDC_SIZEWE,
+				IDC_UPARROW,
+				IDC_WAIT
+			};
+
+			m_window_description.m_window_cursor_type = cursor_type;
+
+			if (m_window_description.m_window_cursor_type == WindowCursorType::HIDDEN)
+			{
+				SetCursor(nullptr);
+				return;
+			}
+
+			U32 index = 0;
+			switch (m_window_description.m_window_cursor_type)
+			{
+			case WindowCursorType::ARROW:
+				index = 0;
+				break;
+			case WindowCursorType::CROSS:
+				index = 1;
+				break;
+			case WindowCursorType::HAND:
+				index = 2;
+				break;
+			case WindowCursorType::HELP:
+				index = 3;
+				break;
+			case WindowCursorType::IBEAM:
+				index = 4;
+				break;
+			case WindowCursorType::NO:
+				index = 5;
+				break;
+			case WindowCursorType::SIZE_ALL:
+				index = 6;
+				break;
+			case WindowCursorType::SIZE_NESW:
+				index = 7;
+				break;
+			case WindowCursorType::SIZE_NS:
+				index = 8;
+				break;
+			case WindowCursorType::SIZE_NWSE:
+				index = 9;
+				break;
+			case WindowCursorType::SIZE_WE:
+				index = 10;
+				break;
+			case WindowCursorType::UP_ARROW:
+				index = 11;
+				break;
+			case WindowCursorType::WAIT:
+				index = 12;
+				break;
+			}
+
+			const HCURSOR cursor = LoadCursor(nullptr, windows_cursors[index]);
+			SetCursor(cursor);
 		}
 
-		Void WindowsWindow::SetIsMovable(Bool is_movable)
-		{
-			// TODO: Impelemt WindowsWindow::SetIsMovable
-		}
 		Void WindowsWindow::SetIsResizable(Bool is_resizable)
 		{
-			// TODO: Impelemt WindowsWindow::SetIsResizable
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
+			if (m_window_description.m_is_resizable && is_resizable)
+				return;
+
+			m_window_description.m_is_resizable = is_resizable;
+
+			LONG window_style = GetWindowLong((HWND)m_window_handle, GWL_STYLE);
+
+			if(m_window_description.m_is_resizable)
+				window_style |= WS_MAXIMIZEBOX | WS_THICKFRAME;
+			else
+				window_style ^= WS_MAXIMIZEBOX | WS_THICKFRAME;
+
+			SetWindowLongPtr((HWND)m_window_handle, GWL_STYLE, window_style);
+
+		}
+		Void WindowsWindow::SetIsDecorated(Bool is_decorated)
+		{
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
+			if (m_window_description.m_is_decorated && is_decorated)
+				return;
+
+			m_window_description.m_is_decorated = is_decorated;
+
+			LONG window_style = GetWindowLong((HWND)m_window_handle, GWL_STYLE);
+
+			if (m_window_description.m_is_decorated)
+				window_style |= WS_SYSMENU | WS_MINIMIZEBOX | WS_CAPTION | WS_BORDER;
+			else
+				window_style ^= WS_SYSMENU | WS_MINIMIZEBOX | WS_CAPTION | WS_BORDER;
+
+			SetWindowLongPtr((HWND)m_window_handle, GWL_STYLE, window_style);
 		}
 		Void WindowsWindow::SetIsFullscreen(Bool is_fullscreen)
 		{
@@ -162,22 +425,45 @@ namespace Forge {
 		}
 		Void WindowsWindow::SetIsTransparent(Bool is_transparent)
 		{
-			// TODO: Impelemt WindowsWindow::SetIsTransparent
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
+			if (m_window_description.m_is_transparent && is_transparent)
+				return;
+
+			m_window_description.m_is_transparent = is_transparent;
+
+			LONG window_style = GetWindowLong((HWND)m_window_handle, GWL_EXSTYLE);
+
+			if (m_window_description.m_is_resizable)
+				window_style |= WS_EX_LAYERED;
+			else
+				window_style ^= WS_EX_LAYERED;
+
+			SetWindowLongPtr((HWND)m_window_handle, GWL_EXSTYLE, window_style);
 		}
 
 		Void WindowsWindow::Show(Void)
 		{
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
 			if (!m_cache_is_visible)
 			{
 				m_cache_is_visible = true;
 
-				ShowWindow((HWND)m_window_handle, SW_SHOW);
+				if (m_cache_is_focused)
+					ShowWindow((HWND)m_window_handle, SW_SHOW);
+				else
+					ShowWindow((HWND)m_window_handle, SW_SHOWNA);
 			}
 		}
 		Void WindowsWindow::Hide(Void)
 		{
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
 			if (m_cache_is_visible)
 			{
+				m_cache_is_focused = false;
+
 				m_cache_is_visible = false;
 
 				ShowWindow((HWND)m_window_handle, SW_HIDE);
@@ -185,6 +471,8 @@ namespace Forge {
 		}
 		Void WindowsWindow::Focus(Void)
 		{
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
 			if (!m_cache_is_focused)
 			{
 				m_cache_is_focused = true;
@@ -196,6 +484,8 @@ namespace Forge {
 		}
 		Void WindowsWindow::Flash(Void)
 		{
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
 			if (m_cache_is_focused)
 				return;
 
@@ -203,9 +493,13 @@ namespace Forge {
 		}
 		Void WindowsWindow::Minimize(Void)
 		{
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
 			if (!m_window_description.m_allow_minimize || 
 				!m_cache_is_visible)
 				return;
+
+			m_cache_is_focused = false;
 
 			m_cache_is_minimized = true;
 			m_cache_is_maximized = false;
@@ -214,9 +508,13 @@ namespace Forge {
 		}
 		Void WindowsWindow::Maximize(Void)
 		{
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
 			if (!m_window_description.m_allow_maximize ||
 				!m_cache_is_visible)
 				return;
+
+			m_cache_is_focused = true;
 
 			m_cache_is_maximized = true;
 			m_cache_is_minimized = false;
@@ -225,10 +523,18 @@ namespace Forge {
 		}
 		Void WindowsWindow::Activate(Void)
 		{
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
+			m_window_description.m_allow_input = true;
+
 			EnableWindow((HWND)m_window_handle, true);
 		}
 		Void WindowsWindow::Deactivate(Void)
 		{
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
+			m_window_description.m_allow_input = false;
+
 			EnableWindow((HWND)m_window_handle, false);
 		}
 		Void WindowsWindow::BringToFront(Void)
@@ -237,7 +543,13 @@ namespace Forge {
 		}
 		Void WindowsWindow::Close(WindowClosingReason window_closing_reason)
 		{
-			// TODO: Impelemt WindowsWindow::Close
+			FORGE_ASSERT(m_window_handle, "Window handle is null")
+
+			DestroyWindow((HWND)m_window_handle);
+
+			m_window_handle = nullptr;
+
+			m_is_closing = true;
 		}
 	}
 }

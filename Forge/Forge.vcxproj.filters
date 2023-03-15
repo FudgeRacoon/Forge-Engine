@@ -201,6 +201,21 @@
     <ClInclude Include="Source\Core\Public\Math\TVector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\GraphicsDevice\Public\OpenGL\Windows\GLWindowsGraphicsContext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\GL\eglew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\GL\glew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\GL\glxew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\GL\wglew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Core\Private\Memory\LinearAllocator.cpp">
@@ -254,5 +269,15 @@
     <ClCompile Include="Source\Platform\Private\Windows\WindowsWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\GraphicsDevice\Public\GraphicsContext.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsDevice\Private\OpenGL\Windows\GLWindowsGraphicsContext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="Lib\glew\glew32.lib" />
+    <Library Include="Lib\glew\glew32s.lib" />
   </ItemGroup>
 </Project>

@@ -6,11 +6,13 @@ namespace Forge {
 	{
 		AbstractWindow::AbstractWindow(const WindowDesc& description)
 			: m_window_handle(nullptr), 
+			  m_is_closing(false),
 			  m_cache_is_visible(false), 
 			  m_cache_is_focused(false), 
 			  m_cache_is_minimized(false), 
 			  m_cache_is_maximized(false), 
-			  m_window_description(description)
+			  m_window_description(description),
+			  m_graphics_context(nullptr)
 		{
 			if (m_window_description.m_window_start_position == WindowStartPositionMode::CENTER_SCREEN ||
 				m_window_description.m_window_start_position == WindowStartPositionMode::CENTER_PARENT)
@@ -25,13 +27,18 @@ namespace Forge {
 			}
 		}
 
-		ConstVoidPtr AbstractWindow::GetNativeHandle(Void)
+		VoidPtr AbstractWindow::GetNativeHandle(Void)
 		{
 			return m_window_handle;
 		}
 		WindowDesc AbstractWindow::GetWindowDescription(Void)
 		{
 			return m_window_description;
+		}
+
+		Bool AbstractWindow::IsClosing(Void) const
+		{
+			return m_is_closing;
 		}
 
 		String AbstractWindow::GetTitle(Void) const
@@ -52,6 +59,10 @@ namespace Forge {
 		{
 			return m_window_description.m_client_position;
 		}
+		RectangleF32 AbstractWindow::GetClientBounds(Void) const
+		{
+			return RectangleF32(GetClientPosition(), GetClientSize());
+		}
 
 		WindowCursorType AbstractWindow::GetCursorType(Void) const
 		{
@@ -61,10 +72,6 @@ namespace Forge {
 		Bool AbstractWindow::IsVisable(Void) const
 		{
 			return m_window_description.m_is_visable;
-		}
-		Bool AbstractWindow::IsMovable(Void) const
-		{
-			return m_window_description.m_is_movable;
 		}
 		Bool AbstractWindow::IsFocused(Void) const
 		{

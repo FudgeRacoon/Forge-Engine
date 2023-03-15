@@ -17,6 +17,9 @@ namespace Forge {
 		 */
 		class FORGE_API WindowsWindow : public AbstractWindow
 		{
+		private:
+			HWND m_window_handle;
+
 		public:
 			/**
 			 * @brief Default constructor.
@@ -46,14 +49,6 @@ namespace Forge {
 			 * @returns Vector2 storing the window position in screen coordinates.
 			 */
 			Vector2 GetWindowPosition(Void) const override;
-
-			/**
-			 * @brief Gets the client bounds of the window not including border.
-			 *
-			 * @returns Rectangle storing the client bounds of the window not
-			 * including border.
-			 */
-			RectangleF32 GetClientBounds(Void) const override;
 
 		public:
 			/**
@@ -101,14 +96,7 @@ namespace Forge {
 			 *
 			 * @param size The size of the window client region.
 			 */
-			Void SetClientSize(Vector2& size) override;
-
-			/**
-			 * @brief Sets the window size including border.
-			 *
-			 * @param size The size of the window.
-			 */
-			Void SetWindowSize(Vector2& size) override;
+			Void SetClientSize(const Vector2 size) override;
 
 			/**
 			 * @brief Sets the client area position the window not including
@@ -117,21 +105,29 @@ namespace Forge {
 			 * @returns Vector2 storing the client area position of the window not
 			 * including border.
 			 */
-			Void SetClientPosition(Vector2& position) override;
-
-			/**
-			 * @brief Sets the window position in screen coordinates.
-			 *
-			 * @param position The position of the window.
-			 */
-			Void SetWindowPosition(Vector2& position) override;
+			Void SetClientPosition(const Vector2 position) override;
 
 			/**
 			 * @brief Sets the client bounds of the window not including border.
 			 *
 			 * @param bounds The bounds of the window client region.
 			 */
-			Void SetClientBounds(RectangleF32& bounds) override;
+			Void SetClientBounds(const RectangleF32 bounds) override;
+
+		public:
+			/**
+			 * @brief Sets the window size including border.
+			 *
+			 * @param size The size of the window.
+			 */
+			Void SetWindowSize(const Vector2 size) override;
+
+			/**
+			 * @brief Sets the window position in screen coordinates.
+			 *
+			 * @param position The position of the window.
+			 */
+			Void SetWindowPosition(const Vector2 position) override;
 
 		public:
 			/**
@@ -143,18 +139,18 @@ namespace Forge {
 
 		public:
 			/**
-			 * @brief Sets wether the window is movable or fixed.
+			 * @brief Sets wether the window is resizable or not.
 			 *
-			 * @param is_movable The flag wether the window is movable or not.
+			 * @param is_resizable The flag wether the window is resizable or not.
 			 */
-			Void SetIsMovable(Bool is_movable) override;
+			Void SetIsResizable(Bool is_resizable) override;
 
 			/**
 			 * @brief Sets wether the window is resizable or not.
 			 *
 			 * @param is_resizable The flag wether the window is resizable or not.
 			 */
-			Void SetIsResizable(Bool is_resizable) override;
+			Void SetIsDecorated(Bool is_decorated) override;
 
 			/**
 			 * @brief Sets wether the window is fullscreen or not.

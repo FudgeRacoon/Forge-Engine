@@ -7,11 +7,13 @@
 #include "Core/Public/Math/TRectangle.h"
 #include "Core/Public/Types/TDelegate.h"
 #include "Core/Public/Memory/MemoryUtilities.h"
+#include "GraphicsDevice/Public/GraphicsContext.h"
 #include "Core/Public/Algorithm/GeneralUtilities.h"
 
 using namespace Forge::Math;
 using namespace Forge::Common;
 using namespace Forge::Memory;
+using namespace Forge::Graphics;
 using namespace Forge::Algorithm;
 
 namespace Forge {
@@ -53,6 +55,9 @@ namespace Forge {
 			VoidPtr m_window_handle;
 
 		protected:
+			Bool m_is_closing;
+
+		protected:
 			Bool m_cache_is_visible;
 			Bool m_cache_is_focused;
 			Bool m_cache_is_minimized;
@@ -60,6 +65,9 @@ namespace Forge {
 
 		protected:
 			WindowDesc m_window_description;
+
+		public:
+			GraphicsContextPtr m_graphics_context;
 
 		protected:
 			TDelegate<Void(Void)>     m_window_close_callback;
@@ -87,10 +95,10 @@ namespace Forge {
 		public:
 			/**
 			 * @brief Gets the platform dependant native window handle.
-			 * 
+			 *
 			 * @returns ConstVoidPtr storing the address of the window handle.
-			 */
-			ConstVoidPtr GetNativeHandle(Void);
+			*/
+			VoidPtr GetNativeHandle(Void);
 
 			/**
 			 * @brief Gets the window description associated with this window.
@@ -98,6 +106,14 @@ namespace Forge {
 			 * @returns WindowDesc storing this window description.
 			 */
 			WindowDesc GetWindowDescription(Void);
+
+		public:
+			/**
+			 * @brief Checks if the window needs to be closed.
+			 * 
+			 * @returns True if the window is closing, otherwise false;
+			 */
+			Bool IsClosing(Void) const;
 
 		public:
 			/**
@@ -129,13 +145,6 @@ namespace Forge {
 			Vector2 GetClientSize(Void) const;
 
 			/**
-			 * @brief Gets the window size including border.
-			 * 
-			 * @returns Vector2 storing the window size including border.
-			 */
-			virtual Vector2 GetWindowSize(Void) const = 0;
-	
-			/**
 			 * @brief Gets the client area position the window not including
 			 * border.
 			 *
@@ -145,19 +154,27 @@ namespace Forge {
 			Vector2 GetClientPosition(Void) const;
 
 			/**
-			 * @brief Gets the window position in screen coordinates.
-			 * 
-			 * @returns Vector2 storing the window position in screen coordinates. 
-			 */
-			virtual Vector2 GetWindowPosition(Void) const = 0;
-
-			/**
 			 * @brief Gets the client bounds of the window not including border.
 			 *
 			 * @returns Rectangle storing the client bounds of the window not
 			 * including border.
 			 */
-			virtual RectangleF32 GetClientBounds(Void) const = 0;
+			RectangleF32 GetClientBounds(Void) const;
+
+		public:
+			/**
+			 * @brief Gets the window size including border.
+			 * 
+			 * @returns Vector2 storing the window size including border.
+			 */
+			virtual Vector2 GetWindowSize(Void) const = 0;
+	
+			/**
+			 * @brief Gets the window position in screen coordinates.
+			 * 
+			 * @returns Vector2 storing the window position in screen coordinates. 
+			 */
+			virtual Vector2 GetWindowPosition(Void) const = 0;
 
 		public:
 			/**
@@ -195,13 +212,6 @@ namespace Forge {
 			 * @returns True if the window is visible, otherwise false.
 			 */
 			Bool IsVisable(Void) const;
-
-			/**
-			 * @brief Checks if the window is movable or fixed.
-			 *
-			 * @returns True if the window is movable, otherwise false.
-			 */
-			Bool IsMovable(Void) const;
 
 			/**
 			 * @brief Checks if the window is focused or not.
@@ -277,14 +287,7 @@ namespace Forge {
 			 *
 			 * @param size The size of the window client region.
 			 */
-			virtual Void SetClientSize(Vector2& size) = 0;
-
-			/**
-			 * @brief Sets the window size including border.
-			 * 
-			 * @param size The size of the window.
-			 */
-			virtual Void SetWindowSize(Vector2& size) = 0;
+			virtual Void SetClientSize(const Vector2 size) = 0;
 
 			/**
 			 * @brief Sets the client area position the window not including
@@ -293,21 +296,29 @@ namespace Forge {
 			 * @returns Vector2 storing the client area position of the window not
 			 * including border.
 			 */
-			virtual Void SetClientPosition(Vector2& position) = 0;
-
-			/**
-			 * @brief Sets the window position in screen coordinates.
-			 * 
-			 * @param position The position of the window.
-			 */
-			virtual Void SetWindowPosition(Vector2& position) = 0;
+			virtual Void SetClientPosition(const Vector2 position) = 0;
 
 			/**
 			 * @brief Sets the client bounds of the window not including border.
 			 *
 			 * @param bounds The bounds of the window client region.
 			 */
-			virtual Void SetClientBounds(RectangleF32& bounds) = 0;
+			virtual Void SetClientBounds(const RectangleF32 bounds) = 0;
+
+		public:
+			/**
+			 * @brief Sets the window size including border.
+			 * 
+			 * @param size The size of the window.
+			 */
+			virtual Void SetWindowSize(const Vector2 size) = 0;
+
+			/**
+			 * @brief Sets the window position in screen coordinates.
+			 * 
+			 * @param position The position of the window.
+			 */
+			virtual Void SetWindowPosition(const Vector2 position) = 0;
 
 		public:
 			/**
@@ -319,18 +330,18 @@ namespace Forge {
 
 		public:
 			/**
-			 * @brief Sets wether the window is movable or fixed.
+			 * @brief Sets wether the window is resizable or not.
 			 *
-			 * @param is_movable The flag wether the window is movable or not.
+			 * @param is_resizable The flag wether the window is resizable or not.
 			 */
-			virtual Void SetIsMovable(Bool is_movable) = 0;
+			virtual Void SetIsResizable(Bool is_resizable) = 0;
 
 			/**
 			 * @brief Sets wether the window is resizable or not.
 			 *
 			 * @param is_resizable The flag wether the window is resizable or not.
 			 */
-			virtual Void SetIsResizable(Bool is_resizable) = 0;
+			virtual Void SetIsDecorated(Bool is_decorated) = 0;
 
 			/**
 			 * @brief Sets wether the window is fullscreen or not.

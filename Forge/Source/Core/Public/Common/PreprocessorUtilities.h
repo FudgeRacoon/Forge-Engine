@@ -7,6 +7,8 @@
 
 #define FORGE_BIT(x) (1 << x)
 
+#define FORGE_ARRAY_COUNT(array) (sizeof(array) / sizeof(array[0]))
+
 #define FORGE_SAFE_DELETE_UNIT(mem) if( mem != nullptr ) { delete mem; mem = nullptr; }
 #define FORGE_SAFE_DELETE_BLOCK(mem) if( mem != nullptr ) { delete[] mem; mem = nullptr; }
 

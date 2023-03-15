@@ -203,7 +203,7 @@ namespace Forge {
 
 				MemorySet(&window_class, 0, sizeof(WNDCLASS));
 
-				window_class.style         = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
+				window_class.style         = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 				window_class.lpfnWndProc   = Internal::MainWndProc;
 				window_class.cbClsExtra    = 0;
 				window_class.cbWndExtra    = 0;
@@ -259,7 +259,7 @@ namespace Forge {
 		{
 			MSG msg;
 
-			while (GetMessage(&msg, nullptr, 0, 0))
+			while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
 			{
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);

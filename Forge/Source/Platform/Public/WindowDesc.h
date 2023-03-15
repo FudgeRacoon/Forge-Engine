@@ -80,6 +80,11 @@ namespace Forge {
 			 */
 			FORGE_ENUM_DECL(WAIT, 0x12)
 
+			/**
+			 * @brief Hidden cursor.
+			 */
+			FORGE_ENUM_DECL(HIDDEN, 0x13)
+
 			MAX
 		};
 
@@ -152,11 +157,6 @@ namespace Forge {
 			 * @brief Is the window initially visible?
 			 */
 			Bool m_is_visable = true;
-			
-			/**
-			 * @brief Is the window movable?
-			 */
-			Bool m_is_movable = true;
 			
 			/**
 			 * @brief Is the window initially focused?
