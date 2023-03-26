@@ -22,7 +22,7 @@ namespace Forge {
 
 			return bitSetCount;
 		}
-			LRESULT CALLBACK MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)    // second message parameter
+			LRESULT CALLBACK MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				switch (uMsg)
 				{
@@ -207,7 +207,7 @@ namespace Forge {
 				window_class.lpfnWndProc   = Internal::MainWndProc;
 				window_class.cbClsExtra    = 0;
 				window_class.cbWndExtra    = 0;
-				window_class.hInstance     = (HINSTANCE)handle;
+				window_class.hInstance     = (HINSTANCE)m_instance_handle;
 				window_class.hIcon         = LoadIcon(nullptr, IDI_APPLICATION);
 				window_class.hCursor       = LoadCursor(nullptr, IDC_ARROW);
 				window_class.hbrBackground = nullptr;
@@ -216,7 +216,9 @@ namespace Forge {
 
 				if (!RegisterClass(&window_class));
 				{
-					// TODO: Throw Exception.
+					// Fatal("Win32: Failed to register window class");
+
+					return FORGE_FALSE;
 				}
 			}
 
@@ -226,19 +228,25 @@ namespace Forge {
 				m_user_name = (CharPtr)AllocateMemory(256, 8);
 				if (!GetUserNameW((LPWSTR)m_user_name, &return_length));
 				{
-					// TODO: Throw Exception.
+					// Fatal("Win32: Failed to get username");
+
+					return FORGE_FALSE;
 				}
 
 				m_locale_name = (CharPtr)AllocateMemory(256, 8);
 				if (!GetUserDefaultLocaleName((LPWSTR)m_locale_name, LOCALE_NAME_MAX_LENGTH));
 				{
-					// TODO: Throw Exception.
+					// Fatal("Win32: Failed to get user localename");
+
+					return FORGE_FALSE;
 				}
 
 				m_machine_name = (CharPtr)AllocateMemory(256, 8);
 				if (!GetComputerNameW((LPWSTR)m_machine_name, &return_length));
 				{
-					// TODO: Throw Exception.
+					// Fatal("Win32: Failed to get user computer name");
+
+					return FORGE_FALSE;
 				}
 			}
 			
@@ -251,9 +259,9 @@ namespace Forge {
 			DeallocateMemory(m_machine_name);
 
 			if (!UnregisterClassW((LPCWSTR)m_application_window_class, (HINSTANCE)m_instance_handle));
-				return false;
+				return FORGE_FALSE;
 
-			return true;
+			return FORGE_TRUE;
 		}
 		Bool WindowsPlatform::PumpMessages(Void)
 		{
@@ -265,7 +273,7 @@ namespace Forge {
 				DispatchMessage(&msg);
 			}
 
-			return true;
+			return FORGE_TRUE;
 		}
 
 		Void WindowsPlatform::PrefetchMemory(VoidPtr address)
@@ -331,6 +339,94 @@ namespace Forge {
 			description.m_client_size = size;
 
 			return new WindowsWindow(description);
+		}
+
+		MessageBoxResult WindowsPlatform::ShowMessageBox(WindowPtr parent, ConstCharPtr text, ConstCharPtr caption, MessageBoxButton button, MessageBoxIcon icon)
+		{
+			I32 flags = 0;
+			
+			MessageBoxResult dialog_result;
+
+			switch (button)
+			{
+			case MessageBoxButton::FORGE_ABORT_RETRY_IGNORE:
+				flags |= MB_ABORTRETRYIGNORE;
+				break;
+			case MessageBoxButton::FORGE_CANCEL_TRY_CONTINUE:
+				flags |= MB_CANCELTRYCONTINUE;
+				break;
+			case MessageBoxButton::FORGE_HELP:
+				flags |= MB_HELP;
+				break;
+			case MessageBoxButton::FORGE_OK:
+				flags |= MB_OK;
+				break;
+			case MessageBoxButton::FORGE_OK_CANCEL:
+				flags |= MB_OKCANCEL;
+				break;
+			case MessageBoxButton::FORGE_RETRY_CANCEL:
+				flags |= MB_RETRYCANCEL;
+				break;
+			case MessageBoxButton::FORGE_YES_NO:
+				flags |= MB_YESNO;
+				break;
+			case MessageBoxButton::FORGE_YES_NO_CANCEL:
+				flags |= MB_YESNOCANCEL;
+				break;
+			}
+
+			switch (icon)
+			{
+			case MessageBoxIcon::FORGE_NONE:
+				break;
+			case MessageBoxIcon::FORGE_ERROR:
+				flags |= MB_ICONSTOP;
+				break;
+			case MessageBoxIcon::FORGE_WARNING:
+				flags |= MB_ICONWARNING;
+				break;
+			case MessageBoxIcon::FORGE_INFORMATION:
+				flags |= MB_ICONINFORMATION;
+				break;
+			}
+
+			int result = MessageBox(parent ? (HWND)parent->GetNativeHandle() : nullptr, text, caption, flags);
+
+			switch (result)
+			{
+			case IDABORT:
+				dialog_result = MessageBoxResult::FORGE_ABORT;
+				break;
+			case IDCANCEL:
+				dialog_result = MessageBoxResult::FORGE_CANCEL;
+				break;
+			case IDCONTINUE:
+				dialog_result = MessageBoxResult::FORGE_CONTINUE;
+				break;
+			case IDIGNORE:
+				dialog_result = MessageBoxResult::FORGE_IGNORE;
+				break;
+			case IDNO:
+				dialog_result = MessageBoxResult::FORGE_NO;
+				break;
+			case IDOK:
+				dialog_result = MessageBoxResult::FORGE_OK;
+				break;
+			case IDRETRY:
+				dialog_result = MessageBoxResult::FORGE_RETRY;
+				break;
+			case IDTRYAGAIN:
+				dialog_result = MessageBoxResult::FORGE_TRYAGAIN;
+				break;
+			case IDYES:
+				dialog_result = MessageBoxResult::FORGE_YES;
+				break;
+			default:
+				dialog_result = MessageBoxResult::FORGE_NONE;
+				break;
+			}
+
+			return dialog_result;
 		}
 
 		VoidPtr WindowsPlatform::LoadExternalLibrary(ConstCharPtr filename)

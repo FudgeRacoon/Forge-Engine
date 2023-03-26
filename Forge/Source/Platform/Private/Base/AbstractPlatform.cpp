@@ -9,19 +9,21 @@ namespace Forge {
 		}
 		Void AbstractPlatform::Info(ConstCharPtr message)
 		{
-			// TODO: Impelemt AbstractPlatform::Info
+			ShowMessageBox(nullptr, message, "Info", MessageBoxButton::FORGE_OK, MessageBoxIcon::FORGE_INFORMATION);
 		}
 		Void AbstractPlatform::Warn(ConstCharPtr message)
 		{
-			// TODO: Impelemt AbstractPlatform::Warn
+			ShowMessageBox(nullptr, message, "Warning", MessageBoxButton::FORGE_OK, MessageBoxIcon::FORGE_WARNING);
 		}
 		Void AbstractPlatform::Error(ConstCharPtr message)
 		{
-			// TODO: Impelemt AbstractPlatform::Error
+			ShowMessageBox(nullptr, message, "Error", MessageBoxButton::FORGE_OK, MessageBoxIcon::FORGE_ERROR);
 		}
 		Void AbstractPlatform::Fatal(ConstCharPtr message, VoidPtr context)
 		{
-			// TODO: Impelemt AbstractPlatform::Fatal
+			Error(message);
+
+			ExitProcess(-1);
 		}
 
 		Void AbstractPlatform::Crash(I32 line, ConstCharPtr file)
@@ -128,6 +130,35 @@ namespace Forge {
 		Void AbstractPlatform::SetKeyboardCallback(TDelegate<Void(WindowPtr, I32, I32, I32, I32)> callback)
 		{
 			m_keyboard_button_callback = Move(callback);
+		}
+
+		MessageBoxResult AbstractPlatform::ShowMessageBox(ConstCharPtr text)
+		{
+			return ShowMessageBox(nullptr, text, "Info", MessageBoxButton::FORGE_OK, MessageBoxIcon::FORGE_NONE);
+		}
+		MessageBoxResult AbstractPlatform::ShowMessageBox(WindowPtr parent, ConstCharPtr text)
+		{
+			return ShowMessageBox(parent, text, "Info", MessageBoxButton::FORGE_OK, MessageBoxIcon::FORGE_NONE);
+		}
+		MessageBoxResult AbstractPlatform::ShowMessageBox(ConstCharPtr text, ConstCharPtr caption)
+		{
+			return ShowMessageBox(nullptr, text, caption, MessageBoxButton::FORGE_OK, MessageBoxIcon::FORGE_NONE);
+		}
+		MessageBoxResult AbstractPlatform::ShowMessageBox(WindowPtr parent, ConstCharPtr text, ConstCharPtr caption)
+		{
+			return ShowMessageBox(parent, text, caption, MessageBoxButton::FORGE_OK, MessageBoxIcon::FORGE_NONE);
+		}
+		MessageBoxResult AbstractPlatform::ShowMessageBox(ConstCharPtr text, ConstCharPtr caption, MessageBoxButton button)
+		{
+			return ShowMessageBox(nullptr, text, caption, button, MessageBoxIcon::FORGE_NONE);
+		}
+		MessageBoxResult AbstractPlatform::ShowMessageBox(WindowPtr parent, ConstCharPtr text, ConstCharPtr caption, MessageBoxButton button)
+		{
+			return ShowMessageBox(parent, text, caption, button, MessageBoxIcon::FORGE_NONE);
+		}
+		MessageBoxResult AbstractPlatform::ShowMessageBox(ConstCharPtr text, ConstCharPtr caption, MessageBoxButton button, MessageBoxIcon icon)
+		{
+			return ShowMessageBox(nullptr, text, caption, button, icon);
 		}
 	}
 }

@@ -1,5 +1,7 @@
-#include "Platform/Public/Platform.h"
-#include "Platform/Public/Base/AbstractWindow.h"
+#include <Platform/Public/Platform.h>
+#include <Platform/Public/Base/AbstractWindow.h>
+
+#include <GraphicsDevice/Public/GraphicsContext.h>
 
 namespace Forge {
 	namespace Platform
@@ -27,18 +29,21 @@ namespace Forge {
 			}
 		}
 
-		VoidPtr AbstractWindow::GetNativeHandle(Void)
+		ConstVoidPtr AbstractWindow::GetNativeHandle(Void) const
 		{
+			FORGE_ASSERT(m_window_handle != nullptr, "Window handle is null")
+
 			return m_window_handle;
 		}
-		WindowDesc AbstractWindow::GetWindowDescription(Void)
+		WindowDesc AbstractWindow::GetWindowDescription(Void) const
 		{
 			return m_window_description;
 		}
-
-		Bool AbstractWindow::IsClosing(Void) const
+		GraphicsContextPtr AbstractWindow::GetGraphicsContext(Void) const
 		{
-			return m_is_closing;
+			FORGE_ASSERT(m_graphics_context != nullptr, "Graphics context is null")
+
+			return m_graphics_context;
 		}
 
 		String AbstractWindow::GetTitle(Void) const
@@ -67,6 +72,11 @@ namespace Forge {
 		WindowCursorType AbstractWindow::GetCursorType(Void) const
 		{
 			return m_window_description.m_window_cursor_type;
+		}
+
+		Bool AbstractWindow::IsClosing(Void) const
+		{
+			return m_is_closing;
 		}
 
 		Bool AbstractWindow::IsVisable(Void) const

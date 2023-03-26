@@ -1,9 +1,12 @@
+#include "Platform/Public/Platform.h"
 #include "Platform/Public/Windows/WindowsWindow.h"
-#include "Platform/Public/Windows/WindowsPlatform.h"
-
-#include "GraphicsDevice/Public/OpenGL/Windows/GLWindowsGraphicsContext.h"
+#include "GraphicsDevice/Public/GraphicsContext.h"
 
 #if defined(FORGE_PLATFORM_WINDOWS)
+	
+#if defined(FORGE_RENDER_API_OPENGL)
+	#include "GraphicsDevice/Public/OpenGL/GLGraphicsContext.h"
+#endif
 
 namespace Forge {
 	namespace Platform
@@ -94,8 +97,6 @@ namespace Forge {
 
 			if (!m_window_description.m_allow_input)
 				EnableWindow((HWND)m_window_handle, false);
-
-			m_graphics_context = new GLWindowsGraphicsContext(m_window_handle);
 		}
 
 		Vector2 WindowsWindow::GetWindowSize(Void) const

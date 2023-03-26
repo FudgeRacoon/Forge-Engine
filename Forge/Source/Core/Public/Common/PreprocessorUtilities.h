@@ -5,6 +5,9 @@
 
 #include "Compiler.h"
 
+#define FORGE_TRUE		1
+#define FORGE_FALSE		0
+
 #define FORGE_BIT(x) (1 << x)
 
 #define FORGE_ARRAY_COUNT(array) (sizeof(array) / sizeof(array[0]))
@@ -30,18 +33,28 @@
 
 #define FORGE_ENUM_DECL(__NAME__, __VALUE__) __NAME__ = __VALUE__,
 
+#define FORGE_FLAG_DECL(__NAME__)									                 \
+	inline Bool operator &(__NAME__ lhs, __NAME__ rhs)								 \
+    {                                                                                \
+		return static_cast<Bool>(static_cast<int>(lhs) & static_cast<int>(rhs));     \
+	}                                                                                \
+	inline __NAME__ operator |(__NAME__ lhs, __NAME__ rhs)                           \
+	{                                                                                \
+		return static_cast<__NAME__>(static_cast<int>(lhs) | static_cast<int>(rhs)); \
+	}
+
 #define FORGE_TYPEDEF_DECL(__NAME__, __ALIAS__)								\
 	typedef       __NAME__		       __ALIAS__,        *__ALIAS__##Ptr;	\
 	typedef const __NAME__		Const##__ALIAS__, *Const##__ALIAS__##Ptr;
 
-#define FORGE_CLASS_NONCOPYABLE(Typename)                  \
+#define FORGE_CLASS_NONCOPYABLE(__NAME__)                  \
 	public:                                                \
-		Typename(Typename&& rhs) = delete;                 \
-		Typename(const Typename& rhs) = delete;            \
-		Typename& operator=(Typename&& rhs) = delete;      \
-		Typename& operator=(const Typename& rhs) = delete; \
+		__NAME__(__NAME__&& rhs) = delete;                 \
+		__NAME__(const __NAME__& rhs) = delete;            \
+		__NAME__& operator=(__NAME__&& rhs) = delete;      \
+		__NAME__& operator=(const __NAME__& rhs) = delete; \
 
-#if defined(FORGE_DEBUG)
+#if defined(FORGE_BUILD_DEBUG)
 	#define FORGE_ASSERT(__EXPR__, __MSG__)                                                                      \
 		if(__EXPR__) {}                                                                                          \
 		else                                                                                                     \

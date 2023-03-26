@@ -2,8 +2,8 @@
 #define COMMON_H
 
 #include "Compiler.h"
+#include "TypeTraits.h"
 #include "TypeDefinitions.h"
 #include "PreprocessorUtilities.h"
-#include "TypeTraits.h"
 
 #endif // COMMON_H

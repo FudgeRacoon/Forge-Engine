@@ -3,7 +3,7 @@
 
 #include <Windows.h>
 
-#include "Platform/Public/Base/AbstractPlatform.h"
+#include <Platform/Public/Base/AbstractPlatform.h>
 
 #if defined(FORGE_PLATFORM_WINDOWS)
 
@@ -110,8 +110,9 @@ namespace Forge {
 			 * @param second The result second value.
 			 * @param millisecond The result millisecond value.
 			 */
-			Void GetSystemTimeDate(I32& year, I32& month, I32& week,
-				I32& day, I32& hour, I32& minute, I32& second, I32& millisecond) override;
+			Void GetSystemTimeDate(I32& year, I32& month, I32& week, 
+								   I32& day, I32& hour, I32& minute, 
+								   I32& second, I32& millisecond) override;
 
 		public:
 			/**
@@ -264,6 +265,21 @@ namespace Forge {
 			 * @returns WindowPtr storing the address of the created window.
 			 */
 			WindowPtr ConstructWindow(ConstCharPtr title, const Vector2& position, const Vector2& size) override;
+
+		public:
+			/**
+			 * @brief Displays a message box with a specified text, caption,
+			 * buttons and icon.
+			 *
+			 * @param parent The parent window to the message box.
+			 * @param text The text to display in the message box.
+			 * @param caption The caption to display in the message box.
+			 * @param button The button to display in the message box.
+			 * @param icon The icon to display in the message box.
+			 *
+			 * @returns MessageBoxResult storing the message box dialog result.
+			 */
+			MessageBoxResult ShowMessageBox(WindowPtr parent, ConstCharPtr text, ConstCharPtr caption, MessageBoxButton button, MessageBoxIcon icon) override;
 
 		public:
 			/**

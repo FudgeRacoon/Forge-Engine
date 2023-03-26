@@ -1,14 +1,16 @@
 #ifndef ABSTRACT_WINDOW_H
 #define ABSTRACT_WINDOW_H
 
-#include "../WindowDesc.h"
-#include "Core/Public/Common/Common.h"
-#include "Core/Public/Math/TVector.h"
-#include "Core/Public/Math/TRectangle.h"
-#include "Core/Public/Types/TDelegate.h"
-#include "Core/Public/Memory/MemoryUtilities.h"
-#include "GraphicsDevice/Public/GraphicsContext.h"
-#include "Core/Public/Algorithm/GeneralUtilities.h"
+#include <Core/Public/Common/Common.h>
+#include <Core/Public/Math/TVector.h>
+#include <Core/Public/Math/TRectangle.h>
+#include <Core/Public/Types/TDelegate.h>
+#include <Core/Public/Memory/MemoryUtilities.h>
+#include <Core/Public/Algorithm/GeneralUtilities.h>
+
+#include <GraphicsDevice/Public/GraphicsContext.h>
+
+#include <Platform/Public/WindowDesc.h>
 
 using namespace Forge::Math;
 using namespace Forge::Common;
@@ -24,22 +26,22 @@ namespace Forge {
 			/**
 			 * @brief Unknown
 			 */
-			FORGE_ENUM_DECL(UNKNOWN,     0x0)
+			FORGE_ENUM_DECL(FORGE_UNKNOWN,     0x0)
 			
 			/**
 			 * @brief Window was closed by user.
 			 */
-			FORGE_ENUM_DECL(USER,        0x1)
+			FORGE_ENUM_DECL(FORGE_USER,        0x1)
 
 			/**
 			 * @brief Window was closed due to engine exit.
 			 */
-			FORGE_ENUM_DECL(ENGINE_EXIT, 0x2)
+			FORGE_ENUM_DECL(FORGE_ENGINE_EXIT, 0x2)
 
 			/**
 			 * @brief Window was closed due to a close event.
 			 */
-			FORGE_ENUM_DECL(CLOSE_EVENT, 0x3)
+			FORGE_ENUM_DECL(FORGE_CLOSE_EVENT, 0x3)
 
 			MAX
 		};
@@ -55,6 +57,12 @@ namespace Forge {
 			VoidPtr m_window_handle;
 
 		protected:
+			WindowDesc m_window_description;
+
+		protected:
+			GraphicsContextPtr m_graphics_context;
+
+		protected:
 			Bool m_is_closing;
 
 		protected:
@@ -62,12 +70,6 @@ namespace Forge {
 			Bool m_cache_is_focused;
 			Bool m_cache_is_minimized;
 			Bool m_cache_is_maximized;
-
-		protected:
-			WindowDesc m_window_description;
-
-		public:
-			GraphicsContextPtr m_graphics_context;
 
 		protected:
 			TDelegate<Void(Void)>     m_window_close_callback;
@@ -98,22 +100,21 @@ namespace Forge {
 			 *
 			 * @returns ConstVoidPtr storing the address of the window handle.
 			*/
-			VoidPtr GetNativeHandle(Void);
+			ConstVoidPtr GetNativeHandle(Void) const;
 
 			/**
 			 * @brief Gets the window description associated with this window.
 			 * 
 			 * @returns WindowDesc storing this window description.
 			 */
-			WindowDesc GetWindowDescription(Void);
+			WindowDesc GetWindowDescription(Void) const;
 
-		public:
 			/**
-			 * @brief Checks if the window needs to be closed.
-			 * 
-			 * @returns True if the window is closing, otherwise false;
+			 * @brief Gets the graphics context associated with this window.
+			 *
+			 * @returns AbstractGraphicsContext pointer storing the graphics context.
 			 */
-			Bool IsClosing(Void) const;
+			GraphicsContextPtr GetGraphicsContext(Void) const;
 
 		public:
 			/**
@@ -207,6 +208,14 @@ namespace Forge {
 
 		public:
 			/**
+		     * @brief Checks if the window needs to be closed.
+		     *
+		     * @returns True if the window is closing, otherwise false;
+		     */
+			Bool IsClosing(Void) const;
+
+		public:
+			/**
 			 * @brief Checks if the window is visible or hidden.
 			 * 
 			 * @returns True if the window is visible, otherwise false.
@@ -268,7 +277,7 @@ namespace Forge {
 			 * 
 			 * @param title The title of the window.
 			 */
-			virtual Void SetTitle(ConstCharPtr title) = 0;										// TODO: Change ConstCharPtr to const StringView&
+			virtual Void SetTitle(ConstCharPtr title) = 0;									
 
 		public:
 			/**
@@ -406,6 +415,30 @@ namespace Forge {
 			 * @param callback The callback function to call at resize event.
 			 */
 			Void OnResize(TDelegate<Void(U32, U32)> callback);
+
+		public:
+			/**
+			 * @brief Constructs a graphics context for the specified rendering API
+			 * for the window.
+			 */
+			template<typename... InArgs>
+			GraphicsContextPtr ConstructContext(InArgs... args)
+			{
+				if (m_graphics_context)
+				{
+					m_graphics_context->Terminate();
+					delete m_graphics_context;
+				}
+
+#if defined(FORGE_RENDER_API_OPENGL)
+				m_graphics_context = new GLGraphicsContext(this, args...);
+#endif
+
+				m_graphics_context->Initialize();
+				m_graphics_context->SetCurrent();
+
+				return m_graphics_context;
+			}
 
 		public:
 			/**

@@ -61,7 +61,7 @@
     <ClCompile>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>FORGE_EXPORT;FORGE_DEBUG;_CONSOLE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>FORGE_EXPORT;FORGE_RENDER_API_OPENGL;FORGE_BUILD_DEBUG;_CONSOLE</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -79,7 +79,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>FORGE_EXPORT;FORGE_NDEBUG;_CONSOLE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>FORGE_EXPORT;FORGE_RENDER_API_OPENGL;_CONSOLE</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -152,7 +152,9 @@
     <ClInclude Include="Source\Core\Public\Types\SmartPointer.h" />
     <ClInclude Include="Source\Core\Public\RTTI\TypeInfo.h" />
     <ClInclude Include="Source\Core\Public\Types\Singleton.h" />
-    <ClInclude Include="Source\GraphicsDevice\Public\OpenGL\Windows\GLWindowsGraphicsContext.h" />
+    <ClInclude Include="Source\GraphicsDevice\Public\Base\AbstractContextState.h" />
+    <ClInclude Include="Source\GraphicsDevice\Public\GraphicsContext.h" />
+    <ClInclude Include="Source\GraphicsDevice\Public\OpenGL\GLGraphicsContext.h" />
     <ClInclude Include="Source\Platform\Public\Base\AbstractPlatform.h" />
     <ClInclude Include="Source\Platform\Public\Base\AbstractWindow.h" />
     <ClInclude Include="Source\Platform\Public\Platform.h" />
@@ -177,8 +179,8 @@
     <ClCompile Include="Source\Core\Private\RTTI\TypeInfo.cpp" />
     <ClCompile Include="Source\Core\Private\Types\String\AbstractString.cpp" />
     <ClCompile Include="Source\Core\Public\Debug\Exception\Exceptions\MemoryOutOfBoundsException.h" />
-    <ClCompile Include="Source\GraphicsDevice\Private\OpenGL\Windows\GLWindowsGraphicsContext.cpp" />
-    <ClCompile Include="Source\GraphicsDevice\Public\GraphicsContext.h" />
+    <ClCompile Include="Source\GraphicsDevice\Private\OpenGL\GLGraphicsContext.cpp" />
+    <ClCompile Include="Source\GraphicsDevice\Public\Base\AbstractGraphicsContext.h" />
     <ClCompile Include="Source\Platform\Private\Base\AbstractPlatform.cpp" />
     <ClCompile Include="Source\Platform\Private\Base\AbstractWindow.cpp" />
     <ClCompile Include="Source\Platform\Private\Windows\WindowsPlatform.cpp" />
@@ -187,7 +189,6 @@
   </ItemGroup>
   <ItemGroup>
     <Library Include="Lib\glew\glew32.lib" />
-    <Library Include="Lib\glew\glew32s.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

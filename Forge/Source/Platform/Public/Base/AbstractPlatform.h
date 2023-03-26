@@ -1,13 +1,14 @@
 #ifndef ABSTRACT_PLATFORM
 #define ABSTRACT_PLATFORM
 
-#include "Platform/Public/Window.h"
-#include "Core/Public/Math/TVector.h"
-#include "Core/Public/Common/Common.h"
-#include "Core/Public/Types/Singleton.h"
-#include "Core/Public/Types/TDelegate.h"
-#include "Core/Public/Memory/MemoryUtilities.h"
-#include "Core/Public/Algorithm/GeneralUtilities.h"
+#include <Platform/Public/Window.h>
+
+#include <Core/Public/Math/TVector.h>
+#include <Core/Public/Common/Common.h>
+#include <Core/Public/Types/Singleton.h>
+#include <Core/Public/Types/TDelegate.h>
+#include <Core/Public/Memory/MemoryUtilities.h>
+#include <Core/Public/Algorithm/GeneralUtilities.h>
 
 using namespace Forge::Math;
 using namespace Forge::Common;
@@ -17,6 +18,134 @@ using namespace Forge::Algorithm;
 namespace Forge {
 	namespace Platform
 	{
+		enum class MessageBoxIcon
+		{
+			/**
+			 * @brief The message box does not contain an icon.
+			 */
+			FORGE_ENUM_DECL(FORGE_NONE, 0x0)
+
+			/**
+			 * @brief The message box contains a stop-sign icon.
+			 */
+			FORGE_ENUM_DECL(FORGE_ERROR, 0x1)
+
+			/**
+			 * @brief The message box contains an exclamation-point icon.
+			 */
+			FORGE_ENUM_DECL(FORGE_WARNING, 0x2)
+
+			/**
+			 * @brief The message box contains an icon consisting of a lowercase
+			 * letter i in a circle.
+			 */
+			FORGE_ENUM_DECL(FORGE_INFORMATION, 0x3)
+
+			MAX
+		};
+		
+		enum class MessageBoxButton
+		{
+			/**
+			 * @brief The message box contains three push buttons: Abort, Retry,
+			 * and Ignore.
+			 */
+			FORGE_ENUM_DECL(FORGE_ABORT_RETRY_IGNORE, 0x0)
+
+			/**
+			 * @brief The message box contains three push buttons: Cancel,
+			 * Try Again, and Continue.
+			 */
+			FORGE_ENUM_DECL(FORGE_CANCEL_TRY_CONTINUE, 0x1)
+
+			/**
+			 * @brief The message box contains a help button.
+			 */
+			FORGE_ENUM_DECL(FORGE_HELP,                0x2)
+
+			/**
+			 * @brief The message box contains one push button: OK.
+			 */
+			FORGE_ENUM_DECL(FORGE_OK,                  0x3)
+
+			/**
+			 * @brief The message box contains two push buttons: OK and Cancel.
+			 */
+			FORGE_ENUM_DECL(FORGE_OK_CANCEL,           0x4)
+
+			/**
+			 * @brief The message box contains two push buttons: Retry and Cancel.
+			 */
+			FORGE_ENUM_DECL(FORGE_RETRY_CANCEL,        0x5)
+
+			/**
+			 * @brief The message box contains two push buttons: Yes and No.
+			 */
+			FORGE_ENUM_DECL(FORGE_YES_NO,              0x6)
+
+			/**
+			 * @brief The message box contains three push buttons: Yes, No, and Cancel.
+			 */
+			FORGE_ENUM_DECL(FORGE_YES_NO_CANCEL,       0x7)
+
+			MAX
+		};
+
+		enum class MessageBoxResult
+		{
+			/**
+			 * @brief The Abort button was selected..
+			 */
+			FORGE_ENUM_DECL(FORGE_NONE,     0x0)
+
+			/**
+			 * @brief The Abort button was selected..
+			 */
+			FORGE_ENUM_DECL(FORGE_ABORT,    0x0)
+
+			/**
+			 * @brief The Cancel button was selected.
+			 */
+			FORGE_ENUM_DECL(FORGE_CANCEL,   0x1)
+
+			/**
+			 * @brief The Continue button was selected.
+			 */
+			FORGE_ENUM_DECL(FORGE_CONTINUE, 0x2)
+
+			/**
+			 * @brief The Ignore button was selected.
+			 */
+			FORGE_ENUM_DECL(FORGE_IGNORE,   0x3)
+
+			/**
+			 * @brief The No button was selected.
+			 */
+			FORGE_ENUM_DECL(FORGE_NO,       0x4)
+			
+			/**
+			 * The OK button was selected.
+			 */
+			FORGE_ENUM_DECL(FORGE_OK,       0x5)
+			
+			/**
+			 * @brief The Retry button was selected.
+			 */
+			FORGE_ENUM_DECL(FORGE_RETRY,    0x6)
+			
+			/**
+			 * @brief The Try Again button was selected.
+			 */
+			FORGE_ENUM_DECL(FORGE_TRYAGAIN, 0x7)
+			
+			/**
+			 * @brief The Yes button was selected.
+			 */
+			FORGE_ENUM_DECL(FORGE_YES,      0x8)
+
+			MAX
+		};
+
 		enum class PlatformType
 		{
 			/**
@@ -201,7 +330,7 @@ namespace Forge {
 			 *
 			 * @param message The information message to display.
 			 */
-			Void Info(ConstCharPtr message);															// TODO: Change ConstCharPtr to const StringView&
+			Void Info(ConstCharPtr message);															
 
 			/**
 			 * @brief Shows a warning message to the user.
@@ -211,7 +340,7 @@ namespace Forge {
 			 *
 			 * @param message The warning message to display.
 			 */
-			Void Warn(ConstCharPtr message);															// TODO: Change ConstCharPtr to const StringView&
+			Void Warn(ConstCharPtr message);															
 
 			/**
 			 * @brief Shows an error message to the user.
@@ -221,7 +350,7 @@ namespace Forge {
 			 *
 			 * @param message The error message to display.
 			 */
-			Void Error(ConstCharPtr message);															// TODO: Change ConstCharPtr to const StringView&
+			Void Error(ConstCharPtr message);															
 
 			/**
 			 * @brief Shows a fatal message to the user.
@@ -234,7 +363,7 @@ namespace Forge {
 			 * @param context The platform dependent context for stacktrace and
 			 * minidump collecting.
 			 */
-			Void Fatal(ConstCharPtr message, VoidPtr context);											// TODO: Change ConstCharPtr to const StringView&
+			Void Fatal(ConstCharPtr message, VoidPtr context);											
 
 		public:
 			/**
@@ -243,7 +372,7 @@ namespace Forge {
 			 * @param line The source line.
 			 * @param file The source file.
 			 */
-			Void Crash(I32 line, ConstCharPtr file);													// TODO: Change ConstCharPtr to const StringView&
+			Void Crash(I32 line, ConstCharPtr file);													
 
 			/**
 			 * @brief Performs a fatal crash to the program occured on memory
@@ -252,7 +381,7 @@ namespace Forge {
 			 * @param line The source line.
 			 * @param file The source file.
 			 */
-			Void OutOfMemory(I32 line, ConstCharPtr file);												// TODO: Change ConstCharPtr to const StringView&
+			Void OutOfMemory(I32 line, ConstCharPtr file);												
 
 			/**
 			 * @brief Performs a fatal crash to the program due to code not being
@@ -261,7 +390,7 @@ namespace Forge {
 			 * @param line The source line.
 			 * @param file The source file.
 			 */
-			Void MissingCode(I32 line, ConstCharPtr file);												// TODO: Change ConstCharPtr to const StringView&
+			Void MissingCode(I32 line, ConstCharPtr file);												
 
 			/**
 			 * @brief Performs a fatal crash to the program due to an assertion
@@ -270,7 +399,7 @@ namespace Forge {
 			 * @param line The source line.
 			 * @param file The source file.
 			 */
-			Void AssertionCheck(I32 line, ConstCharPtr file, ConstCharPtr message);						// TODO: Change ConstCharPtr to const StringView&
+			Void AssertionCheck(I32 line, ConstCharPtr file, ConstCharPtr message);						
 			
 		public:
 			/**
@@ -302,21 +431,21 @@ namespace Forge {
 			 *
 			 * @return ConstCharPtr storing the current user name.
 			 */
-			ConstCharPtr GetUserLogName(Void);												// TODO: Change ConstCharPtr to const String
+			ConstCharPtr GetUserLogName(Void);												
 
 			/**
 			 * @brief Gets the computer machine name.
 			 *
 			 * @return ConstCharPtr storing the computer machine name.
 			 */
-			ConstCharPtr GetMachineName(Void);												// TODO: Change ConstCharPtr to const String
+			ConstCharPtr GetMachineName(Void);												
 
 			/**
 			 * @brief Gets the current locale culutre.
 			 *
 			 * @return ConstCharPtr storing the current locale culture.
 			 */
-			ConstCharPtr GetUserLocaleName(Void);											// TODO: Change ConstCharPtr to const String
+			ConstCharPtr GetUserLocaleName(Void);											
 
 		public:
 			/**
@@ -415,7 +544,8 @@ namespace Forge {
 			 * @param millisecond The result millisecond value.
 			 */
 			virtual Void GetSystemTimeDate(I32& year, I32& month, I32& week, 
-				                           I32& day, I32& hour, I32& minute, I32& second, I32& millisecond) = 0;
+				                           I32& day, I32& hour, I32& minute, 
+										   I32& second, I32& millisecond) = 0;
 
 		public:
 			/**
@@ -536,7 +666,7 @@ namespace Forge {
 		public:
 			/**
 			 * @brief Indicates to the processor that a cache line will be needed
-			 * in the near future..
+			 * in the near future.
 			 * 
 			 * @param address The address of the cache line to be loaded. 
 			 */
@@ -653,6 +783,99 @@ namespace Forge {
 			 * @returns WindowPtr storing the address of the created window.
 			 */
 			virtual WindowPtr ConstructWindow(ConstCharPtr title, const Vector2& position, const Vector2& size) = 0;
+
+		public:
+			/**
+			 * @brief Displays a message box with a specified text.
+			 * 
+			 * @param text The text to display in the message box.
+			 * 
+			 * @returns MessageBoxResult storing the message box dialog result.
+			 */
+			MessageBoxResult ShowMessageBox(ConstCharPtr text);
+
+			/**
+			 * @brief Displays a message box with a specified text.
+			 *
+			 * @param parent The parent window to the message box.
+			 * @param text The text to display in the message box.
+			 *
+			 * @returns MessageBoxResult storing the message box dialog result.
+			 */
+			MessageBoxResult ShowMessageBox(WindowPtr parent, ConstCharPtr text);
+
+			/**
+			 * @brief Displays a message box with a specified text and caption.
+			 *
+			 * @param text The text to display in the message box.
+			 * @param caption The caption to display in the message box.
+			 *
+			 * @returns MessageBoxResult storing the message box dialog result.
+			 */
+			MessageBoxResult ShowMessageBox(ConstCharPtr text, ConstCharPtr caption);
+
+			/**
+			 * @brief Displays a message box with a specified text and caption.
+			 *
+			 * @param parent The parent window to the message box.
+			 * @param text The text to display in the message box.
+			 * @param caption The caption to display in the message box.
+			 *
+			 * @returns MessageBoxResult storing the message box dialog result.
+			 */
+			MessageBoxResult ShowMessageBox(WindowPtr parent, ConstCharPtr text, ConstCharPtr caption);
+			
+			/**
+			 * @brief Displays a message box with a specified text, caption and
+			 * buttons.
+			 *
+			 * @param text The text to display in the message box.
+			 * @param caption The caption to display in the message box.
+			 * @param button The button to display in the message box.
+			 * 
+			 * @returns MessageBoxResult storing the message box dialog result.
+			 */
+			MessageBoxResult ShowMessageBox(ConstCharPtr text, ConstCharPtr caption, MessageBoxButton button);
+
+			/**
+			 * @brief Displays a message box with a specified text, caption and
+			 * buttons.
+			 *
+			 * @param parent The parent window to the message box.
+			 * @param text The text to display in the message box.
+			 * @param caption The caption to display in the message box.
+			 * @param button The button to display in the message box.
+			 *
+			 * @returns MessageBoxResult storing the message box dialog result.
+			 */
+			MessageBoxResult ShowMessageBox(WindowPtr parent, ConstCharPtr text, ConstCharPtr caption, MessageBoxButton button);
+			
+			/**
+			 * @brief Displays a message box with a specified text, caption,
+			 * buttons and icon.
+			 *
+			 * @param text The text to display in the message box.
+			 * @param caption The caption to display in the message box.
+			 * @param button The button to display in the message box.
+			 * @param icon The icon to display in the message box.
+			 *
+			 * @returns MessageBoxResult storing the message box dialog result.
+			 */
+			MessageBoxResult ShowMessageBox(ConstCharPtr text, ConstCharPtr caption, MessageBoxButton button, MessageBoxIcon icon);
+
+			/**
+			 * @brief Displays a message box with a specified text, caption,
+			 * buttons and icon.
+			 *
+			 * @param parent The parent window to the message box.
+			 * @param text The text to display in the message box.
+			 * @param caption The caption to display in the message box.
+			 * @param button The button to display in the message box.
+			 * @param icon The icon to display in the message box.
+			 *
+			 * @returns MessageBoxResult storing the message box dialog result.
+			 */
+			virtual MessageBoxResult ShowMessageBox(WindowPtr parent, ConstCharPtr text, ConstCharPtr caption, MessageBoxButton button, MessageBoxIcon icon) = 0;
 
 		public:
 			/**

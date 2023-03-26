@@ -17,9 +17,6 @@ namespace Forge {
 		 */
 		class FORGE_API WindowsWindow : public AbstractWindow
 		{
-		private:
-			HWND m_window_handle;
-
 		public:
 			/**
 			 * @brief Default constructor.
