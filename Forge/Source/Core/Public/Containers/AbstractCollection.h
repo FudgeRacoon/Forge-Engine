@@ -1,10 +1,8 @@
 #ifndef ABSTRACT_COLLECTION_H
 #define ABSTRACT_COLLECTION_H
 
-#include "Core/Public/Common/Compiler.h"
-#include "Core/Public/Common/TypeDefinitions.h"
-
-#include "Core/Public/Types/TDelegate.h"
+#include <Core/Public/Common/Common.h>
+#include <Core/Public/Types/TDelegate.h>
 
 namespace Forge {
 	namespace Containers
@@ -36,9 +34,8 @@ namespace Forge {
 			AbstractCollection(Size count, Size max_capacity)
 				: m_count(count), m_max_capacity(max_capacity) {}
 
-		public:
 			virtual ~AbstractCollection() = default;
-		
+
 		public:
 			/**
 			 * @brief Gets the number of elements stored in this collection.
@@ -218,14 +215,10 @@ namespace Forge {
 			virtual Void Clear(void) = 0;
 		};
 
-		template<typename T>
-		FORGE_FORCE_INLINE Size AbstractCollection<T>::GetCount() const { return this->m_count; }
-		template<typename T>
-		FORGE_FORCE_INLINE Size AbstractCollection<T>::GetMaxCapacity() const { return this->m_max_capacity; }
-		template<typename T>
-		FORGE_FORCE_INLINE Bool AbstractCollection<T>::IsFull() const  { return this->m_count == this->m_max_capacity; }
-		template<typename T>
-		FORGE_FORCE_INLINE Bool AbstractCollection<T>::IsEmpty() const { return this->m_count == 0; }
+		template<typename T> FORGE_FORCE_INLINE Size AbstractCollection<T>::GetCount() const       { return this->m_count; }
+		template<typename T> FORGE_FORCE_INLINE Size AbstractCollection<T>::GetMaxCapacity() const { return this->m_max_capacity; }
+		template<typename T> FORGE_FORCE_INLINE Bool AbstractCollection<T>::IsFull() const         { return this->m_count == this->m_max_capacity; }
+		template<typename T> FORGE_FORCE_INLINE Bool AbstractCollection<T>::IsEmpty() const        { return this->m_count == 0; }
 	}
 }
 

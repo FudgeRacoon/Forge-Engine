@@ -333,7 +333,7 @@ namespace Forge {
 			 * @brief Move constructor.
 			 */
 			TStaticArray(SelfType&& other)
-				: AbstractList<ElementType>(other)
+				: AbstractList<ElementType>(0, InMaxSize)
 			{
 				*this = std::move(other);
 			}
@@ -342,7 +342,7 @@ namespace Forge {
 			 * @brief Copy constructor.
 			 */
 			TStaticArray(ConstSelfTypeRef other)
-				: AbstractList<ElementType>(other)
+				: AbstractList<ElementType>(0, InMaxSize)
 			{
 				*this = other;
 			}

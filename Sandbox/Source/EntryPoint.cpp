@@ -3,6 +3,9 @@
 
 #include "../ThirdParty/GL/glew.h"
 
+#include <io.h>
+#include <fcntl.h>
+
 #pragma comment (lib, "opengl32.lib")
 
 using namespace Forge::Platform;
@@ -14,7 +17,8 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
 	WindowPtr wnd = Platform::GetInstance().ConstructWindow("Forge Engine");
 
-	GraphicsContextPtr gc = wnd->ConstructContext(3, 3, GLContextProfile::FORGE_CORE, GLContextFlags::FORGE_NONE);
+	GraphicsContextPtr gc = wnd->ConstructContext(3, 3, GLContextProfileMask::FORGE_CORE, GLContextFlags::FORGE_NONE);
+
 
 	while (!wnd->IsClosing())
 	{

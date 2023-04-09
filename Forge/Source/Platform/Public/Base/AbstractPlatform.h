@@ -18,22 +18,22 @@ using namespace Forge::Algorithm;
 namespace Forge {
 	namespace Platform
 	{
-		enum class MessageBoxIcon
+		enum class MessageBoxIcon : Byte
 		{
 			/**
 			 * @brief The message box does not contain an icon.
 			 */
-			FORGE_ENUM_DECL(FORGE_NONE, 0x0)
+			FORGE_ENUM_DECL(FORGE_NONE,        0x0)
 
 			/**
 			 * @brief The message box contains a stop-sign icon.
 			 */
-			FORGE_ENUM_DECL(FORGE_ERROR, 0x1)
+			FORGE_ENUM_DECL(FORGE_ERROR,       0x1)
 
 			/**
 			 * @brief The message box contains an exclamation-point icon.
 			 */
-			FORGE_ENUM_DECL(FORGE_WARNING, 0x2)
+			FORGE_ENUM_DECL(FORGE_WARNING,     0x2)
 
 			/**
 			 * @brief The message box contains an icon consisting of a lowercase
@@ -44,7 +44,7 @@ namespace Forge {
 			MAX
 		};
 		
-		enum class MessageBoxButton
+		enum class MessageBoxButton : Byte
 		{
 			/**
 			 * @brief The message box contains three push buttons: Abort, Retry,
@@ -91,7 +91,7 @@ namespace Forge {
 			MAX
 		};
 
-		enum class MessageBoxResult
+		enum class MessageBoxResult : Byte
 		{
 			/**
 			 * @brief The Abort button was selected..
@@ -146,52 +146,52 @@ namespace Forge {
 			MAX
 		};
 
-		enum class PlatformType
+		enum class PlatformType : Byte
 		{
 			/**
 			 * @brief Running on mac platform.
 			 */
-			FORGE_ENUM_DECL(MAC, 0x0)
+			FORGE_ENUM_DECL(FORGE_MAC,     0x0)
 
 			/**
 			 * @brief Running on linux platform.
 			 */
-			FORGE_ENUM_DECL(LINUX, 0x1)
+			FORGE_ENUM_DECL(FORGE_LINUX,   0x1)
 
 			/**
 			 * @brief Running on android platform.
 			 */
-			FORGE_ENUM_DECL(ANDROID, 0x2)
+			FORGE_ENUM_DECL(FORGE_ANDROID, 0x2)
 
 			/**
 			 * @brief Running on windows platform.
 			 */
-			FORGE_ENUM_DECL(WINDOWS, 0x3)
+			FORGE_ENUM_DECL(FORGE_WINDOWS, 0x3)
 
 			MAX
 		};
 
-		enum class ArchitectureType
+		enum class ArchitectureType : Byte
 		{
 			/**
 			 * @brief Running on x86 32-bit.
 			 */
-			FORGE_ENUM_DECL(X86, 0x0)
+			FORGE_ENUM_DECL(FORGE_X86, 0x0)
 
 			/**
 			 * @brief Running on x86 64-bit.
 			 */
-			FORGE_ENUM_DECL(X64, 0x1)
+			FORGE_ENUM_DECL(FORGE_X64, 0x1)
 
 			/**
 			 * @brief Running on ARM 32-bit.
 			 */
-			FORGE_ENUM_DECL(ARM, 0x2)
+			FORGE_ENUM_DECL(FORGE_ARM, 0x2)
 
 			/**
 			 * @brief Running on ARM 64-bit.
 			 */
-			FORGE_ENUM_DECL(ARM64, 0x3)
+			FORGE_ENUM_DECL(FORGE_ARM64, 0x3)
 
 			MAX
 		};

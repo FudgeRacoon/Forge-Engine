@@ -62,7 +62,7 @@ namespace Forge {
 			public:
 				Iterator(Iterator&& other)
 				{
-					*this = std::move(other);
+					*this = Move(other);
 				}
 				Iterator(const Iterator& other)
 				{
@@ -176,7 +176,7 @@ namespace Forge {
 			public:
 				ConstIterator(ConstIterator&& other)
 				{
-					*this = std::move(other);
+					*this = Move(other);
 				}
 				ConstIterator(const ConstIterator& other)
 				{
@@ -280,7 +280,7 @@ namespace Forge {
 			 * Constructs an empty dynamic array.
 			 */
 			TDynamicArray(void)
-				: m_version(0), m_capacity(0), AbstractList<ElementType>(0, ~((Size)0)) {}
+				: m_mem_block(nullptr), m_version(0), m_capacity(0), AbstractList<ElementType>(0, ~((Size)0)) {}
 
 			/**
 			 * @brief Move element constructor.
@@ -288,11 +288,11 @@ namespace Forge {
 			 * Constructs a dynamic array with a copy of an element.
 			 */
 			TDynamicArray(ElementType&& element, Size count)
-				: m_version(0), m_capacity(count), AbstractList<ElementType>(count, ~((Size)0))
+				: m_mem_block(nullptr), m_version(0), m_capacity(count), AbstractList<ElementType>(count, ~((Size)0))
 			{
 				this->m_mem_block = (ElementTypePtr)malloc(this->m_count * sizeof(ElementType));
 
-				Memory::MoveConstruct(this->m_mem_block, std::move(element), this->m_count);
+				Memory::MoveConstruct(this->m_mem_block, Move(element), this->m_count);
 			}
 
 			/**
@@ -301,7 +301,7 @@ namespace Forge {
 			 * Constructs a dynamic array with a copy of an element.
 			 */
 			TDynamicArray(ConstElementTypeRef element, Size count)
-				: m_version(0), m_capacity(count), AbstractList<ElementType>(count, ~((Size)0))
+				: m_mem_block(nullptr), m_version(0), m_capacity(count), AbstractList<ElementType>(count, ~((Size)0))
 			{
 				this->m_mem_block = (ElementTypePtr)malloc(this->m_count * sizeof(ElementType));
 
@@ -314,7 +314,7 @@ namespace Forge {
 			 * Constructs a static array with an initializer list.
 			 */
 			TDynamicArray(std::initializer_list<ElementType> init_list)
-				: m_version(0), m_capacity(init_list.size()), AbstractList<ElementType>(init_list.size(), ~((Size)0))
+				: m_mem_block(nullptr), m_version(0), m_capacity(init_list.size()), AbstractList<ElementType>(init_list.size(), ~((Size)0))
 			{
 				this->m_mem_block = (ElementTypePtr)malloc(this->m_count * sizeof(ElementType));
 
@@ -326,16 +326,16 @@ namespace Forge {
 			 * @brief Move constructor.
 			 */
 			TDynamicArray(SelfType&& other)
-				: AbstractList<ElementType>(other)
+				: m_mem_block(nullptr), m_version(0), m_capacity(0), AbstractList<ElementType>(0, ~((Size)0))
 			{
-				*this = std::move(other);
+				*this = Move(other);
 			}
 
 			/**
 			 * @brief Copy constructor.
 			 */
 			TDynamicArray(ConstSelfTypeRef other)
-				: AbstractList<ElementType>(other)
+				: m_mem_block(nullptr), m_version(0), m_capacity(0), AbstractList<ElementType>(0, ~((Size)0))
 			{
 				*this = other;
 			}
@@ -345,7 +345,8 @@ namespace Forge {
 			{
 				this->Clear();
 
-				free(this->m_mem_block);
+				if(this->m_mem_block)
+					free(this->m_mem_block);
 			}
 
 		public:
@@ -463,6 +464,29 @@ namespace Forge {
 			ConstElementTypePtr GetRawData() const override
 			{
 				return this->m_mem_block;
+			}
+
+			/**
+			 * @brief Retreives a reference to the element stored in the collection
+			 * at the specified index.
+			 *
+			 * @param[in] index The index to retreive the element stored at.
+			 *
+			 * @return ConstElementTypeRef storting the element stored at the
+			 * specified index.
+			 *
+			 * @throws InvalidOperationException if collection is empty.
+			 *
+			 * @throws IndexOutOfRangeExceotion if index is out of range.
+			 */
+			ConstElementTypeRef GetByIndex(Size index) const override
+			{
+				if (index >= 0 && index < this->m_count)
+				{
+					// Throw Exception
+				}
+
+				return *(this->m_mem_block + index);
 			}
 
 		public:
@@ -659,7 +683,7 @@ namespace Forge {
 					prev = next;
 				}
 
-				Memory::Move(this->m_mem_block + index, std::move(element), 1);
+				Memory::Move(this->m_mem_block + index, Move(element), 1);
 
 				this->m_count++;
 			}

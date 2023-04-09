@@ -1,9 +1,10 @@
 #ifndef ABSTRACT_LIST_H
 #define ABSTRACT_LIST_H
 
-#include "AbstractCollection.h"
+#include <Core/Public/Algorithm/GeneralUtilities.h>
+#include <Core/Public/Containers/AbstractCollection.h>
 
-#include "Core/Public/Common/TypeDefinitions.h"
+using namespace Forge::Algorithm;
 
 namespace Forge {
 	namespace Containers
@@ -31,7 +32,6 @@ namespace Forge {
 			AbstractList(Size count, Size max_capacity)
 				: AbstractCollection<ElementType>(count, max_capacity) {}
 
-		public:
 			virtual ~AbstractList() = default;
 
 		public:
@@ -82,7 +82,7 @@ namespace Forge {
 			virtual Bool IsEqual(AbstractCollection<ElementType>& collection) const
 			{
 				if (this->m_count != collection.GetCount())
-					return false;
+					return FORGE_FALSE;
 
 				I32 index = 0;
 
@@ -174,7 +174,7 @@ namespace Forge {
 			 */
 			virtual Void PushBack(ElementType&& element)
 			{
-				this->InsertAt(this->m_count, std::move(element));
+				this->InsertAt(this->m_count, Move(element));
 			}
 
 			/**
@@ -191,7 +191,7 @@ namespace Forge {
 			 */
 			virtual Void PushFront(ElementType&& element)
 			{
-				this->InsertAt(0, std::move(element));
+				this->InsertAt(0, Move(element));
 			}
 
 			/**
@@ -402,7 +402,7 @@ namespace Forge {
 			virtual Bool RemoveAll(AbstractCollection<ElementType>& collection) override
 			{
 				if (!this->m_count || collection.IsEmpty())
-					return false;
+					return FORGE_FALSE;
 
 				I32 index = 0;
 
@@ -416,7 +416,7 @@ namespace Forge {
 						index++;
 				}
 
-				return true;
+				return FORGE_TRUE;
 			}
 
 			/**
@@ -432,7 +432,7 @@ namespace Forge {
 			virtual Bool ContainsAll(AbstractCollection<ElementType>& collection) override
 			{
 				if (!this->m_count || collection.IsEmpty())
-					return false;
+					return FORGE_FALSE;
 
 				I32 index = 0;
 
@@ -441,12 +441,12 @@ namespace Forge {
 					ConstElementTypeRef element = this->GetByIndex(index);
 
 					if (!collection.Contains(element))
-						return false;
+						return FORGE_FALSE;
 					else
 						index++;
 				}
 
-				return true;
+				return FORGE_TRUE;
 			}
 		};
 	}

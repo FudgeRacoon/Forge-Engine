@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\Common\TDelegateTest.h" />
+    <ClInclude Include="Source\Core\Containers\TDynamicArrayTest.h" />
     <ClInclude Include="Source\Core\Containers\TDynamicQueueTest.h" />
     <ClInclude Include="Source\Core\Containers\TDynamicStackTest.h" />
     <ClInclude Include="Source\Core\Containers\TLinkedListTest.h" />

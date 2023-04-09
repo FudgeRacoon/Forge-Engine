@@ -6,6 +6,7 @@
 #include "Source/Core/Containers/TStaticArrayTest.h"
 #include "Source/Core/Containers/TDynamicStackTest.h"
 #include "Source/Core/Containers/TDynamicQueueTest.h"
+#include "Source/Core/Containers/TDynamicArrayTest.h"
 
 int main(int argc, char** args)
 {

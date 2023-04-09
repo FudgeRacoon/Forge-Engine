@@ -27,26 +27,11 @@ namespace Forge {
 		using NativeRenderContext = HGLRC;
 #endif
 
-		enum class GLContextProfile
-		{
-			/**
-			 * @brief The opengl embedded system profile.
-			 */
-			FORGE_ENUM_DECL(FORGE_ES,     0x0)
-
-			/**
-			 * @brief The opengl core profile.
-			 */
-			FORGE_ENUM_DECL(FORGE_CORE,   0x1)
-
-			/**
-			 * @brief The opengl compatibility profile.
-			 */
-			FORGE_ENUM_DECL(FORGE_COMPAT, 0x2)
-
-			MAX
-		};
-
+		/**
+		 * @brief Opengl context flags specifing extended features.
+		 * 
+		 * https://registry.khronos.org/OpenGL/index_gl.php
+		 */
 		enum class GLContextFlags
 		{
 			FORGE_ENUM_DECL(FORGE_NONE,           FORGE_BIT(1))
@@ -81,8 +66,39 @@ namespace Forge {
 			MAX
 		};
 
+		/**
+		 * @brief Opengl profile mask specifing the type of profile to use.
+		 *
+		 * https://registry.khronos.org/OpenGL/extensions/ARB/WGL_ARB_create_context.txt
+		 * https://registry.khronos.org/OpenGL/extensions/EXT/WGL_EXT_create_context_es2_profile.txt
+		 */
+		enum class GLContextProfileMask
+		{
+			/**
+			 * @brief The opengl embedded system profile.
+			 */
+			FORGE_ENUM_DECL(FORGE_ES, 0x0)
+
+			/**
+			 * @brief The opengl core profile.
+			 */
+			FORGE_ENUM_DECL(FORGE_CORE, 0x1)
+
+			/**
+			 * @brief The opengl compatibility profile.
+			 */
+			FORGE_ENUM_DECL(FORGE_COMPAT, 0x2)
+
+			MAX
+		};
+
 		FORGE_FLAG_DECL(GLContextFlags)
 
+		/**
+		 * @brief Graphics Context Manager implementation for OpenGL.
+		 *
+		 * @author Karim Hisham.
+		 */
 		class FORGE_API GLGraphicsContext : public AbstractGraphicsContext
 		{
 		public:
@@ -107,8 +123,8 @@ namespace Forge {
 			CharPtr m_context_shader_version;
 
 		private:
-			GLContextFlags   m_context_flags;
-			GLContextProfile m_context_profile;
+			GLContextFlags       m_context_flags;
+			GLContextProfileMask m_context_profile;
 
 		private:
 			FrameBufferConfig m_framebuffer_config;
@@ -149,12 +165,12 @@ namespace Forge {
 			/**
 			 * @brief Default Constructor.
 			 */
-			GLGraphicsContext(AbstractWindow* window, I32 major, I32 minor, GLContextProfile profile, GLContextFlags flags);
+			GLGraphicsContext(AbstractWindow* window, I32 major, I32 minor, GLContextProfileMask profile, GLContextFlags flags);
 
 			/**
 			 * @brief Default Constructor.
 			 */
-			GLGraphicsContext(AbstractWindow* window, I32 major, I32 minor, GLContextProfile profile, GLContextFlags flags, FrameBufferConfig config);
+			GLGraphicsContext(AbstractWindow* window, I32 major, I32 minor, GLContextProfileMask profile, GLContextFlags flags, FrameBufferConfig config);
 
 		public:
 			/**

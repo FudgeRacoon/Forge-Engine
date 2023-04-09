@@ -1,16 +1,16 @@
 #include <string.h>
 
-#include <GL/glew.h>
-#include <GL/wglew.h>
-
 #include <Core/Public/Memory/MemoryUtilities.h>
-
-#include <GraphicsDevice/Public/OpenGL/GLGraphicsContext.h>
 
 #include <Platform/Public/Window.h>
 #include <Platform/Public/Platform.h>
 
 #if defined(FORGE_RENDER_API_OPENGL)
+
+#include <GL/glew.h>
+#include <GL/wglew.h>
+
+#include <GraphicsDevice/Public/OpenGL/GLGraphicsContext.h>
 
 #pragma comment (lib, "opengl32.lib")
 
@@ -154,18 +154,18 @@ namespace Forge {
 			: m_major_version(major),
 			  m_minor_version(minor),
 			  m_context_flags(GLContextFlags::FORGE_NONE),
-			  m_context_profile(GLContextProfile::FORGE_CORE),
+			  m_context_profile(GLContextProfileMask::FORGE_CORE),
 			  m_context_render_handle(nullptr)
 		{
 			FORGE_ASSERT(window != nullptr, "Window is null")
 
 #if defined(FORGE_PLATFORM_WINDOWS)
-				m_context_device_handle = GetDC((HWND)window->GetNativeHandle());
+			m_context_device_handle = GetDC((HWND)window->GetNativeHandle());
 			if (!m_context_device_handle)
 				Platform::Platform::GetInstance().Error("WGL: Failed to retrieve DC for window");
 #endif
 		}
-		GLGraphicsContext::GLGraphicsContext(AbstractWindow* window, I32 major, I32 minor, GLContextProfile profile, GLContextFlags flags)
+		GLGraphicsContext::GLGraphicsContext(AbstractWindow* window, I32 major, I32 minor, GLContextProfileMask profile, GLContextFlags flags)
 			: m_major_version(major),
 			  m_minor_version(minor),
 			  m_context_flags(flags),
@@ -180,7 +180,7 @@ namespace Forge {
 				Platform::Platform::GetInstance().Error("WGL: Failed to retrieve DC for window");
 #endif
 		}
-		GLGraphicsContext::GLGraphicsContext(AbstractWindow* window, I32 major, I32 minor, GLContextProfile profile, GLContextFlags flags, FrameBufferConfig config)
+		GLGraphicsContext::GLGraphicsContext(AbstractWindow* window, I32 major, I32 minor, GLContextProfileMask profile, GLContextFlags flags, FrameBufferConfig config)
 			: m_major_version(major),
 			  m_minor_version(minor),
 			  m_context_flags(flags),
@@ -191,7 +191,7 @@ namespace Forge {
 			FORGE_ASSERT(window != nullptr, "Window is null")
 
 #if defined(FORGE_PLATFORM_WINDOWS)
-				m_context_device_handle = GetDC((HWND)window->GetNativeHandle());
+			m_context_device_handle = GetDC((HWND)window->GetNativeHandle());
 			if (!m_context_device_handle)
 				Platform::Platform::GetInstance().Error("WGL: Failed to retrieve DC for window");
 #endif
@@ -309,9 +309,9 @@ namespace Forge {
 
 				if (m_has_arb_create_context_profile)
 				{
-					if (m_context_profile == GLContextProfile::FORGE_CORE)
+					if (m_context_profile == GLContextProfileMask::FORGE_CORE)
 						attribute_mask |= WGL_CONTEXT_CORE_PROFILE_BIT_ARB;
-					else if (m_context_profile == GLContextProfile::FORGE_COMPAT)
+					else if (m_context_profile == GLContextProfileMask::FORGE_COMPAT)
 						attribute_mask |= WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB;
 					else if (m_has_ext_create_context_es2_profile)
 						attribute_mask |= WGL_CONTEXT_ES2_PROFILE_BIT_EXT;

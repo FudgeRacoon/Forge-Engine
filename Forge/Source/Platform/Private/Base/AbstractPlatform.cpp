@@ -51,25 +51,25 @@ namespace Forge {
 		PlatformType AbstractPlatform::GetPlatformType(Void)
 		{
 #if defined(FORGE_PLATFORM_ANDROID)
-			return PlatformType::ANDROID;
+			return PlatformType::FORGE_ANDROID;
 #elif defined(FORGE_PLATFORM_LINUX)
-			return PlatformType::LINUX;
+			return PlatformType::FORGE_LINUX;
 #elif defined(FORGE_PLATFORM_MACOS)
-			return PlatformType::MAC
+			return PlatformType::FORGE_MAC
 #elif defined(FORGE_PLATFORM_WINDOWS)
-			return PlatformType::WINDOWS;
+			return PlatformType::FORGE_WINDOWS;
 #endif
 		}
 		ArchitectureType AbstractPlatform::GetArchitectureType(Void)
 		{
 #if defined(FORGE_CPU_X86) && defined(FORGE_ARCHITECTURE_32BIT)
-			return ArchitectureType::X86;
+			return ArchitectureType::FORGE_X86;
 #elif defined(FORGE_CPU_X86) && defined(FORGE_ARCHITECTURE_64BIT)
-			return ArchitectureType::X64;
+			return ArchitectureType::FORGE_X64;
 #elif defined(FORGE_CPU_ARM) && defined(FORGE_ARCHITECTURE_32BIT)
-			return ArchitectureType::ARM;
+			return ArchitectureType::FORGE_ARM;
 #elif defined(FORGE_CPU_ARM) && defined(FORGE_ARCHITECTURE_64BIT)
-			return ArchitectureType::ARM64;
+			return ArchitectureType::FORGE_ARM64;
 #endif
 		}
 

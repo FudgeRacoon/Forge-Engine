@@ -6,6 +6,13 @@
 namespace Forge {
 	namespace Graphics
 	{
+		/**
+		 * @brief Graphics Context Manager.
+		 * 
+		 * This class is responsible for creating and managing graphics context.
+		 * 
+		 * @author Karim Hisham.
+		 */
 		class AbstractGraphicsContext
 		{
 		public:

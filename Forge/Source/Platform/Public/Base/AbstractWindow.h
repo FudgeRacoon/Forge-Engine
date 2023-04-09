@@ -21,7 +21,7 @@ using namespace Forge::Algorithm;
 namespace Forge {
 	namespace Platform
 	{
-		enum class WindowClosingReason
+		enum class WindowClosingReason : Byte
 		{
 			/**
 			 * @brief Unknown

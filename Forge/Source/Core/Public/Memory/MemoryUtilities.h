@@ -3,9 +3,8 @@
 
 #include <iostream>
 
-#include "Core/Public/Common/Compiler.h"
-#include "Core/Public/Common/TypeTraits.h"
-#include "Core/Public/Common/TypeDefinitions.h"
+#include <Core/Public/Common/Common.h>
+#include <Core/Public/Algorithm/GeneralUtilities.h>
 
 namespace Forge {
 	namespace Memory
@@ -125,7 +124,7 @@ namespace Forge {
 			FORGE_FORCE_INLINE Void MoveImpl(_Type* dst, _Type&& temp, Size count, Common::TypeIsClass)
 			{
 				for (I32 i = 0; i < count; i++)
-					*(dst + i) = std::move(temp);
+					*(dst + i) = Move(temp);
 			}
 
 			template<typename _Type>
@@ -151,7 +150,7 @@ namespace Forge {
 			FORGE_FORCE_INLINE Void MoveConstructImpl(_Type* dst, _Type&& temp, Size count, Common::TypeIsClass)
 			{
 				for (I32 i = 0; i < count; i++)
-					new (dst + i) _Type(std::move(temp));
+					new (dst + i) _Type(Move(temp));
 			}
 
 			template<typename _Type>
@@ -203,7 +202,7 @@ namespace Forge {
 			FORGE_FORCE_INLINE Void MoveConstructArrayImpl(_Type* dst, _Type* src, Size count, Common::TypeIsClass)
 			{
 				for (I32 i = 0; i < count; i++)
-					new (dst + i) _Type(std::move(*(src + i)));
+					new (dst + i) _Type(Move(*(src + i)));
 			}
 
 			template<typename _Type>
@@ -265,7 +264,7 @@ namespace Forge {
 		template<typename _Type>
 		FORGE_FORCE_INLINE Void Move(_Type* dst, _Type&& temp, Size count)
 		{
-			Internal::MoveImpl(dst, std::move(temp), count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
+			Internal::MoveImpl(dst, Algorithm::Move(temp), count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
 		}
 
 		/**
@@ -316,7 +315,7 @@ namespace Forge {
 		template<typename _Type>
 		FORGE_FORCE_INLINE Void MoveConstruct(_Type* dst, _Type&& temp, Size count)
 		{
-			Internal::MoveConstructImpl(dst, std::move(temp), count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
+			Internal::MoveConstructImpl(dst, Algorithm::Move(temp), count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
 		}
 
 		/**

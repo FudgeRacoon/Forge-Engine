@@ -5,8 +5,8 @@
 
 #include "Compiler.h"
 
-#define FORGE_TRUE		1
-#define FORGE_FALSE		0
+#define FORGE_TRUE	1
+#define FORGE_FALSE	0
 
 #define FORGE_BIT(x) (1 << x)
 
@@ -30,6 +30,8 @@
 #define FORGE_FUNC_LITERAL __FUNCTION__
 #define FORGE_LINE_LITERAL FORGE_STRINGIZE(__LINE__)
 #define FORGE_FILE_LITERAL FORGE_STRINGIZE(__FILE__)
+
+#define FORGE_NOT_IMPLEMENTED(...) do {} while(false)
 
 #define FORGE_ENUM_DECL(__NAME__, __VALUE__) __NAME__ = __VALUE__,
 
