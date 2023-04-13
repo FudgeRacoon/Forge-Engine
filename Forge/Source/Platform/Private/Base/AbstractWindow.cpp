@@ -13,8 +13,7 @@ namespace Forge {
 			  m_cache_is_focused(false), 
 			  m_cache_is_minimized(false), 
 			  m_cache_is_maximized(false), 
-			  m_window_description(description),
-			  m_graphics_context(nullptr)
+			  m_window_description(description)
 		{
 			if (m_window_description.m_window_start_position == WindowStartPositionMode::CENTER_SCREEN ||
 				m_window_description.m_window_start_position == WindowStartPositionMode::CENTER_PARENT)
@@ -38,12 +37,6 @@ namespace Forge {
 		WindowDesc AbstractWindow::GetWindowDescription(Void) const
 		{
 			return m_window_description;
-		}
-		GraphicsContextPtr AbstractWindow::GetGraphicsContext(Void) const
-		{
-			FORGE_ASSERT(m_graphics_context != nullptr, "Graphics context is null")
-
-			return m_graphics_context;
 		}
 
 		String AbstractWindow::GetTitle(Void) const

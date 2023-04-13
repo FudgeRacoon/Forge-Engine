@@ -219,13 +219,19 @@
     <ClInclude Include="Source\GraphicsDevice\Public\GraphicsContext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\GraphicsDevice\Public\Base\AbstractContextState.h">
+    <ClInclude Include="Source\GraphicsDevice\Public\Base\AbstractGraphicsContextState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\GraphicsDevice\Public\OpenGL\GLContextState.h">
+    <ClInclude Include="Source\GraphicsDevice\Public\OpenGL\GLGraphicsContextState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\GraphicsDevice\Public\GraphicsTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GraphicsDevice\Public\OpenGL\GLTypeConversion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GraphicsDevice\Public\Base\AbstractHardwareBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -287,7 +293,7 @@
     <ClCompile Include="Source\GraphicsDevice\Private\OpenGL\GLGraphicsContext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\GraphicsDevice\Private\OpenGL\GLContextState.cpp">
+    <ClCompile Include="Source\GraphicsDevice\Private\OpenGL\GLGraphicsContextState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

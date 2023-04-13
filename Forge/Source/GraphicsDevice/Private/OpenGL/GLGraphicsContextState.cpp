@@ -3,13 +3,14 @@
 
 #include <GL/glew.h>
 
-#include <GraphicsDevice/Public/OpenGL/GLContextState.h>
+#include <GraphicsDevice/Public/OpenGL/GLGraphicsContextState.h>
 #include <GraphicsDevice/Public/OpenGL/GLTypeConversion.h>
 
 namespace Forge {
 	namespace Graphics
 	{
-		GLContextState::GLContextState(Void)
+		GLGraphicsContextState::GLGraphicsContextState(GraphicsContextPtr graphics_context)
+			: AbstractGraphicsContextState(graphics_context)
 		{
 			glGetIntegerv(GL_MAX_DRAW_BUFFERS, &m_context_limits.max_draw_buffers);
 			glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &m_context_limits.max_renderbuffer_size);
@@ -21,7 +22,7 @@ namespace Forge {
 			InitializeCache();
 		}
 
-		Void GLContextState::EnableDepthTest(Bool enable)
+		Void GLGraphicsContextState::EnableDepthTest(Bool enable)
 		{
 			if (m_rasterizer_state.depth_state.is_enabled != enable)
 			{
@@ -37,7 +38,7 @@ namespace Forge {
 				}
 			}
 		}
-		Void GLContextState::EnableStencilTest(Bool enable)
+		Void GLGraphicsContextState::EnableStencilTest(Bool enable)
 		{
 			if (m_rasterizer_state.stencil_state.is_enabled != enable)
 			{
@@ -53,7 +54,7 @@ namespace Forge {
 				}
 			}
 		}
-		Void GLContextState::EnableScissorTest(Bool enable)
+		Void GLGraphicsContextState::EnableScissorTest(Bool enable)
 		{
 			if (m_rasterizer_state.scissor_state.is_enabled != enable)
 			{
@@ -69,7 +70,7 @@ namespace Forge {
 				}
 			}
 		}
-		Void GLContextState::EnableFaceCulling(Bool enable)
+		Void GLGraphicsContextState::EnableFaceCulling(Bool enable)
 		{
 			if (m_rasterizer_state.face_culling_state.is_enabled != enable)
 			{
@@ -85,7 +86,7 @@ namespace Forge {
 				}
 			}
 		}
-		Void GLContextState::EnableColorBlending(Bool enable)
+		Void GLGraphicsContextState::EnableColorBlending(Bool enable)
 		{
 			if (m_rasterizer_state.color_blending_state.is_enabled != enable)
 			{
@@ -102,7 +103,7 @@ namespace Forge {
 			}
 		}
 
-		Bool GLContextState::SetDepthWriteMask(Bool mask)
+		Bool GLGraphicsContextState::SetDepthWriteMask(Bool mask)
 		{
 			if (m_rasterizer_state.depth_state.is_enabled)
 			{
@@ -117,7 +118,7 @@ namespace Forge {
 			
 			return FORGE_FALSE;
 		}
-		Bool GLContextState::SetDepthComparisonFunction(ComparisonFuncMask function)
+		Bool GLGraphicsContextState::SetDepthComparisonFunction(ComparisonFuncMask function)
 		{
 			if (m_rasterizer_state.depth_state.is_enabled)
 			{
@@ -133,7 +134,7 @@ namespace Forge {
 			FORGE_FALSE;
 		}
 
-		Bool GLContextState::SetStencilWriteMask(Byte mask)
+		Bool GLGraphicsContextState::SetStencilWriteMask(Byte mask)
 		{
 			if (m_rasterizer_state.stencil_state.is_enabled)
 			{
@@ -149,7 +150,7 @@ namespace Forge {
 			return FORGE_FALSE;
 			
 		}
-		Bool GLContextState::SetStencilComparisonFunction(ComparisonFuncMask function, I32 ref, U32 mask)
+		Bool GLGraphicsContextState::SetStencilComparisonFunction(ComparisonFuncMask function, I32 ref, U32 mask)
 		{
 			if (m_rasterizer_state.stencil_state.is_enabled)
 			{
@@ -165,7 +166,7 @@ namespace Forge {
 			return FORGE_FALSE;
 		}
 
-		Bool GLContextState::SetScissorBoundingRegion(I32 x, I32 y, I32 width, I32 height)
+		Bool GLGraphicsContextState::SetScissorBoundingRegion(I32 x, I32 y, I32 width, I32 height)
 		{
 			if (m_rasterizer_state.scissor_state.is_enabled)
 			{
@@ -187,7 +188,7 @@ namespace Forge {
 			return FORGE_FALSE;
 		}
 
-		Bool GLContextState::SetFaceCullingMode(FaceCullMask mode)
+		Bool GLGraphicsContextState::SetFaceCullingMode(FaceCullMask mode)
 		{
 			if (m_rasterizer_state.face_culling_state.is_enabled)
 			{
@@ -204,7 +205,7 @@ namespace Forge {
 			return FORGE_FALSE;
 		}
 		
-		Bool GLContextState::SetColorBlendingConstant(F32 red, F32 green, F32 blue, F32 alpha)
+		Bool GLGraphicsContextState::SetColorBlendingConstant(F32 red, F32 green, F32 blue, F32 alpha)
 		{
 			if (m_rasterizer_state.color_blending_state.is_enabled)
 			{
@@ -225,7 +226,7 @@ namespace Forge {
 
 			return FORGE_FALSE;
 		}
-		Bool GLContextState::SetColorBlendingFunction(BlendFuncMask src_function, BlendFuncMask dst_function)
+		Bool GLGraphicsContextState::SetColorBlendingFunction(BlendFuncMask src_function, BlendFuncMask dst_function)
 		{
 			if (m_rasterizer_state.color_blending_state.is_enabled)
 			{
@@ -245,7 +246,7 @@ namespace Forge {
 			return FORGE_FALSE;
 		}
 		
-		Void GLContextState::SetLineWidth(F32 width)
+		Void GLGraphicsContextState::SetLineWidth(F32 width)
 		{
 			if (m_rasterizer_state.line_width != width)
 			{
@@ -253,7 +254,11 @@ namespace Forge {
 				m_rasterizer_state.line_width = width;
 			}
 		}
-		Void GLContextState::SetFillMode(PolygonFillMask mode)
+		Void GLGraphicsContextState::SetActiveTexture(U32 index)
+		{
+			FORGE_NOT_IMPLEMENTED()
+		}
+		Void GLGraphicsContextState::SetFillMode(PolygonFillMask mode)
 		{
 			if (m_rasterizer_state.polygon_fill_mode != mode)
 			{
@@ -261,7 +266,7 @@ namespace Forge {
 				m_rasterizer_state.polygon_fill_mode = mode;
 			}
 		}
-		Void GLContextState::SetFrontFace(FrontFaceMask front_face)
+		Void GLGraphicsContextState::SetFrontFace(FrontFaceMask front_face)
 		{
 			if (m_rasterizer_state.front_face_mode != front_face)
 			{
@@ -269,11 +274,11 @@ namespace Forge {
 				m_rasterizer_state.front_face_mode = front_face;
 			}
 		}
-		Void GLContextState::SetPixelStorage(PixelStorageMask mode, I32 value)
+		Void GLGraphicsContextState::SetPixelStorage(PixelStorageMask mode, I32 value)
 		{
-
+			FORGE_NOT_IMPLEMENTED()
 		}
-		Void GLContextState::SetColorClear(F32 red, F32 green, F32 blue, F32 alpha)
+		Void GLGraphicsContextState::SetColorClear(F32 red, F32 green, F32 blue, F32 alpha)
 		{
 			if(m_rasterizer_state.color_clear[0] != red   ||
 			   m_rasterizer_state.color_clear[1] != green ||
@@ -287,7 +292,7 @@ namespace Forge {
 				m_rasterizer_state.color_clear[3] = alpha;
 			}
 		}
-		Void GLContextState::SetColorWriteMask(F32 red, F32 green, F32 blue, F32 alpha)
+		Void GLGraphicsContextState::SetColorWriteMask(F32 red, F32 green, F32 blue, F32 alpha)
 		{
 			if (m_rasterizer_state.color_write_mask[0] != red   ||
 				m_rasterizer_state.color_write_mask[1] != green ||
@@ -302,8 +307,63 @@ namespace Forge {
 			}
 		}
 
-		Void GLContextState::InitializeCache(Void)
+		Void GLGraphicsContextState::InitializeCache(Void)
 		{
+			if(m_rasterizer_state.depth_state.is_enabled)
+				glEnable(GL_DEPTH_TEST);
+			else 
+				glDisable(GL_DEPTH_TEST);
+
+			if (m_rasterizer_state.stencil_state.is_enabled)
+				glEnable(GL_STENCIL_TEST);
+			else
+				glDisable(GL_STENCIL_TEST);
+
+			if (m_rasterizer_state.scissor_state.is_enabled)
+				glEnable(GL_SCISSOR_TEST);
+			else
+				glDisable(GL_SCISSOR_TEST);
+
+			if(m_rasterizer_state.face_culling_state.is_enabled)
+				glEnable(GL_CULL_FACE);
+			else
+				glDisable(GL_CULL_FACE);
+
+			if (m_rasterizer_state.color_blending_state.is_enabled)
+				glEnable(GL_BLEND);
+			else
+				glDisable(GL_BLEND);
+
+			glDepthMask(m_rasterizer_state.depth_state.write_mask);
+			glDepthFunc(ConvertToGLCompareFunction(m_rasterizer_state.stencil_state.comparison_function));
+
+			glStencilMask(m_rasterizer_state.stencil_state.write_mask);
+			glStencilFunc(ConvertToGLCompareFunction(m_rasterizer_state.stencil_state.comparison_function), 0, ~((U32)0));
+
+
+			glScissor(m_rasterizer_state.scissor_state.bounding_region[0], 
+				      m_rasterizer_state.scissor_state.bounding_region[1],
+				      m_rasterizer_state.scissor_state.bounding_region[2], 
+				      m_rasterizer_state.scissor_state.bounding_region[3]);
+			
+
+			glCullFace(m_rasterizer_state.face_culling_state.mode == FaceCullMask::FORGE_BACK  ? GL_BACK  :
+				       m_rasterizer_state.face_culling_state.mode == FaceCullMask::FORGE_FRONT ? GL_FRONT : GL_FRONT_AND_BACK);
+
+
+			glBlendColor(m_rasterizer_state.color_blending_state.constant[0], 
+				         m_rasterizer_state.color_blending_state.constant[1], 
+				         m_rasterizer_state.color_blending_state.constant[2], 
+				         m_rasterizer_state.color_blending_state.constant[3]);
+			glBlendFunc(ConvertToGLBlendFunction(m_rasterizer_state.color_blending_state.src_function), 
+				        ConvertToGLBlendFunction(m_rasterizer_state.color_blending_state.dst_function));
+
+			glLineWidth(m_rasterizer_state.line_width);
+
+			glPolygonMode(GL_FRONT_AND_BACK, m_rasterizer_state.polygon_fill_mode == PolygonFillMask::FORGE_SOLID ? GL_FILL : GL_LINE);
+			
+			glFrontFace(m_rasterizer_state.front_face_mode == FrontFaceMask::FORGE_CW ? GL_CW : GL_CCW);
+			
 			glClearColor(m_rasterizer_state.color_clear[0],
 				         m_rasterizer_state.color_clear[1],
 				         m_rasterizer_state.color_clear[2],
@@ -313,58 +373,8 @@ namespace Forge {
 				        m_rasterizer_state.color_write_mask[1],
 				        m_rasterizer_state.color_write_mask[2],
 				        m_rasterizer_state.color_write_mask[3]);
-
-			glFrontFace(m_rasterizer_state.front_face_mode == FrontFaceMask::FORGE_CW ? GL_CW : GL_CCW);
-
-			glPolygonMode(GL_FRONT_AND_BACK, m_rasterizer_state.polygon_fill_mode == PolygonFillMask::FORGE_SOLID ? GL_FILL : GL_LINE);
-
-			if(m_rasterizer_state.depth_state.is_enabled)
-				glEnable(GL_DEPTH_TEST);
-			else 
-				glDisable(GL_DEPTH_TEST);
-
-			glDepthMask(m_rasterizer_state.depth_state.write_mask);
-			glDepthFunc(ConvertToGLCompareFunction(m_rasterizer_state.stencil_state.comparison_function));
-
-			if (m_rasterizer_state.stencil_state.is_enabled)
-				glEnable(GL_STENCIL_TEST);
-			else
-				glDisable(GL_STENCIL_TEST);
-
-			glStencilMask(m_rasterizer_state.stencil_state.write_mask);
-			glStencilFunc(ConvertToGLCompareFunction(m_rasterizer_state.stencil_state.comparison_function), 0, ~((U32)0));
-
-			if (m_rasterizer_state.scissor_state.is_enabled)
-				glEnable(GL_SCISSOR_TEST);
-			else
-				glDisable(GL_SCISSOR_TEST);
-
-			glScissor(m_rasterizer_state.scissor_state.bounding_region[0], 
-				      m_rasterizer_state.scissor_state.bounding_region[1],
-				      m_rasterizer_state.scissor_state.bounding_region[2], 
-				      m_rasterizer_state.scissor_state.bounding_region[3]);
-			
-			if(m_rasterizer_state.face_culling_state.is_enabled)
-				glEnable(GL_CULL_FACE);
-			else
-				glDisable(GL_CULL_FACE);
-
-			glCullFace(m_rasterizer_state.face_culling_state.mode == FaceCullMask::FORGE_BACK  ? GL_BACK  :
-				       m_rasterizer_state.face_culling_state.mode == FaceCullMask::FORGE_FRONT ? GL_FRONT : GL_FRONT_AND_BACK);
-
-			if (m_rasterizer_state.color_blending_state.is_enabled)
-				glEnable(GL_BLEND);
-			else
-				glDisable(GL_BLEND);
-
-			glBlendColor(m_rasterizer_state.color_blending_state.constant[0], 
-				         m_rasterizer_state.color_blending_state.constant[1], 
-				         m_rasterizer_state.color_blending_state.constant[2], 
-				         m_rasterizer_state.color_blending_state.constant[3]);
-			glBlendFunc(ConvertToGLBlendFunction(m_rasterizer_state.color_blending_state.src_function), 
-				        ConvertToGLBlendFunction(m_rasterizer_state.color_blending_state.dst_function));
 		}
-		Void GLContextState::InvalidateCache(Void)
+		Void GLGraphicsContextState::InvalidateCache(Void)
 		{
 			glUseProgram(0);
 
@@ -372,7 +382,37 @@ namespace Forge {
 			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 			glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
+			m_rasterizer_state.depth_state.is_enabled          = true;
+			m_rasterizer_state.stencil_state.is_enabled        = false;
+			m_rasterizer_state.scissor_state.is_enabled        = false;
+			m_rasterizer_state.face_culling_state.is_enabled   = true;
+			m_rasterizer_state.color_blending_state.is_enabled = true;
+
+			m_rasterizer_state.depth_state.write_mask          = 0xFF;
+			m_rasterizer_state.depth_state.comparison_function = ComparisonFuncMask::FORGE_LESS;
+
+			m_rasterizer_state.stencil_state.write_mask          = 0xFF;
+			m_rasterizer_state.stencil_state.comparison_function = ComparisonFuncMask::FORGE_ALWAYS;
+
+			m_rasterizer_state.scissor_state.bounding_region[0] = 0;
+			m_rasterizer_state.scissor_state.bounding_region[1] = 0;
+			m_rasterizer_state.scissor_state.bounding_region[2] = m_graphics_context->GetWindow()->GetClientSize().x;
+			m_rasterizer_state.scissor_state.bounding_region[3] = m_graphics_context->GetWindow()->GetClientSize().y;
+
+			m_rasterizer_state.face_culling_state.mode = FaceCullMask::FORGE_BACK;
+
+			m_rasterizer_state.color_blending_state.constant[0]  = 0.0f;
+			m_rasterizer_state.color_blending_state.constant[1]  = 0.0f;
+			m_rasterizer_state.color_blending_state.constant[2]  = 0.0f;
+			m_rasterizer_state.color_blending_state.constant[3]  = 0.0f;
+			m_rasterizer_state.color_blending_state.src_function = BlendFuncMask::FORGE_SRC_ALPHA;
+			m_rasterizer_state.color_blending_state.dst_function = BlendFuncMask::FORGE_ONE_MINUS_SRC_ALPHA;
+
 			m_rasterizer_state.line_width = 1.0f;
+
+			m_rasterizer_state.front_face_mode = FrontFaceMask::FORGE_CW;
+
+			m_rasterizer_state.polygon_fill_mode = PolygonFillMask::FORGE_SOLID;
 
 			m_rasterizer_state.color_clear[0] = 0.0f;
 			m_rasterizer_state.color_clear[1] = 0.0f;
@@ -383,35 +423,6 @@ namespace Forge {
 			m_rasterizer_state.color_write_mask[1] = 0xFF;
 			m_rasterizer_state.color_write_mask[2] = 0xFF;
 			m_rasterizer_state.color_write_mask[3] = 0xFF;
-
-			m_rasterizer_state.front_face_mode = FrontFaceMask::FORGE_CW;
-
-			m_rasterizer_state.polygon_fill_mode = PolygonFillMask::FORGE_SOLID;
-
-			m_rasterizer_state.depth_state.is_enabled = true;
-			m_rasterizer_state.depth_state.write_mask = 0xFF;
-			m_rasterizer_state.depth_state.comparison_function = ComparisonFuncMask::FORGE_LESS;
-
-			m_rasterizer_state.stencil_state.is_enabled = true;
-			m_rasterizer_state.stencil_state.write_mask = 0xFF;
-			m_rasterizer_state.stencil_state.comparison_function = ComparisonFuncMask::FORGE_ALWAYS;
-
-			m_rasterizer_state.scissor_state.is_enabled = true;
-			m_rasterizer_state.scissor_state.bounding_region[0] = 0;
-			m_rasterizer_state.scissor_state.bounding_region[1] = 0;
-			m_rasterizer_state.scissor_state.bounding_region[2] = 800;
-			m_rasterizer_state.scissor_state.bounding_region[3] = 400;
-
-			m_rasterizer_state.face_culling_state.is_enabled = true;
-			m_rasterizer_state.face_culling_state.mode = FaceCullMask::FORGE_BACK;
-
-			m_rasterizer_state.color_blending_state.is_enabled = true;
-			m_rasterizer_state.color_blending_state.constant[0] = 0.0f;
-			m_rasterizer_state.color_blending_state.constant[1] = 0.0f;
-			m_rasterizer_state.color_blending_state.constant[2] = 0.0f;
-			m_rasterizer_state.color_blending_state.constant[3] = 0.0f;
-			m_rasterizer_state.color_blending_state.src_function = BlendFuncMask::FORGE_SRC_ALPHA;
-			m_rasterizer_state.color_blending_state.dst_function = BlendFuncMask::FORGE_ONE_MINUS_SRC_ALPHA;
 		}
 	}
 }

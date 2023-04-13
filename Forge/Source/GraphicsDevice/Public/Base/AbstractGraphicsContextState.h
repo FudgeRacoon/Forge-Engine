@@ -1,9 +1,10 @@
-#ifndef ABSTRACT_CONTEXT_STATE_H
-#define ABSTRACT_CONTEXT_STATE_H
+#ifndef ABSTRACT_GRAPHICS_CONTEXT_STATE_H
+#define ABSTRACT_GRAPHICS_CONTEXT_STATE_H
 
 #include <Core/Public/Common/Common.h>
 
 #include <GraphicsDevice/Public/GraphicsTypes.h>
+#include <GraphicsDevice/Public/GraphicsContext.h>
 
 namespace Forge {
 	namespace Graphics
@@ -14,7 +15,7 @@ namespace Forge {
 		 * 
 		 * @author Karim Hisham.
 		 */
-		class AbstractContextState
+		class AbstractGraphicsContextState
 		{
 		protected:
 			struct RasterizerState
@@ -134,16 +135,20 @@ namespace Forge {
 		protected:
 			RasterizerState m_rasterizer_state;
 
+		protected:
+			GraphicsContextPtr m_graphics_context;
+
 		public:
 			/**
 			 * @brief Default Constructor.
 			 */
-			AbstractContextState(Void) = default;
+			AbstractGraphicsContextState(GraphicsContextPtr graphics_context)
+				: m_graphics_context(graphics_context) {}
 
 			/**
 			 * @brief Destructor.
 			 */
-			virtual ~AbstractContextState(Void) = default;
+			virtual ~AbstractGraphicsContextState(Void) = default;
 
 		public:
 			/**
@@ -285,6 +290,12 @@ namespace Forge {
 			 */
 			virtual Void SetLineWidth(F32 width) = 0;
 
+			/**
+			 * @brief Sets a texture unit as active.
+			 * 
+			 * @param index The index of the texture unit to activate.
+			 */
+			virtual Void SetActiveTexture(U32 index) = 0;
 
 			/**
 			 * @brief Sets a fill rasterizaton mode, which specifies how polygons
@@ -344,12 +355,18 @@ namespace Forge {
 			virtual Void InvalidateCache(Void) = 0;
 
 		public:
+			// virtual Void BindTexture(TexturePtr texture) = 0;
+			
 			// virtual Void BindGPUProgram(GPUProgramPtr gpu_program) = 0;
+
+			// virtual Void BindFrameBuffer(RenderTargetPtr render_target) = 0;
 
 			// virtual Void BindHardwareBuffer(HardwareBufferPtr hardware_buffer) = 0;
 
 			// virtual Void BindVertexDecleration(VertexDeclerationPtr vertex_decleration) = 0;
 		};
+
+		FORGE_TYPEDEF_DECL(AbstractGraphicsContextState, AbstractGraphicsContextState)
 	}
 }
 

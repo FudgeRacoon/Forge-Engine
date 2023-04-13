@@ -5,7 +5,7 @@
 namespace Forge {
 	namespace Platform
 	{
-		namespace Internal
+		namespace
 		{
 			DWORD CountSetBits(ULONG_PTR bitMask)
 		{
@@ -159,7 +159,7 @@ namespace Forge {
 					case RelationProcessorCore:
 					{
 						processor_core_count++;
-						processor_logical_count += Internal::CountSetBits(ptr->ProcessorMask);
+						processor_logical_count += CountSetBits(ptr->ProcessorMask);
 						break;
 					}
 					case RelationCache:
@@ -204,7 +204,7 @@ namespace Forge {
 				MemorySet(&window_class, 0, sizeof(WNDCLASS));
 
 				window_class.style         = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-				window_class.lpfnWndProc   = Internal::MainWndProc;
+				window_class.lpfnWndProc   = MainWndProc;
 				window_class.cbClsExtra    = 0;
 				window_class.cbWndExtra    = 0;
 				window_class.hInstance     = (HINSTANCE)m_instance_handle;

@@ -1,7 +1,7 @@
-#ifndef GL_CONTEXT_STATE_H
-#define GL_CONTEXT_STATE_H
+#ifndef GL_GRAPHICS_CONTEXT_STATE_H
+#define GL_GRAPHICS_CONTEXT_STATE_H
 
-#include <GraphicsDevice/Public/Base/AbstractContextState.h>
+#include <GraphicsDevice/Public/Base/AbstractGraphicsContextState.h>
 
 namespace Forge {
 	namespace Graphics
@@ -11,10 +11,10 @@ namespace Forge {
 		 *
 		 * @author Karim Hisham.
 		 */
-		class FORGE_API GLContextState : public AbstractContextState
+		class FORGE_API GLGraphicsContextState : public AbstractGraphicsContextState
 		{
 		private:
-			struct ContextLimits
+			struct GLContextLimits
 			{
 				/**
 				 * @brief The maximum number of simultaneous outputs that may be
@@ -50,14 +50,16 @@ namespace Forge {
 				I32 max_combind_texture_image_units = 0;
 			};
 			
+			FORGE_TYPEDEF_DECL(GLContextLimits, GLContextLimits)
+
 		private:
-			ContextLimits m_context_limits;
+			GLContextLimits m_context_limits;
 
 		public:
 			/**
 			 * @brief Default Constructor.
 			 */
-			GLContextState(Void);
+			GLGraphicsContextState(GraphicsContextPtr graphics_context);
 
 		public:
 			/**
@@ -200,6 +202,13 @@ namespace Forge {
 			Void SetLineWidth(F32 width) override;
 
 			/**
+			 * @brief Sets a texture unit as active.
+			 *
+			 * @param index The index of the texture unit to activate.
+			 */
+			Void SetActiveTexture(U32 index) override;
+
+			/**
 			 * @brief Sets a fill rasterizaton mode, which specifies how polygons
 			 * will be rendered on screen.
 			 * 
@@ -245,6 +254,14 @@ namespace Forge {
 
 		public:
 			/**
+			 * @brief Gets the context limits.
+			 * 
+			 * @returns ConstContextLimits storing the limits of the current context.
+			 */
+			ConstGLContextLimits GetContextLimits(Void);
+
+		public:
+			/**
 			 * @brief Initializes the entire context state with default values and
 			 * store the states.
 			 */
@@ -257,12 +274,20 @@ namespace Forge {
 			Void InvalidateCache(Void) override;
 
 		public:
-			// Void BindGPUProgram(GPUProgramPtr gpu_program) override;
+			// virtual Void BindTexture(TexturePtr texture) override;
 
-			// Void BindHardwareBuffer(HardwareBufferPtr hardware_buffer) override;
+			// virtual Void BindGPUProgram(GPUProgramPtr gpu_program) override;
 
-			// Void BindVertexDecleration(VertexDeclerationPtr vertex_decleration) override;
+			// virtual Void BindFrameBuffer(AbstractRenderTargetPtr render_target) override;
+
+			// virtual Void BindHardwareBuffer(AbstractHardwareBufferPtr hardware_buffer) override;
+
+			// virtual Void BindVertexDecleration(VertexDeclerationPtr vertex_decleration) override;
 		};
+
+		FORGE_TYPEDEF_DECL(GLGraphicsContextState, GLGraphicsContextState)
+
+		FORGE_FORCE_INLINE GLGraphicsContextState::ConstGLContextLimits GLGraphicsContextState::GetContextLimits(Void) { return m_context_limits; }
 	}
 }
 

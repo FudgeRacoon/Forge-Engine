@@ -1,6 +1,5 @@
 #include "Platform/Public/Platform.h"
 #include "Platform/Public/Windows/WindowsWindow.h"
-#include "GraphicsDevice/Public/GraphicsContext.h"
 
 #if defined(FORGE_PLATFORM_WINDOWS)
 	

@@ -1,10 +1,3 @@
-#include <string.h>
-
-#include <Core/Public/Memory/MemoryUtilities.h>
-
-#include <Platform/Public/Window.h>
-#include <Platform/Public/Platform.h>
-
 #if defined(FORGE_RENDER_API_OPENGL)
 
 #include <GL/glew.h>
@@ -98,15 +91,15 @@ namespace Forge {
 				return FORGE_FALSE;
 			}
 
-			m_has_arb_pixel_format = InternalIsExtenstionSupported("WGL_ARB_pixel_format");
-			m_has_arb_create_context = InternalIsExtenstionSupported("WGL_ARB_create_context");
-			m_has_arb_context_flush_control = InternalIsExtenstionSupported("WGL_ARB_context_flush_control");
-			m_has_arb_create_context_profile = InternalIsExtenstionSupported("WGL_ARB_create_context_profile");
-			m_has_arb_create_context_no_error = InternalIsExtenstionSupported("WGL_ARB_create_context_no_error");
-			m_has_arb_create_context_robustness = InternalIsExtenstionSupported("WGL_ARB_create_context_robustness");
+			m_context_supported_extensions.m_has_arb_pixel_format = InternalIsExtenstionSupported("WGL_ARB_pixel_format");
+			m_context_supported_extensions.m_has_arb_create_context = InternalIsExtenstionSupported("WGL_ARB_create_context");
+			m_context_supported_extensions.m_has_arb_context_flush_control = InternalIsExtenstionSupported("WGL_ARB_context_flush_control");
+			m_context_supported_extensions.m_has_arb_create_context_profile = InternalIsExtenstionSupported("WGL_ARB_create_context_profile");
+			m_context_supported_extensions.m_has_arb_create_context_no_error = InternalIsExtenstionSupported("WGL_ARB_create_context_no_error");
+			m_context_supported_extensions.m_has_arb_create_context_robustness = InternalIsExtenstionSupported("WGL_ARB_create_context_robustness");
 
-			m_has_ext_swap_control = InternalIsExtenstionSupported("WGL_EXT_swap_control");
-			m_has_ext_create_context_es2_profile = InternalIsExtenstionSupported("WGL_EXT_create_context_es2_profile");
+			m_context_supported_extensions.m_has_ext_swap_control = InternalIsExtenstionSupported("WGL_EXT_swap_control");
+			m_context_supported_extensions.m_has_ext_create_context_es2_profile = InternalIsExtenstionSupported("WGL_EXT_create_context_es2_profile");
 
 			wglMakeCurrent(m_context_device_handle, m_context_render_handle);
 			wglDeleteContext(dummy_render_context);
@@ -150,8 +143,9 @@ namespace Forge {
 			return FORGE_TRUE;
 		}
 
-		GLGraphicsContext::GLGraphicsContext(AbstractWindow* window, I32 major, I32 minor)
-			: m_major_version(major),
+		GLGraphicsContext::GLGraphicsContext(WindowPtr window, I32 major, I32 minor)
+			: AbstractGraphicsContext(window),
+			  m_major_version(major),
 			  m_minor_version(minor),
 			  m_context_flags(GLContextFlags::FORGE_NONE),
 			  m_context_profile(GLContextProfileMask::FORGE_CORE),
@@ -160,13 +154,14 @@ namespace Forge {
 			FORGE_ASSERT(window != nullptr, "Window is null")
 
 #if defined(FORGE_PLATFORM_WINDOWS)
-			m_context_device_handle = GetDC((HWND)window->GetNativeHandle());
+			m_context_device_handle = GetDC((HWND)m_window->GetNativeHandle());
 			if (!m_context_device_handle)
 				Platform::Platform::GetInstance().Error("WGL: Failed to retrieve DC for window");
 #endif
 		}
-		GLGraphicsContext::GLGraphicsContext(AbstractWindow* window, I32 major, I32 minor, GLContextProfileMask profile, GLContextFlags flags)
-			: m_major_version(major),
+		GLGraphicsContext::GLGraphicsContext(WindowPtr window, I32 major, I32 minor, GLContextProfileMask profile, GLContextFlags flags)
+			: AbstractGraphicsContext(window),
+			  m_major_version(major),
 			  m_minor_version(minor),
 			  m_context_flags(flags),
 			  m_context_profile(profile),
@@ -175,13 +170,14 @@ namespace Forge {
 			FORGE_ASSERT(window != nullptr, "Window is null")
 
 #if defined(FORGE_PLATFORM_WINDOWS)
-			m_context_device_handle = GetDC((HWND)window->GetNativeHandle());
+			m_context_device_handle = GetDC((HWND)m_window->GetNativeHandle());
 			if (!m_context_device_handle)
 				Platform::Platform::GetInstance().Error("WGL: Failed to retrieve DC for window");
 #endif
 		}
-		GLGraphicsContext::GLGraphicsContext(AbstractWindow* window, I32 major, I32 minor, GLContextProfileMask profile, GLContextFlags flags, FrameBufferConfig config)
-			: m_major_version(major),
+		GLGraphicsContext::GLGraphicsContext(WindowPtr window, I32 major, I32 minor, GLContextProfileMask profile, GLContextFlags flags, FrameBufferConfig config)
+			: AbstractGraphicsContext(window),
+			  m_major_version(major),
 			  m_minor_version(minor),
 			  m_context_flags(flags),
 			  m_context_profile(profile),
@@ -191,7 +187,7 @@ namespace Forge {
 			FORGE_ASSERT(window != nullptr, "Window is null")
 
 #if defined(FORGE_PLATFORM_WINDOWS)
-			m_context_device_handle = GetDC((HWND)window->GetNativeHandle());
+			m_context_device_handle = GetDC((HWND)m_window->GetNativeHandle());
 			if (!m_context_device_handle)
 				Platform::Platform::GetInstance().Error("WGL: Failed to retrieve DC for window");
 #endif
@@ -210,7 +206,7 @@ namespace Forge {
 			I32 attributes[64];
 			I32 attribute_mask = 0, attribute_flags = 0, attribute_index = 0;
 
-			if (m_has_arb_pixel_format)
+			if (m_context_supported_extensions.m_has_arb_pixel_format)
 			{
 				I32 pixel_attributes[] = {
 					WGL_DRAW_TO_WINDOW_ARB, FORGE_TRUE,
@@ -232,9 +228,9 @@ namespace Forge {
 					WGL_DOUBLE_BUFFER_ARB,  m_framebuffer_config.is_double_buffer,
 					WGL_STEREO_ARB,         m_framebuffer_config.is_stereo,
 
-					WGL_COLOR_BITS_ARB,     m_framebuffer_config.red_bits +
+					WGL_COLOR_BITS_ARB,     m_framebuffer_config.red_bits   +
 											m_framebuffer_config.green_bits +
-											m_framebuffer_config.blue_bits +
+											m_framebuffer_config.blue_bits  +
 											m_framebuffer_config.alpha_bits,
 					0,
 				};
@@ -285,7 +281,7 @@ namespace Forge {
 				}
 			}
 
-			if (m_has_arb_create_context)
+			if (m_context_supported_extensions.m_has_arb_create_context)
 			{
 				if ((m_major_version == 1 && (m_minor_version >= 0 || m_minor_version <= 5)) ||
 					(m_major_version == 2 && (m_minor_version >= 0 || m_minor_version <= 1)) ||
@@ -307,13 +303,13 @@ namespace Forge {
 				if (m_context_flags & GLContextFlags::FORGE_FORWARD_COMPAT)
 					attribute_flags |= WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
 
-				if (m_has_arb_create_context_profile)
+				if (m_context_supported_extensions.m_has_arb_create_context_profile)
 				{
 					if (m_context_profile == GLContextProfileMask::FORGE_CORE)
 						attribute_mask |= WGL_CONTEXT_CORE_PROFILE_BIT_ARB;
 					else if (m_context_profile == GLContextProfileMask::FORGE_COMPAT)
 						attribute_mask |= WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB;
-					else if (m_has_ext_create_context_es2_profile)
+					else if (m_context_supported_extensions.m_has_ext_create_context_es2_profile)
 						attribute_mask |= WGL_CONTEXT_ES2_PROFILE_BIT_EXT;
 					else
 					{
@@ -327,7 +323,7 @@ namespace Forge {
 					return FORGE_FALSE;
 				}
 
-				if (m_has_arb_create_context_no_error)
+				if (m_context_supported_extensions.m_has_arb_create_context_no_error)
 				{
 					if (m_context_flags & GLContextFlags::FORGE_NO_ERROR)
 						SET_ATTRIB(WGL_CONTEXT_OPENGL_NO_ERROR_ARB, FORGE_TRUE)
@@ -338,7 +334,7 @@ namespace Forge {
 					return FORGE_FALSE;
 				}
 
-				if (m_has_arb_create_context_robustness)
+				if (m_context_supported_extensions.m_has_arb_create_context_robustness)
 				{
 					if (m_context_flags & GLContextFlags::FORGE_ROBUSTNESS)
 						attribute_flags |= WGL_CONTEXT_ROBUST_ACCESS_BIT_ARB;
@@ -349,7 +345,7 @@ namespace Forge {
 					return FORGE_FALSE;
 				}
 
-				if (m_has_arb_context_flush_control)
+				if (m_context_supported_extensions.m_has_arb_context_flush_control)
 				{
 					if (m_context_flags & GLContextFlags::FORGE_RELEASE_FLUSH)
 						SET_ATTRIB(WGL_CONTEXT_RELEASE_BEHAVIOR_ARB, WGL_CONTEXT_RELEASE_BEHAVIOR_FLUSH_ARB)
@@ -429,7 +425,7 @@ namespace Forge {
 		{
 			FORGE_ASSERT(m_context_device_handle != nullptr, "Device Context is null")
 
-			if (m_has_ext_swap_control)
+			if (m_context_supported_extensions.m_has_ext_swap_control)
 				wglSwapIntervalEXT(swap_interval);
 			else
 			{

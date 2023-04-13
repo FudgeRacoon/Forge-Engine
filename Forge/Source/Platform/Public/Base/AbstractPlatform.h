@@ -210,7 +210,6 @@ namespace Forge {
 		public:
 			struct CPUInfo
 			{
-
 				/**
 				 * @brief The number of physical processor cores.
 				 */

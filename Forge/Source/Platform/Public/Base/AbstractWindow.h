@@ -8,14 +8,11 @@
 #include <Core/Public/Memory/MemoryUtilities.h>
 #include <Core/Public/Algorithm/GeneralUtilities.h>
 
-#include <GraphicsDevice/Public/GraphicsContext.h>
-
 #include <Platform/Public/WindowDesc.h>
 
 using namespace Forge::Math;
 using namespace Forge::Common;
 using namespace Forge::Memory;
-using namespace Forge::Graphics;
 using namespace Forge::Algorithm;
 
 namespace Forge {
@@ -58,9 +55,6 @@ namespace Forge {
 
 		protected:
 			WindowDesc m_window_description;
-
-		protected:
-			GraphicsContextPtr m_graphics_context;
 
 		protected:
 			Bool m_is_closing;
@@ -108,13 +102,6 @@ namespace Forge {
 			 * @returns WindowDesc storing this window description.
 			 */
 			WindowDesc GetWindowDescription(Void) const;
-
-			/**
-			 * @brief Gets the graphics context associated with this window.
-			 *
-			 * @returns AbstractGraphicsContext pointer storing the graphics context.
-			 */
-			GraphicsContextPtr GetGraphicsContext(Void) const;
 
 		public:
 			/**
@@ -415,30 +402,6 @@ namespace Forge {
 			 * @param callback The callback function to call at resize event.
 			 */
 			Void OnResize(TDelegate<Void(U32, U32)> callback);
-
-		public:
-			/**
-			 * @brief Constructs a graphics context for the specified rendering API
-			 * for the window.
-			 */
-			template<typename... InArgs>
-			GraphicsContextPtr ConstructContext(InArgs... args)
-			{
-				if (m_graphics_context)
-				{
-					m_graphics_context->Terminate();
-					delete m_graphics_context;
-				}
-
-#if defined(FORGE_RENDER_API_OPENGL)
-				m_graphics_context = new GLGraphicsContext(this, args...);
-#endif
-
-				m_graphics_context->Initialize();
-				m_graphics_context->SetCurrent();
-
-				return m_graphics_context;
-			}
 
 		public:
 			/**

@@ -1,10 +1,8 @@
 #include <Platform/Public/Platform.h>
 #include <GraphicsDevice/Public/GraphicsContext.h>
+#include <GraphicsDevice/Public/OpenGL/GLGraphicsContextState.h>
 
 #include "../ThirdParty/GL/glew.h"
-
-#include <io.h>
-#include <fcntl.h>
 
 #pragma comment (lib, "opengl32.lib")
 
@@ -17,14 +15,17 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
 	WindowPtr wnd = Platform::GetInstance().ConstructWindow("Forge Engine");
 
-	GraphicsContextPtr gc = wnd->ConstructContext(3, 3, GLContextProfileMask::FORGE_CORE, GLContextFlags::FORGE_NONE);
+	GraphicsContextPtr gc = new GraphicsContext(wnd, 3, 3, GLContextProfileMask::FORGE_CORE, GLContextFlags::FORGE_NONE);
+	gc->Initialize();
 
+	GLGraphicsContextState gcs(gc);
+
+	gcs.SetColorClear(0.0, 0.0, 1.0, 1.0);
 
 	while (!wnd->IsClosing())
 	{
 		Platform::GetInstance().PumpMessages();
 
-		glClearColor(1.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		gc->SwapBuffers(1);

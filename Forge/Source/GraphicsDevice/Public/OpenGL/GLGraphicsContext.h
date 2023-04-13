@@ -1,20 +1,15 @@
 #ifndef GL_WINDOWS_GRAPHICS_CONTEXT_H
 #define GL_WINDOWS_GRAPHICS_CONTEXT_H
 
+#include <string>
+
+#include <Core/Public/Memory/MemoryUtilities.h>
+
+
+
 #include <GraphicsDevice/Public/Base/AbstractGraphicsContext.h>
 
 #if defined(FORGE_RENDER_API_OPENGL)
-
-#if defined(FORGE_PLATFORM_WINDOWS)
-	#include <Windows.h>
-#endif
-
-namespace Forge {
-	namespace Platform
-	{
-		class AbstractWindow;
-	}
-}
 
 using namespace Forge::Platform;
 
@@ -114,6 +109,47 @@ namespace Forge {
 			};
 
 		private:
+			struct GLContextSupportedExtensions
+			{
+				Bool m_has_arb_pixel_format;
+
+				/**
+				 * @brief Is ARB create context extension enabled?
+				 */
+				Bool m_has_arb_create_context;
+
+				/**
+				 * @brief Is ARB flush control extension enabled?
+				 */
+				Bool m_has_arb_context_flush_control;
+
+				/**
+				 * @brief Is ARB create context profile extension enabled?
+				 */
+				Bool m_has_arb_create_context_profile;
+
+				/**
+				 * @brief Is ARB create context no error enabled?
+				 */
+				Bool m_has_arb_create_context_no_error;
+
+				/**
+				 * @brief Is ARB create context robustness extension enabled?
+				 */
+				Bool m_has_arb_create_context_robustness;
+
+				/**
+				 * @brief Is EXT swap control extension enabled?
+				 */
+				Bool m_has_ext_swap_control;
+				
+				/**
+				 * @brief Is EXT create context es2 extension enabled?
+				 */
+				Bool m_has_ext_create_context_es2_profile;
+			};
+
+		private:
 			I32 m_major_version;
 			I32 m_minor_version;
 
@@ -123,8 +159,9 @@ namespace Forge {
 			CharPtr m_context_shader_version;
 
 		private:
-			GLContextFlags       m_context_flags;
-			GLContextProfileMask m_context_profile;
+			GLContextFlags                m_context_flags;
+			GLContextProfileMask          m_context_profile;
+			GLContextSupportedExtensions  m_context_supported_extensions;
 
 		private:
 			FrameBufferConfig m_framebuffer_config;
@@ -132,18 +169,6 @@ namespace Forge {
 		private:
 			NativeDeviceContext m_context_device_handle;
 			NativeRenderContext m_context_render_handle;
-
-		private:
-			Bool m_has_arb_pixel_format;
-			Bool m_has_arb_create_context;
-			Bool m_has_arb_context_flush_control;
-			Bool m_has_arb_create_context_profile;
-			Bool m_has_arb_create_context_no_error;
-			Bool m_has_arb_create_context_robustness;
-
-		private:
-			Bool m_has_ext_swap_control;
-			Bool m_has_ext_create_context_es2_profile;
 
 		private:
 			/**
@@ -160,17 +185,17 @@ namespace Forge {
 			/**
 			 * @brief Default Constructor.
 			 */
-			GLGraphicsContext(AbstractWindow* window, I32 major, I32 minor);
+			GLGraphicsContext(WindowPtr window, I32 major, I32 minor);
 
 			/**
 			 * @brief Default Constructor.
 			 */
-			GLGraphicsContext(AbstractWindow* window, I32 major, I32 minor, GLContextProfileMask profile, GLContextFlags flags);
+			GLGraphicsContext(WindowPtr window, I32 major, I32 minor, GLContextProfileMask profile, GLContextFlags flags);
 
 			/**
 			 * @brief Default Constructor.
 			 */
-			GLGraphicsContext(AbstractWindow* window, I32 major, I32 minor, GLContextProfileMask profile, GLContextFlags flags, FrameBufferConfig config);
+			GLGraphicsContext(WindowPtr window, I32 major, I32 minor, GLContextProfileMask profile, GLContextFlags flags, FrameBufferConfig config);
 
 		public:
 			/**

@@ -3,6 +3,11 @@
 
 #include <Core/Public/Common/Common.h>
 
+#include <Platform/Public/Window.h>
+#include <Platform/Public/Platform.h>
+
+using namespace Forge::Platform;
+
 namespace Forge {
 	namespace Graphics
 	{
@@ -15,9 +20,23 @@ namespace Forge {
 		 */
 		class AbstractGraphicsContext
 		{
+		protected:
+			WindowPtr m_window;
+
 		public:
-			AbstractGraphicsContext() = default;
+			/**
+			 * @brief Default Constructor.
+			 */
+			AbstractGraphicsContext(WindowPtr window)
+				: m_window(window) {}
+
+			/**
+			 * @brief Default Destructor.
+			 */
 			virtual ~AbstractGraphicsContext() = default;
+
+		public:
+			WindowPtr GetWindow(Void);
 
 		public:
 			/**
@@ -57,6 +76,8 @@ namespace Forge {
 			 */
 			virtual Bool SwapBuffers(I32 swap_interval = 0) = 0;
 		};
+
+		FORGE_FORCE_INLINE WindowPtr AbstractGraphicsContext::GetWindow(Void) { return m_window; }
 	}
 }
 

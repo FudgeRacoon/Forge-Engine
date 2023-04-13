@@ -74,7 +74,7 @@ namespace Forge {
 			 *
 			 * @param title The title of the window.
 			 */
-			Void SetTitle(ConstCharPtr title) override;													// TODO: Change ConstCharPtr to const StringView&
+			Void SetTitle(ConstCharPtr title) override;
 
 		public:
 			/**

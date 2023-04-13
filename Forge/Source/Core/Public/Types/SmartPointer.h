@@ -63,8 +63,6 @@ namespace Forge {
 			TSharedPtr(ValueTypePtr ptr)
 				: m_raw_ptr(ptr)
 			{
-				
-
 				m_deleter_callback = [](ValueTypePtr ptr) -> Void
 				{
 					// delete ptr;
@@ -72,10 +70,7 @@ namespace Forge {
 				};
 			}
 			TSharedPtr(ValueTypePtr ptr, DeleterCallback del)
-				: m_raw_ptr(nullptr), m_deleter_callback(del) 
-			{
-				
-			}
+				: m_raw_ptr(nullptr), m_deleter_callback(del) {}
 		   
 		public:
 			TSharedPtr(TWeakPtr<ValueType>&& rhs)

@@ -152,11 +152,13 @@
     <ClInclude Include="Source\Core\Public\Types\SmartPointer.h" />
     <ClInclude Include="Source\Core\Public\RTTI\TypeInfo.h" />
     <ClInclude Include="Source\Core\Public\Types\Singleton.h" />
-    <ClInclude Include="Source\GraphicsDevice\Public\Base\AbstractContextState.h" />
+    <ClInclude Include="Source\GraphicsDevice\Public\Base\AbstractGraphicsContextState.h" />
+    <ClInclude Include="Source\GraphicsDevice\Public\Base\AbstractHardwareBuffer.h" />
     <ClInclude Include="Source\GraphicsDevice\Public\GraphicsContext.h" />
     <ClInclude Include="Source\GraphicsDevice\Public\GraphicsTypes.h" />
-    <ClInclude Include="Source\GraphicsDevice\Public\OpenGL\GLContextState.h" />
+    <ClInclude Include="Source\GraphicsDevice\Public\OpenGL\GLGraphicsContextState.h" />
     <ClInclude Include="Source\GraphicsDevice\Public\OpenGL\GLGraphicsContext.h" />
+    <ClInclude Include="Source\GraphicsDevice\Public\OpenGL\GLTypeConversion.h" />
     <ClInclude Include="Source\Platform\Public\Base\AbstractPlatform.h" />
     <ClInclude Include="Source\Platform\Public\Base\AbstractWindow.h" />
     <ClInclude Include="Source\Platform\Public\Platform.h" />
@@ -181,7 +183,7 @@
     <ClCompile Include="Source\Core\Private\RTTI\TypeInfo.cpp" />
     <ClCompile Include="Source\Core\Private\Types\String\AbstractString.cpp" />
     <ClCompile Include="Source\Core\Public\Debug\Exception\Exceptions\MemoryOutOfBoundsException.h" />
-    <ClCompile Include="Source\GraphicsDevice\Private\OpenGL\GLContextState.cpp" />
+    <ClCompile Include="Source\GraphicsDevice\Private\OpenGL\GLGraphicsContextState.cpp" />
     <ClCompile Include="Source\GraphicsDevice\Private\OpenGL\GLGraphicsContext.cpp" />
     <ClCompile Include="Source\GraphicsDevice\Public\Base\AbstractGraphicsContext.h" />
     <ClCompile Include="Source\Platform\Private\Base\AbstractPlatform.cpp" />

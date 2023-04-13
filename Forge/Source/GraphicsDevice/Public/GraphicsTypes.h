@@ -276,28 +276,66 @@ namespace Forge {
 		enum class PrimitiveTopologyMask : Byte
 		{
 			/**
-			 * @brief .
+			 * @brief Indicates to interpret each individual vertex as a point.
 			 */
 			FORGE_ENUM_DECL(FORGE_POINT,                    0x0)
 
+			/**
+			 * @brief Indicates to interpret each consecutive vertex pairs as a line.
+			 */
 			FORGE_ENUM_DECL(FORGE_LINE,                     0x1)
 
+			/**
+			 * @brief Indicates to interpret all adjacent vertices as a line,
+			 * except that the first and last vertices are connected.
+			 */
 			FORGE_ENUM_DECL(FORGE_LINE_LOOP,                0x2)
 
+			/**
+			 * @brief Indicates to interpret all adjacent vertices as a line,
+			 * except that the first and last vertices are not connected.
+			 */
 			FORGE_ENUM_DECL(FORGE_LINE_STRIP,               0x3)
 
+			/**
+			 * @brief Indicates to interpret each three consecutive vertices as a
+			 * triangle.
+			 */
 			FORGE_ENUM_DECL(FORGE_TRIANGLE,                 0x4)
 
+			/**
+			 * @brief Indicates to fix the first vertex and interpret each two
+			 * consecutive vertices with the first as a triangle.
+			 */
 			FORGE_ENUM_DECL(FORGE_TRIANGLE_FAN,             0x5)
 
+			/**
+			 * @brief Indicates to interpret each three consecutive vertices as
+			 * triangle strips connected together.
+			 */
 			FORGE_ENUM_DECL(FORGE_TRIANGLE_STRIP,           0x6)
 			
+			/**
+			 * @brief Indicates to interpret each consecutive vertex pairs as a line.
+			 */
 			FORGE_ENUM_DECL(FORGE_LINE_ADJACENCY,           0x7)
 			
+			/**
+			 * @brief Indicates to interpret all adjacent vertices as a line,
+			 * except that the first and last vertices are not connected.
+			 */
 			FORGE_ENUM_DECL(FORGE_LINE_STRIP_ADJACENCY,     0x8)
 
+			/**
+			 * @brief Indicates to interpret each three consecutive vertices as a
+			 * triangle.
+			 */
 			FORGE_ENUM_DECL(FORGE_TRIANGLE_ADJACENCY,       0x9)
 
+			/**
+			 * @brief Indicates to interpret each three consecutive vertices as
+			 * triangle strips connected together.
+			 */
 			FORGE_ENUM_DECL(FORGE_TRIANGLE_STRIP_ADJACENCY, 0x10)
 
 			MAX
