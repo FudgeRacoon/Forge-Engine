@@ -17,7 +17,7 @@ namespace Forge {
 		template<typename InElementType>
 		class TDynamicArray : public AbstractList<InElementType>
 		{
-		private:
+		public:
 			using ElementType         = InElementType;
 			using ElementTypeRef      = InElementType&;
 			using ElementTypePtr      = InElementType*;
@@ -25,7 +25,7 @@ namespace Forge {
 			using ConstElementTypeRef = const InElementType&;
 			using ConstElementTypePtr = const InElementType*;
 
-		private:
+		public:
 			using SelfType         = TDynamicArray<ElementType>;
 			using SelfTypeRef      = TDynamicArray<ElementType>&;
 			using SelfTypePtr      = TDynamicArray<ElementType>*;

@@ -20,7 +20,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
 	GLGraphicsContextState gcs(gc);
 
-	gcs.SetColorClear(0.0, 0.0, 1.0, 1.0);
+	gcs.SetColorClear(1.0, 0.0, 0.0, 1.0);
 
 	while (!wnd->IsClosing())
 	{

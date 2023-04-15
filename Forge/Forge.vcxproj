@@ -120,6 +120,7 @@
     <ClInclude Include="Source\Core\Public\Containers\TDynamicQueue.h" />
     <ClInclude Include="Source\Core\Public\Containers\TDynamicStack.h" />
     <ClInclude Include="Source\Core\Public\Containers\TLinkedList.h" />
+    <ClInclude Include="Source\Core\Public\Types\TMemoryRegion.h" />
     <ClInclude Include="Source\Core\Public\Types\TPair.h" />
     <ClInclude Include="Source\Core\Public\Containers\TStaticArray.h" />
     <ClInclude Include="Source\Core\Public\Containers\TStaticQueue.h" />

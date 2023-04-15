@@ -234,6 +234,9 @@
     <ClInclude Include="Source\GraphicsDevice\Public\Base\AbstractHardwareBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Core\Public\Types\TMemoryRegion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Core\Private\Memory\LinearAllocator.cpp">

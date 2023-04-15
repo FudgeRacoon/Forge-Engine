@@ -108,7 +108,7 @@ namespace Forge {
 			UnregisterClass("dummy_window_class", (HINSTANCE)Platform::Platform::GetInstance().GetPlatformHandle());
 #endif
 		}
-		Bool GLGraphicsContext::InternalIsExtenstionSupported(ConstCharPtr extension)
+		Bool GLGraphicsContext::InternalIsExtenstionSupported(ConstCharPtr extension)e
 		{
 			ConstCharPtr extensions = wglGetExtensionsStringARB(m_context_device_handle);
 			if (!extensions)
