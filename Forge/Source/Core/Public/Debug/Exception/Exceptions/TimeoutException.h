@@ -1,7 +1,7 @@
 #ifndef TIMEOUT_EXCEPTION_H
 #define TIMEOUT_EXCEPTION_H
 
-#include "Exception.h"
+#include <Core/Public/Debug/Exception/Exception.h>
 
 namespace Forge {
 	namespace Debug
@@ -9,10 +9,10 @@ namespace Forge {
 		class TimeoutException : public Exception
 		{
 		public:
-			TimeoutException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file)
-				: Exception(line, func, file, "Current operation has timed out") {}
-			TimeoutException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file, ConstCharPtr add_info)
-				: Exception(line, func, file, "Current operation has timed out", add_info) {}
+			TimeoutException(ConstCharPtr line, ConstCharPtr file, ConstCharPtr function)
+				: Exception(line, file, function, "Current operation has timed out") {}
+			TimeoutException(ConstCharPtr line, ConstCharPtr file, ConstCharPtr function, ConstCharPtr add_info)
+				: Exception(line, file, function, "Current operation has timed out", add_info) {}
 		};
 	}
 }

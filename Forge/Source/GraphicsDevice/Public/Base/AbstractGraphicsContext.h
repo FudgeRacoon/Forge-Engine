@@ -12,9 +12,9 @@ namespace Forge {
 	namespace Graphics
 	{
 		/**
-		 * @brief Graphics Context Manager.
-		 * 
-		 * This class is responsible for creating and managing graphics context.
+		 * @brief Abstract class defining common features of graphics context
+		 * managers, which are responsible for creating and managing graphics
+		 * context.
 		 * 
 		 * @author Karim Hisham.
 		 */
@@ -76,6 +76,8 @@ namespace Forge {
 			 */
 			virtual Bool SwapBuffers(I32 swap_interval = 0) = 0;
 		};
+
+		FORGE_TYPEDEF_DECL(AbstractGraphicsContext)
 
 		FORGE_FORCE_INLINE WindowPtr AbstractGraphicsContext::GetWindow(Void) { return m_window; }
 	}

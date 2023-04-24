@@ -10,7 +10,7 @@
 
 #define FORGE_BIT(x) (1 << x)
 
-#define FORGE_ARRAY_COUNT(array) (sizeof(array) / sizeof(array[0]))
+#define FORGE_ARRAY_COUNT(array) ( sizeof(array) / sizeof( array[0] ) )
 
 #define FORGE_SAFE_DELETE_UNIT(mem) if( mem != nullptr ) { delete mem; mem = nullptr; }
 #define FORGE_SAFE_DELETE_BLOCK(mem) if( mem != nullptr ) { delete[] mem; mem = nullptr; }
@@ -45,9 +45,21 @@
 		return static_cast<__NAME__>(static_cast<int>(lhs) | static_cast<int>(rhs)); \
 	}
 
-#define FORGE_TYPEDEF_DECL(__NAME__, __ALIAS__)								\
-	typedef       __NAME__		       __ALIAS__,        *__ALIAS__##Ptr;	\
-	typedef const __NAME__		Const##__ALIAS__, *Const##__ALIAS__##Ptr;
+#define FORGE_TYPEDEF_DECL(__NAME__)                 \
+    using __NAME__##Ptr        = __NAME__*;          \
+    using __NAME__##Ref        = __NAME__&;          \
+    using __NAME__##MoveRef    = __NAME__&&;         \
+    using Const##__NAME__      = const __NAME__;     \
+    using Const##__NAME__##Ptr = const __NAME__*;    \
+    using Const##__NAME__##Ref = const __NAME__&;    \
+
+#define FORGE_TYPEDEF_TEMPLATE_DECL(__NAME__)                                          \
+    template<typename InType> using __NAME__##Ptr        = __NAME__<InType>*;          \
+	template<typename InType> using __NAME__##Ref        = __NAME__<InType>&;          \
+	template<typename InType> using __NAME__##MoveRef    = __NAME__<InType>&&;         \
+    template<typename InType> using Const##__NAME__      = const __NAME__<InType>;     \
+    template<typename InType> using Const##__NAME__##Ptr = const __NAME__<InType>*;    \
+	template<typename InType> using Const##__NAME__##Ref = const __NAME__<InType>&;
 
 #define FORGE_CLASS_NONCOPYABLE(__NAME__)                  \
 	public:                                                \

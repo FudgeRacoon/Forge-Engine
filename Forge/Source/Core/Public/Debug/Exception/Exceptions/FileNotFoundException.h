@@ -1,7 +1,7 @@
 #ifndef FILE_NOT_FOUND_EXCEPTION_H
 #define FILE_NOT_FOUND_EXCEPTION_H
 
-#include "../Exception.h"
+#include <Core/Public/Debug/Exception/Exception.h>
 
 namespace Forge {
 	namespace Debug
@@ -9,10 +9,10 @@ namespace Forge {
 		class FileNotFoundException : public Exception
 		{
 		public:
-			FileNotFoundException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file)
-				: Exception(line, func, file, "Failed to find file") {}
-			FileNotFoundException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file, ConstCharPtr add_info)
-				: Exception(line, func, file, "Failed to find file", add_info) {}
+			FileNotFoundException(ConstCharPtr line, ConstCharPtr file, ConstCharPtr function)
+				: Exception(line, file, function, "Failed to find file") {}
+			FileNotFoundException(ConstCharPtr line, ConstCharPtr file, ConstCharPtr function, ConstCharPtr add_info)
+				: Exception(line, file, function, "Failed to find file", add_info) {}
 		};
 	}
 }

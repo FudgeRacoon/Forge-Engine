@@ -1,6 +1,7 @@
 #ifndef GL_GRAPHICS_CONTEXT_STATE_H
 #define GL_GRAPHICS_CONTEXT_STATE_H
 
+#include <GraphicsDevice/Public/OpenGL/GLGraphicsContext.h>
 #include <GraphicsDevice/Public/Base/AbstractGraphicsContextState.h>
 
 namespace Forge {
@@ -11,7 +12,7 @@ namespace Forge {
 		 *
 		 * @author Karim Hisham.
 		 */
-		class FORGE_API GLGraphicsContextState : public AbstractGraphicsContextState
+		class FORGE_API GLGraphicsContextState final : public AbstractGraphicsContextState
 		{
 		private:
 			struct GLContextLimits
@@ -50,7 +51,7 @@ namespace Forge {
 				I32 max_combind_texture_image_units = 0;
 			};
 			
-			FORGE_TYPEDEF_DECL(GLContextLimits, GLContextLimits)
+			FORGE_TYPEDEF_DECL(GLContextLimits)
 
 		private:
 			GLContextLimits m_context_limits;
@@ -59,7 +60,7 @@ namespace Forge {
 			/**
 			 * @brief Default Constructor.
 			 */
-			GLGraphicsContextState(GraphicsContextPtr graphics_context);
+			GLGraphicsContextState(GLGraphicsContextPtr graphics_context);
 
 		public:
 			/**
@@ -280,12 +281,12 @@ namespace Forge {
 
 			// virtual Void BindFrameBuffer(AbstractRenderTargetPtr render_target) override;
 
-			// virtual Void BindHardwareBuffer(AbstractHardwareBufferPtr hardware_buffer) override;
+			virtual Void BindHardwareBuffer(AbstractHardwareBufferPtr hardware_buffer) override;
 
 			// virtual Void BindVertexDecleration(VertexDeclerationPtr vertex_decleration) override;
 		};
 
-		FORGE_TYPEDEF_DECL(GLGraphicsContextState, GLGraphicsContextState)
+		FORGE_TYPEDEF_DECL(GLGraphicsContextState)
 
 		FORGE_FORCE_INLINE GLGraphicsContextState::ConstGLContextLimits GLGraphicsContextState::GetContextLimits(Void) { return m_context_limits; }
 	}

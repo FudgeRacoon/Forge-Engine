@@ -1,7 +1,7 @@
 #ifndef MEMORY_OUT_OF_BOUNDS_EXCEPTION_H
 #define MEMORY_OUT_OF_BOUNDS_EXCEPTION_H
 
-#include "../Exception.h"
+#include <Core/Public/Debug/Exception/Exception.h>
 
 namespace Forge {
 	namespace Debug
@@ -9,10 +9,10 @@ namespace Forge {
 		class MemoryOutOfBoundsException : public Exception
 		{
 		public:
-			MemoryOutOfBoundsException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file)
-				: Exception(line, func, file, "Memory address is out of bounds") {}
-			MemoryOutOfBoundsException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file, ConstCharPtr add_info)
-				: Exception(line, func, file, "Memory address is out of bounds", add_info) {}
+			MemoryOutOfBoundsException(ConstCharPtr line, ConstCharPtr file, ConstCharPtr function)
+				: Exception(line, file, function, "Memory address is out of bounds") {}
+			MemoryOutOfBoundsException(ConstCharPtr line, ConstCharPtr file, ConstCharPtr function, ConstCharPtr add_info)
+				: Exception(line, file, function, "Memory address is out of bounds", add_info) {}
 		};
 	}
 }

@@ -1,5 +1,3 @@
-#if defined(FORGE_RENDER_API_OPENGL)
-
 #include <GL/glew.h>
 #include <GL/wglew.h>
 
@@ -108,7 +106,7 @@ namespace Forge {
 			UnregisterClass("dummy_window_class", (HINSTANCE)Platform::Platform::GetInstance().GetPlatformHandle());
 #endif
 		}
-		Bool GLGraphicsContext::InternalIsExtenstionSupported(ConstCharPtr extension)e
+		Bool GLGraphicsContext::InternalIsExtenstionSupported(ConstCharPtr extension)
 		{
 			ConstCharPtr extensions = wglGetExtensionsStringARB(m_context_device_handle);
 			if (!extensions)
@@ -437,5 +435,3 @@ namespace Forge {
 		}
 	}
 }
-
-#endif

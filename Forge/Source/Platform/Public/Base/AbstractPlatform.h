@@ -296,20 +296,20 @@ namespace Forge {
 			CharPtr m_machine_name;
 
 		protected:
-			CPUInfo            m_cpu_info;
-			MemoryStats		   m_memory_stats;
+			CPUInfo m_cpu_info;
+			MemoryStats m_memory_stats;
 			ProcessMemoryStats m_process_memory_stats;
 
 		protected:
-			TDelegate<Void(WindowPtr)>                     m_window_close_callback;
-			TDelegate<Void(WindowPtr, Bool)>               m_window_focus_callback;
-			TDelegate<Void(WindowPtr, Bool)>               m_window_minimize_callback;
-			TDelegate<Void(WindowPtr, Bool)>               m_window_maximize_callback;
-			TDelegate<Void(WindowPtr, U32, U32)>           m_window_move_callback;
-			TDelegate<Void(WindowPtr, U32, U32)>           m_window_resize_callback;
-			TDelegate<Void(WindowPtr, I32, I32)>           m_mouse_move_callback;
-			TDelegate<Void(WindowPtr, I32, I32)>           m_mouse_scroll_callback;
-			TDelegate<Void(WindowPtr, I32, I32, I32)>      m_mouse_button_callback;
+			TDelegate<Void(WindowPtr)> m_window_close_callback;
+			TDelegate<Void(WindowPtr, Bool)> m_window_focus_callback;
+			TDelegate<Void(WindowPtr, Bool)> m_window_minimize_callback;
+			TDelegate<Void(WindowPtr, Bool)> m_window_maximize_callback;
+			TDelegate<Void(WindowPtr, U32, U32)> m_window_move_callback;
+			TDelegate<Void(WindowPtr, U32, U32)> m_window_resize_callback;
+			TDelegate<Void(WindowPtr, I32, I32)> m_mouse_move_callback;
+			TDelegate<Void(WindowPtr, I32, I32)> m_mouse_scroll_callback;
+			TDelegate<Void(WindowPtr, I32, I32, I32)> m_mouse_button_callback;
 			TDelegate<Void(WindowPtr, I32, I32, I32, I32)> m_keyboard_button_callback;
 
 		public:

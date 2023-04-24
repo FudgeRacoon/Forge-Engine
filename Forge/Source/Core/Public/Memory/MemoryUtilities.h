@@ -6,6 +6,8 @@
 #include <Core/Public/Common/Common.h>
 #include <Core/Public/Algorithm/GeneralUtilities.h>
 
+using namespace Forge::Common;
+
 namespace Forge {
 	namespace Memory
 	{
@@ -52,16 +54,16 @@ namespace Forge {
 		FORGE_FORCE_INLINE Bool MemoryCompare(VoidPtr lh_address, VoidPtr rh_address, Size bytes)
 		{
 			if (lh_address == rh_address)
-				return true;
+				return FORGE_TRUE;
 
 			BytePtr temp_lh = reinterpret_cast<BytePtr>(lh_address);
 			BytePtr temp_rh = reinterpret_cast<BytePtr>(rh_address);
 
 			for (I32 i = 0; i < bytes; i++)
 				if (*(temp_lh + i) != *(temp_rh + i))
-					return false;
+					return FORGE_FALSE;
 
-			return true;
+			return FORGE_TRUE;
 		}
 
 		/**
@@ -76,162 +78,162 @@ namespace Forge {
 		FORGE_FORCE_INLINE Bool MemoryCompare(ConstVoidPtr lh_address, ConstVoidPtr rh_address, Size bytes)
 		{
 			if (lh_address == rh_address)
-				return true;
+				return FORGE_TRUE;
 
 			ConstBytePtr temp_lh = reinterpret_cast<ConstBytePtr>(lh_address);
 			ConstBytePtr temp_rh = reinterpret_cast<ConstBytePtr>(rh_address);
 
 			for (I32 i = 0; i < bytes; i++)
 				if (*(temp_lh + i) != *(temp_rh + i))
-					return false;
+					return FORGE_FALSE;
 
-			return true;
+			return FORGE_TRUE;
 		}
 
-		namespace Internal
+		namespace
 		{
 			template<typename _Type>
-			FORGE_FORCE_INLINE Void ConstructImpl(_Type* dst, Size count, Common::TypeIsPod)
+			FORGE_FORCE_INLINE Void ConstructImpl(_Type* dst, Size count, TypeIsPod)
 			{
-				
+				FORGE_NOT_IMPLEMENTED()
 			}
 			template<typename _Type>
-			FORGE_FORCE_INLINE Void ConstructImpl(_Type* dst, Size count, Common::TypeIsClass)
+			FORGE_FORCE_INLINE Void ConstructImpl(_Type* dst, Size count, TypeIsClass)
 			{
 				for (I32 i = 0; i < count; i++)
 					new (dst + i) _Type();
 			}
 
 			template<typename _Type>
-			FORGE_FORCE_INLINE Void DestructImpl(_Type* dst, Size count, Common::TypeIsPod)
+			FORGE_FORCE_INLINE Void DestructImpl(_Type* dst, Size count, TypeIsPod)
 			{
-				
+				FORGE_NOT_IMPLEMENTED()
 			}
 			template<typename _Type>
-			FORGE_FORCE_INLINE Void DestructImpl(_Type* dst, Size count, Common::TypeIsClass)
+			FORGE_FORCE_INLINE Void DestructImpl(_Type* dst, Size count, TypeIsClass)
 			{
 				for (I32 i = 0; i < count; i++)
 					(dst + i)->~_Type();
 			}
 
 			template<typename _Type>
-			FORGE_FORCE_INLINE Void MoveImpl(_Type* dst, _Type&& temp, Size count, Common::TypeIsPod)
+			FORGE_FORCE_INLINE Void MoveImpl(_Type* dst, _Type&& temp, Size count, TypeIsPod)
 			{
 				for (I32 i = 0; i < count; i++)
 					MemoryCopy(dst + i, &temp, sizeof(_Type));
 			}
 			template<typename _Type>
-			FORGE_FORCE_INLINE Void MoveImpl(_Type* dst, _Type&& temp, Size count, Common::TypeIsClass)
+			FORGE_FORCE_INLINE Void MoveImpl(_Type* dst, _Type&& temp, Size count, TypeIsClass)
 			{
 				for (I32 i = 0; i < count; i++)
-					*(dst + i) = Move(temp);
+					*(dst + i) = Algorithm::Move(temp);
 			}
 
 			template<typename _Type>
-			FORGE_FORCE_INLINE Void CopyImpl(_Type* dst, const _Type& copy, Size count, Common::TypeIsPod)
+			FORGE_FORCE_INLINE Void CopyImpl(_Type* dst, const _Type& copy, Size count, TypeIsPod)
 			{
 				for (I32 i = 0; i < count; i++)
 					MemoryCopy(dst + i, const_cast<_Type*>(&copy), sizeof(_Type));
 			}
 			template<typename _Type>
-			FORGE_FORCE_INLINE Void CopyImpl(_Type* dst, const _Type& copy, Size count, Common::TypeIsClass)
+			FORGE_FORCE_INLINE Void CopyImpl(_Type* dst, const _Type& copy, Size count, TypeIsClass)
 			{
 				for (I32 i = 0; i < count; i++)
 					*(dst + i) = copy;
 			}
 
 			template<typename _Type>
-			FORGE_FORCE_INLINE Void MoveConstructImpl(_Type* dst, _Type&& temp, Size count, Common::TypeIsPod)
+			FORGE_FORCE_INLINE Void MoveConstructImpl(_Type* dst, _Type&& temp, Size count, TypeIsPod)
 			{
 				for (I32 i = 0; i < count; i++)
 					MemoryCopy(dst + i, &temp, sizeof(_Type));
 			}
 			template<typename _Type>
-			FORGE_FORCE_INLINE Void MoveConstructImpl(_Type* dst, _Type&& temp, Size count, Common::TypeIsClass)
+			FORGE_FORCE_INLINE Void MoveConstructImpl(_Type* dst, _Type&& temp, Size count, TypeIsClass)
 			{
 				for (I32 i = 0; i < count; i++)
-					new (dst + i) _Type(Move(temp));
+					new (dst + i) _Type(Algorithm::Move(temp));
 			}
 
 			template<typename _Type>
-			FORGE_FORCE_INLINE Void CopyConstructImpl(_Type* dst, const _Type& copy, Size count, Common::TypeIsPod)
+			FORGE_FORCE_INLINE Void CopyConstructImpl(_Type* dst, const _Type& copy, Size count, TypeIsPod)
 			{
 				for (I32 i = 0; i < count; i++)
 					MemoryCopy(dst + i, const_cast<_Type*>(&copy), sizeof(_Type));
 			}
 			template<typename _Type>
-			FORGE_FORCE_INLINE Void CopyConstructImpl(_Type* dst, const _Type& copy, Size count, Common::TypeIsClass)
+			FORGE_FORCE_INLINE Void CopyConstructImpl(_Type* dst, const _Type& copy, Size count, TypeIsClass)
 			{
 				for (I32 i = 0; i < count; i++)
 					new (dst + i) _Type(copy);
 			}
-			
+
 			template<typename _Type>
-			FORGE_FORCE_INLINE Bool CompareArrayImpl(const _Type* lh_array, const _Type* rh_array, Size count, Common::TypeIsPod)
+			FORGE_FORCE_INLINE Bool CompareArrayImpl(const _Type* lh_array, const _Type* rh_array, Size count, TypeIsPod)
 			{
 				return MemoryCompare(lh_array, rh_array, count * sizeof(_Type));
 			}
 			template<typename _Type>
-			FORGE_FORCE_INLINE Bool CompareArrayImpl(const _Type* lh_array, const _Type* rh_array, Size count, Common::TypeIsClass)
+			FORGE_FORCE_INLINE Bool CompareArrayImpl(const _Type* lh_array, const _Type* rh_array, Size count, TypeIsClass)
 			{
 				for (I32 i = 0; i < count; i++)
 					if (*(lh_array + i) != *(rh_array + i))
-						return false;
+						return FORGE_FALSE;
 
-				return true;
+				return FORGE_TRUE;
 			}
 
 			template<typename _Type>
-			FORGE_FORCE_INLINE Void CopyArrayImpl(_Type* dst, _Type* src, Size count, Common::TypeIsPod)
+			FORGE_FORCE_INLINE Void CopyArrayImpl(_Type* dst, _Type* src, Size count, TypeIsPod)
 			{
 				MemoryCopy(dst, src, count * sizeof(_Type));
 			}
 			template<typename _Type>
-			FORGE_FORCE_INLINE Void CopyArrayImpl(_Type* dst, _Type* src, Size count, Common::TypeIsClass)
+			FORGE_FORCE_INLINE Void CopyArrayImpl(_Type* dst, _Type* src, Size count, TypeIsClass)
 			{
 				for (I32 i = 0; i < count; i++)
 					*(dst + i) = *(src + i);
 			}
 
 			template<typename _Type>
-			FORGE_FORCE_INLINE Void MoveConstructArrayImpl(_Type* dst, _Type* src, Size count, Common::TypeIsPod)
+			FORGE_FORCE_INLINE Void MoveConstructArrayImpl(_Type* dst, _Type* src, Size count, TypeIsPod)
 			{
 				MemoryCopy(dst, src, count * sizeof(_Type));
 			}
 			template<typename _Type>
-			FORGE_FORCE_INLINE Void MoveConstructArrayImpl(_Type* dst, _Type* src, Size count, Common::TypeIsClass)
+			FORGE_FORCE_INLINE Void MoveConstructArrayImpl(_Type* dst, _Type* src, Size count, TypeIsClass)
 			{
 				for (I32 i = 0; i < count; i++)
-					new (dst + i) _Type(Move(*(src + i)));
+					new (dst + i) _Type(Algorithm::Move(*(src + i)));
 			}
 
 			template<typename _Type>
-			FORGE_FORCE_INLINE Void CopyConstructArrayImpl(_Type* dst, _Type* src, Size count, Common::TypeIsPod)
+			FORGE_FORCE_INLINE Void CopyConstructArrayImpl(_Type* dst, _Type* src, Size count, TypeIsPod)
 			{
 				MemoryCopy(dst, src, count * sizeof(_Type));
 			}
 			template<typename _Type>
-			FORGE_FORCE_INLINE Void CopyConstructArrayImpl(_Type* dst, _Type* src, Size count, Common::TypeIsClass)
+			FORGE_FORCE_INLINE Void CopyConstructArrayImpl(_Type* dst, _Type* src, Size count, TypeIsClass)
 			{
 				for (I32 i = 0; i < count; i++)
 					new (dst + i) _Type(*(src + i));
 			}
 		}
-		
+
 		/**
 		 * @brief Constructs object type a number of types in an array
-		 * 
+		 *
 		 * The destination array should have enough allocated space to
 		 * store the wanted number of copies. If the count is larger than the
-		 * allocated space undefined behaviour might occur. 
-		 * 
+		 * allocated space undefined behaviour might occur.
+		 *
 		 * @param[out] dst   The destination array where type will be constructed.
-		 * @param[in]  count The number of element to construct in the array. 
+		 * @param[in]  count The number of element to construct in the array.
 		 */
 		template<typename _Type>
 		FORGE_FORCE_INLINE Void Construct(_Type* dst, Size count)
 		{
-			Internal::ConstructImpl(dst, count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
+			ConstructImpl(dst, count, TTraitInt<TIsPod<_Type>::Value>());
 		}
 
 		/**
@@ -247,7 +249,7 @@ namespace Forge {
 		template<typename _Type>
 		FORGE_FORCE_INLINE Void Destruct(_Type* dst, Size count)
 		{
-			Internal::DestructImpl(dst, count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
+			DestructImpl(dst, count, TTraitInt<TIsPod<_Type>::Value>());
 		}
 
 		/**
@@ -264,7 +266,7 @@ namespace Forge {
 		template<typename _Type>
 		FORGE_FORCE_INLINE Void Move(_Type* dst, _Type&& temp, Size count)
 		{
-			Internal::MoveImpl(dst, Algorithm::Move(temp), count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
+			MoveImpl(dst, Algorithm::Move(temp), count, TTraitInt<TIsPod<_Type>::Value>());
 		}
 
 		/**
@@ -281,16 +283,16 @@ namespace Forge {
 		template<typename _Type>
 		FORGE_FORCE_INLINE Void Copy(_Type* dst, const _Type& copy, Size count)
 		{
-			Internal::CopyImpl(dst, copy, count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
+			CopyImpl(dst, copy, count, TTraitInt<TIsPod<_Type>::Value>());
 		}
 
 		/**
 		 * @brief Copy constructs an object a number of times in an array.
-		 * 
+		 *
 		 * The destination array should have enough allocated space to
 		 * store the wanted number of copies. If the count is larger than the
-		 * allocated space undefined behaviour might occur. 
-		 * 
+		 * allocated space undefined behaviour might occur.
+		 *
 		 * @param[out] dst   The destination array where the copies will be stored.
 		 * @param[in]  copy  The copy of the object to store in the array.
 		 * @param[in]  count The number of element copies to store in the array.
@@ -298,7 +300,7 @@ namespace Forge {
 		template<typename _Type>
 		FORGE_FORCE_INLINE Void CopyConstruct(_Type* dst, const _Type& copy, Size count)
 		{
-			Internal::CopyConstructImpl(dst, copy, count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
+			CopyConstructImpl(dst, copy, count, TTraitInt<TIsPod<_Type>::Value>());
 		}
 
 		/**
@@ -315,7 +317,7 @@ namespace Forge {
 		template<typename _Type>
 		FORGE_FORCE_INLINE Void MoveConstruct(_Type* dst, _Type&& temp, Size count)
 		{
-			Internal::MoveConstructImpl(dst, Algorithm::Move(temp), count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
+			MoveConstructImpl(dst, Algorithm::Move(temp), count, TTraitInt<TIsPod<_Type>::Value>());
 		}
 
 		/**
@@ -328,18 +330,18 @@ namespace Forge {
 		 * @returns True if the data stored in the arrays are equal.
 		 */
 		template<typename _Type>
-		FORGE_FORCE_INLINE Bool CompareArray(const _Type* lh_array, const _Type* rh_array, Size ui_count)
+		FORGE_FORCE_INLINE Bool CompareArray(const _Type* lh_array, const _Type* rh_array, Size count)
 		{
-			return Internal::CompareArrayImpl(lh_array, rh_array, ui_count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
+			return CompareArrayImpl(lh_array, rh_array, count, TTraitInt<TIsPod<_Type>::Value>());
 		}
 
 		/**
 		 * @brief Copies the elements stored in source array to destination array
-		 * 
+		 *
 		 * The number of bytes should be equal to the allocated space of both the
 		 * destination and source arrays. If the number of bytes is larger than
 		 * the allocated space undefined behaviour might occur.
-		 * 
+		 *
 		 * @param[out] dst   The destination array to copy elements to.
 		 * @param[in]  src   The source array where elementa will be copied from.
 		 * @param[in]  count The number of elements to copy to the destination array.
@@ -347,7 +349,7 @@ namespace Forge {
 		template<typename _Type>
 		FORGE_FORCE_INLINE Void CopyArray(_Type* dst, _Type* src, Size count)
 		{
-			Internal::CopyArrayImpl(dst, src, count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
+			CopyArrayImpl(dst, src, count, TTraitInt<TIsPod<_Type>::Value>());
 		}
 
 		/**
@@ -363,19 +365,19 @@ namespace Forge {
 		 * @param[in]  count The number of elements to move to the destination array.
 		 */
 		template<typename _Type>
-		FORGE_FORCE_INLINE Void MoveConstructArray(_Type* dst, _Type* src, Size ui_count)
+		FORGE_FORCE_INLINE Void MoveConstructArray(_Type* dst, _Type* src, Size count)
 		{
-			Internal::MoveConstructArrayImpl(dst, src, ui_count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
+			MoveConstructArrayImpl(dst, src, count, TTraitInt<TIsPod<_Type>::Value>());
 		}
 
 		/**
 		 * @brief Copy constructs the elements stored in source array to
 		 * destiniation array.
-		 * 
+		 *
 		 * The number of bytes should be equal to the allocated space of both the
 		 * destination and source arrays. If the number of bytes is larger than
 		 * the allocated space undefined behaviour might occur.
-		 * 
+		 *
 		 * @param[out] dst   The destination array to copy elements to.
 		 * @param[in]  src   The source array where elementa will be copied from.
 		 * @param[in]  count The number of elements to copy to the destination array.
@@ -383,16 +385,16 @@ namespace Forge {
 		template<typename _Type>
 		FORGE_FORCE_INLINE Void CopyConstructArray(_Type* dst, _Type* src, Size ui_count)
 		{
-			Internal::CopyConstructArrayImpl(dst, src, ui_count, Common::TTraitInt<Common::TIsPod<_Type>::Value>());
+			CopyConstructArrayImpl(dst, src, ui_count, TTraitInt<TIsPod<_Type>::Value>());
 		}
 
 		/**
 		 * @brief Aligns address to an alignment boundry and retrieves the first aligned
 		 * address after the address passed.
-		 * 
+		 *
 		 * @param[in] address   The address to align.
 		 * @param[in] alignment The alignment requirment of the memory, must be power of two.
-		 * 
+		 *
 		 * @returns VoidPtr storing the aligned address.
 		 */
 		FORGE_FORCE_INLINE VoidPtr AlignAddressUpward(VoidPtr address, Byte alignment)
@@ -416,11 +418,11 @@ namespace Forge {
 
 		/**
 		 * @brief Calculates how many bytes are need to align the address upwards.
-		 * 
+		 *
 		 * @param[in] address   The address to align.
 		 * @param[in] alignment The Alignment requirment of the memory, must be power of two.
-		 * 
-		 * @returns Size storing the number of bytes needed to align the address. 
+		 *
+		 * @returns Size storing the number of bytes needed to align the address.
 		 */
 		FORGE_FORCE_INLINE Size AlignAddressUpwardAdjustment(VoidPtr address, Byte alignment)
 		{
@@ -441,26 +443,26 @@ namespace Forge {
 			Size adjustment = (reinterpret_cast<U64>(address) & (alignment - 1));
 			return adjustment != alignment ? adjustment : 0;
 		}
-		
+
 		/**
 		 *@brief Checks whether address is aligned to a specific alignment boundry.
-		 * 
-		 *@param[in] address   The address to check for alignment.  
-		 *@param[in] alignment The alignment requirment of the memory, must be power of two. 
+		 *
+		 *@param[in] address   The address to check for alignment.
+		 *@param[in] alignment The alignment requirment of the memory, must be power of two.
 		 *
 		 * @returns True if the address is aligned.
 		 */
 		FORGE_FORCE_INLINE Bool IsAddressAligned(VoidPtr address, Byte alignment)
-		{ 
+		{
 			return AlignAddressUpwardAdjustment(address, alignment) == 0;
 		}
-		
+
 		/**
 		 * @brief Performs addition on a raw memory address.
-		 * 
+		 *
 		 * @param[in] address The address to perform addition on.
 		 * @param[in] bytes   The number of bytes to add to the address.
-		 * 
+		 *
 		 * @returns VoidPtr storing the resultant address.
 		 */
 		FORGE_FORCE_INLINE VoidPtr AddAddress(VoidPtr address, Size bytes)
@@ -519,20 +521,20 @@ namespace Forge {
 		{
 			return reinterpret_cast<ConstVoidPtr>((reinterpret_cast<U64>(lh_address) - reinterpret_cast<U64>(rh_address)));
 		}
-		
+
 		/**
 		 * @brief Checks whether the address is within bounds of the allocated memory.
-		 * 
+		 *
 		 * @param[in] start_address  The starting address of the memory pool.
 		 * @param[in] address        The address to bound check.
 		 * @param[in] total_Size     The total Size of the memory pool.
-		 * 
+		 *
 		 * @return True if the address within the passed bounds.
 		 */
 		FORGE_FORCE_INLINE Bool WithinAddressBounds(VoidPtr start_address, VoidPtr address, Size total_size)
 		{
 			return reinterpret_cast<U64>(address) >= reinterpret_cast<U64>(start_address) &&
-				   reinterpret_cast<U64>(address) <  reinterpret_cast<U64>(start_address) + total_size;		   
+				reinterpret_cast<U64>(address) < reinterpret_cast<U64>(start_address) + total_size;
 		}
 	}
 }

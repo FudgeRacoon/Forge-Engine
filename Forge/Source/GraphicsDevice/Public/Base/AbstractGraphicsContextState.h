@@ -4,13 +4,15 @@
 #include <Core/Public/Common/Common.h>
 
 #include <GraphicsDevice/Public/GraphicsTypes.h>
-#include <GraphicsDevice/Public/GraphicsContext.h>
+#include <GraphicsDevice/Public/Base/AbstractHardwareBuffer.h>
+#include <GraphicsDevice/Public/Base/AbstractGraphicsContext.h>
 
 namespace Forge {
 	namespace Graphics
 	{
 		/**
-		 * @brief Context state class which is responsible for managing the state of
+		 * @brief Abstract class defining common features of Context state
+		 * managers, which is responsible for managing the state of
 		 * the graphics pipeline. 
 		 * 
 		 * @author Karim Hisham.
@@ -136,13 +138,13 @@ namespace Forge {
 			RasterizerState m_rasterizer_state;
 
 		protected:
-			GraphicsContextPtr m_graphics_context;
+			AbstractGraphicsContextPtr m_graphics_context;
 
 		public:
 			/**
 			 * @brief Default Constructor.
 			 */
-			AbstractGraphicsContextState(GraphicsContextPtr graphics_context)
+			AbstractGraphicsContextState(AbstractGraphicsContextPtr graphics_context)
 				: m_graphics_context(graphics_context) {}
 
 			/**
@@ -361,12 +363,12 @@ namespace Forge {
 
 			// virtual Void BindFrameBuffer(RenderTargetPtr render_target) = 0;
 
-			// virtual Void BindHardwareBuffer(HardwareBufferPtr hardware_buffer) = 0;
+			virtual Void BindHardwareBuffer(AbstractHardwareBufferPtr hardware_buffer) = 0;
 
 			// virtual Void BindVertexDecleration(VertexDeclerationPtr vertex_decleration) = 0;
 		};
 
-		FORGE_TYPEDEF_DECL(AbstractGraphicsContextState, AbstractGraphicsContextState)
+		FORGE_TYPEDEF_DECL(AbstractGraphicsContextState)
 	}
 }
 

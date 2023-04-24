@@ -1,17 +1,68 @@
 #ifndef EXCEPTION_H
 #define EXCEPTION_H
 
-#include "Core/Public/CoreFwd.h"
-
-#include "Core/Public/RTTI/Object.h"
-
-#include "Core/Public/Common/Common.h"
-
-using namespace Forge::RTTI;
+#include <Core/Public/Common/Common.h>
 
 namespace Forge {
 	namespace Debug
 	{
+		enum class ExceptionType
+		{
+			/**
+			 * @brief Indicates that an invalid I/O operation has occured.
+			 */
+			FORGE_ENUM_DECL(FORGE_IO,					0)
+
+			/**
+			 * @brief Indicates that a timeout has occured.
+			 */
+			FORGE_ENUM_DECL(FORGE_TIMEOUT,			    1)
+
+			/**
+			 * @brief Indicates that an invalid arugment has been passed to a
+			 * function.
+			 */
+			FORGE_ENUM_DECL(FORGE_ARGUMENT,			    2)
+
+			/**
+			 * @brief Indicates that a null pointer argument has been passed to a
+			 * function.
+			 */
+			FORGE_ENUM_DECL(FORGE_ARGUMENT_NULL,		3)
+
+			/**
+			 * @brief Indicates that a divide by zero operation has occured.
+			 */
+			FORGE_ENUM_DECL(FORGE_DIVIDE_BY_ZERO,		4)
+
+			/**
+			 * @brief Indicates that a file search operation has failed.
+			 */
+			FORGE_ENUM_DECL(FORGE_FILE_NOT_FOUND,		5)
+
+			/**
+			 * @brief Indicates that a memory allocation operation has failed.
+			 */
+			FORGE_ENUM_DECL(FORGE_BAD_ALLOCATION,		6)
+
+			/**
+			 * @brief Indicates that an out of range array access has occured.
+			 */
+			FORGE_ENUM_DECL(FORGE_INDEX_OUT_RANGE,	    7)
+
+			/**
+			 * @brief Indicates that an invalid operation has occured.
+			 */
+			FORGE_ENUM_DECL(FORGE_INVALID_OPERATION,	8)
+
+			/**
+			 * @brief Indicates that an out of bounds memory access has occured.
+			 */
+			FORGE_ENUM_DECL(FORGE_MEMORY_OUT_OF_BOUNDS, 9)
+
+			MAX
+		};
+
 		/**
 		 * @brief Provides information about errors that occured in the engine.
 		 * 
@@ -25,60 +76,27 @@ namespace Forge {
 		 * 
 		 * @author Karim Hisham
          */		
-		class FORGE_API Exception : public Object
+		class FORGE_API Exception
 		{
-		public:
-			FORGE_DECLARE_TYPEINFO(Exception, Object)
-
 		protected:
 			ConstCharPtr m_line;
-			ConstCharPtr m_func;
 			ConstCharPtr m_file;
+			ConstCharPtr m_function;
 			ConstCharPtr m_additional_info;
 
 		protected:
 			Char m_description[256] = { 0 };
 
 		public:
-			enum EXCEPTION_CODE
-			{
-				ERR_IO_EXCEPTION,
-				ERR_TIMEOUT_EXCEPTION,
-				ERR_ARGUMENT_EXCEPTION,
-				ERR_ARGUMENT_NULL_EXCEPTION,
-				ERR_DIVIDE_BY_ZERO_EXCEPTION,
-				ERR_FILE_NOT_FOUND_EXCEPTION,
-				ERR_BAD_ALLOCATION_EXCEPTION,
-				ERR_INDEX_OUT_RANGE_EXCEPTION,
-				ERR_INVALID_OPERATION_EXCEPTION,
-				ERR_MEMORY_OUT_OF_BOUNDS_EXCEPTION
-			};
+			Exception(ConstCharPtr line, ConstCharPtr file, ConstCharPtr function, ConstCharPtr desc);
 
-		public:
-			Exception(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file, ConstCharPtr desc);
-			Exception(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file, ConstCharPtr desc, ConstCharPtr add_info);
-
-		public:
-			virtual ~Exception() = default;
+			Exception(ConstCharPtr line, ConstCharPtr file, ConstCharPtr function, ConstCharPtr desc, ConstCharPtr info);
 
 		public:
 			/**
-			 * @brief Performs a deep-copy of the object and returns the new
-			 * instance.
-			 *
-			 * @return TSharedPtr object to the cloned object.
+			 * @brief Default destructor.
 			 */
-			TSharedPtr<Object> Clone(void) override;
-
-			/**
-			 * @brief Performs a deep-copy of the object and returns the new
-			 * instance using an allocator.
-			 *
-			 * @param[in] allocator The allocator used to construct the new object.
-			 *
-			 * @return TSharedPtr object to the cloned object.
-			 */
-			TSharedPtr<Object> Clone(AbstractAllocator* allocator) override;
+			virtual ~Exception(Void) = default;
 
 		public:
 			/**
@@ -87,15 +105,7 @@ namespace Forge {
 			 * 
 			 * @return ConstCharPtr storing the number of the source line.
 			 */
-			ConstCharPtr GetLine();
-
-			/**
-			 * @brief Gets the name of the source function where the exception was 
-			 * thrown.
-			 * 
-			 * @return ConstCharPtr storing the name of the source function.
-			 */
-			ConstCharPtr GetFunc();
+			ConstCharPtr GetLine(Void);
 
 			/**
 			 * @brief Gets the name of the source file where the exception was 
@@ -103,7 +113,15 @@ namespace Forge {
 			 * 
 			 * @return ConstCharPtr storing the name of the source file.
 			 */
-			ConstCharPtr GetFile();
+			ConstCharPtr GetFile(Void);
+
+			/**
+			 * @brief Gets the name of the source function where the exception was 
+			 * thrown.
+			 * 
+			 * @return ConstCharPtr storing the name of the source function.
+			 */
+			ConstCharPtr GetFunction(Void);
 
 			/**
 			 * @brief Gets additional information about the exception if provided.
@@ -111,7 +129,7 @@ namespace Forge {
 			 * @return ConstCharPtr storing additional information about the 
 			 * exception, or null if no additional information provided. 
 			 */
-			ConstCharPtr GetAdditionalInfo();
+			ConstCharPtr GetAdditionalInfo(Void);
 
 		public:
 			/**
@@ -120,15 +138,33 @@ namespace Forge {
 			 * The description contains the cause, the line number, file name, what
 			 * function threw the error and additional information if provided.
 			 */
-			ConstCharPtr GetDescripton();
+			ConstCharPtr GetDescripton(Void);
 		};
 
-		FORGE_FORCE_INLINE ConstCharPtr Exception::GetLine()           { return m_line; }
-		FORGE_FORCE_INLINE ConstCharPtr Exception::GetFunc()           { return m_func; }
-		FORGE_FORCE_INLINE ConstCharPtr Exception::GetFile()           { return m_file; }
-		FORGE_FORCE_INLINE ConstCharPtr Exception::GetAdditionalInfo() { if (m_additional_info) return m_additional_info; return nullptr; }
+		FORGE_FORCE_INLINE ConstCharPtr Exception::GetLine(Void)
+		{ 
+			return m_line; 
+		}
+		FORGE_FORCE_INLINE ConstCharPtr Exception::GetFile(Void)
+		{ 
+			return m_file; 
+		}
+		FORGE_FORCE_INLINE ConstCharPtr Exception::GetFunction(Void)
+		{
+			return m_function;
+		}
+		FORGE_FORCE_INLINE ConstCharPtr Exception::GetAdditionalInfo(Void)
+		{ 
+			if (m_additional_info) 
+				return m_additional_info; 
+			
+			return nullptr; 
+		}
 
-		FORGE_FORCE_INLINE ConstCharPtr Exception::GetDescripton() { return m_description; }
+		FORGE_FORCE_INLINE ConstCharPtr Exception::GetDescripton(Void)
+		{ 
+			return m_description; 
+		}
 	}
 }
 

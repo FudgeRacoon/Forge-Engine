@@ -14,24 +14,37 @@
 namespace Forge {
 	namespace Containers
 	{
+		/**
+		 * @brief A list container representing arrays that can change in size.
+		 * 
+		 * TDynamicArray uses contiguous storage locations for its elements, which
+		 * means that the elements can be accessed using offsets on regular
+		 * pointers to its elements. However, unlike arrays, its size can change
+		 * dynamically, with the storage being handled automatically by the
+		 * container.
+		 * 
+		 * @author Karim Hisham.
+		 */
 		template<typename InElementType>
-		class TDynamicArray : public AbstractList<InElementType>
+		class TDynamicArray final : public AbstractList<InElementType>
 		{
 		public:
 			using ElementType         = InElementType;
-			using ElementTypeRef      = InElementType&;
 			using ElementTypePtr      = InElementType*;
+			using ElementTypeRef      = InElementType&;
+			using ElementTypeMoveRef  = InElementType&&;
 			using ConstElementType    = const InElementType;
-			using ConstElementTypeRef = const InElementType&;
 			using ConstElementTypePtr = const InElementType*;
+			using ConstElementTypeRef = const InElementType&;
 
 		public:
 			using SelfType         = TDynamicArray<ElementType>;
-			using SelfTypeRef      = TDynamicArray<ElementType>&;
 			using SelfTypePtr      = TDynamicArray<ElementType>*;
+			using SelfTypeRef      = TDynamicArray<ElementType>&;
+			using SelfTypeMoveRef  = TDynamicArray<ElementType>&&;
 			using ConstSelfType    = const TDynamicArray<ElementType>;
-			using ConstSelfTypeRef = const TDynamicArray<ElementType>&;
 			using ConstSelfTypePtr = const TDynamicArray<ElementType>*;
+			using ConstSelfTypeRef = const TDynamicArray<ElementType>&;
 
 		private:
 			enum { CAPACITY_ALIGNMENT = 2 };
@@ -53,7 +66,7 @@ namespace Forge {
 				ElementTypePtr m_ptr;
 
 			public:
-				Iterator(void)
+				Iterator(Void)
 					: m_ptr(nullptr) {}
 
 				Iterator(ElementTypePtr ptr)
@@ -107,7 +120,7 @@ namespace Forge {
 
 					return temp;
 				}
-				Iterator operator --(void)
+				Iterator operator --(Void)
 				{
 					this->m_ptr--;
 
@@ -123,7 +136,7 @@ namespace Forge {
 
 					return temp;
 				}
-				Iterator operator ++(void)
+				Iterator operator ++(Void)
 				{
 					this->m_ptr++;
 
@@ -133,7 +146,7 @@ namespace Forge {
 			public:
 				Size operator -(const Iterator& other)
 				{
-					return ((reinterpret_cast<Size>(this->m_ptr) - reinterpret_cast<Size>(other.m_ptr)) / sizeof(ElementType)) + 1;
+					return ((reinterpret_cast<U64>(this->m_ptr) - reinterpret_cast<U64>(other.m_ptr)) / sizeof(ElementType)) + 1;
 				}
 
 			public:
@@ -167,7 +180,7 @@ namespace Forge {
 				ElementTypePtr m_ptr;
 
 			public:
-				ConstIterator(void)
+				ConstIterator(Void)
 					: m_ptr(nullptr) {}
 
 				ConstIterator(ElementTypePtr ptr)
@@ -221,7 +234,7 @@ namespace Forge {
 
 					return temp;
 				}
-				ConstIterator operator --(void)
+				ConstIterator operator --(Void)
 				{
 					this->m_ptr--;
 
@@ -237,7 +250,7 @@ namespace Forge {
 
 					return temp;
 				}
-				ConstIterator operator ++(void)
+				ConstIterator operator ++(Void)
 				{
 					this->m_ptr++;
 
@@ -279,7 +292,7 @@ namespace Forge {
 			 *
 			 * Constructs an empty dynamic array.
 			 */
-			TDynamicArray(void)
+			TDynamicArray(Void) 
 				: m_mem_block(nullptr), m_version(0), m_capacity(0), AbstractList<ElementType>(0, ~((Size)0)) {}
 
 			/**
@@ -287,7 +300,7 @@ namespace Forge {
 			 *
 			 * Constructs a dynamic array with a copy of an element.
 			 */
-			TDynamicArray(ElementType&& element, Size count)
+			TDynamicArray(ElementTypeMoveRef element, Size count)
 				: m_mem_block(nullptr), m_version(0), m_capacity(count), AbstractList<ElementType>(count, ~((Size)0))
 			{
 				this->m_mem_block = (ElementTypePtr)malloc(this->m_count * sizeof(ElementType));
@@ -325,7 +338,7 @@ namespace Forge {
 			/**
 			 * @brief Move constructor.
 			 */
-			TDynamicArray(SelfType&& other)
+			TDynamicArray(SelfTypeMoveRef other)
 				: m_mem_block(nullptr), m_version(0), m_capacity(0), AbstractList<ElementType>(0, ~((Size)0))
 			{
 				*this = Move(other);
@@ -341,6 +354,9 @@ namespace Forge {
 			}
 
 		public:	
+			/**
+			 * @brief Default constructor.
+			 */
 			~TDynamicArray()
 			{
 				this->Clear();
@@ -353,7 +369,7 @@ namespace Forge {
 			/**
 			 * @brief Move assignment.
 			 */
-			SelfTypeRef operator =(SelfType&& other)
+			SelfTypeRef operator =(SelfTypeMoveRef other)
 			{
 				this->Clear();
 				
@@ -412,7 +428,7 @@ namespace Forge {
 			 *
 			 * @return Iterator pointing to the first element.
 			 */
-			Iterator GetStartItr(void)
+			Iterator GetStartItr(Void)
 			{
 				return Iterator(const_cast<ElementTypePtr>(this->m_mem_block));
 			}
@@ -423,7 +439,7 @@ namespace Forge {
 			 *
 			 * @return Iterator pointing to the past-end element element.
 			 */
-			Iterator GetEndItr(void)
+			Iterator GetEndItr(Void)
 			{
 				return Iterator(const_cast<ElementTypePtr>(this->m_mem_block + this->m_count));
 			}
@@ -434,7 +450,7 @@ namespace Forge {
 			 *
 			 * @return ConstIterator pointing to the first element.
 			 */
-			ConstIterator GetStartConstItr(void) const
+			ConstIterator GetStartConstItr(Void) const
 			{
 				return ConstIterator(const_cast<ElementTypePtr>(this->m_mem_block));
 			}
@@ -445,7 +461,7 @@ namespace Forge {
 			 *
 			 * @return ConstIterator pointing to the past-end element element.
 			 */
-			ConstIterator GetEndConstItr(void) const
+			ConstIterator GetEndConstItr(Void) const
 			{
 				return ConstIterator(const_cast<ElementTypePtr>(this->m_mem_block + this->m_count));
 			}
@@ -503,7 +519,7 @@ namespace Forge {
 			 * @return ElementTypePtr storing the address of the array or
 			 * nullptr if collection is empty.
 			 */
-			ElementTypePtr ToArray(void) const override
+			ElementTypePtr ToArray(Void) const override
 			{
 				ElementTypePtr array_ptr = (ElementTypePtr)malloc(this->m_count * sizeof(ElementType));
 
@@ -545,9 +561,27 @@ namespace Forge {
 			 *
 			 * @param[in] function The function to perform on each element.
 			 */
-			Void ForEach(Common::TDelegate<Void(ElementTypeRef)> function) override
+			Void ForEach(TDelegate<Void(ElementTypeRef)> function) override
 			{
-				for (I32 i = 0; i < this->m_count; i++)
+				for (U32 i = 0; i < this->m_count; i++)
+					function.Invoke(*(this->m_mem_block + i));
+			}
+
+			/**
+			 * @brief Iterates through all the elements inside the collection and
+			 * performs the operation provided on each element.
+			 *
+			 * The operation is performed in the order of iteration, and is performed
+			 * until all elements have been processed or the operation throws an
+			 * exception.
+			 *
+			 * @param[in] function The function to perform on each element.
+			 *
+			 * @throws InvalidOperationException if collection is empty.
+			 */
+			Void ForEach(TDelegate<Void(ConstElementTypeRef)> function) const override
+			{
+				for (U32 i = 0; i < this->m_count; i++)
 					function.Invoke(*(this->m_mem_block + i));
 			}
 
@@ -676,7 +710,9 @@ namespace Forge {
 
 				ElementTypePtr ptr = this->m_mem_block + index;
 
-				for (I32 i = 0, prev = *ptr; i < this->m_count - index; i++)
+				prev = *ptr;
+
+				for (I32 i = 0;  i < this->m_count - index; i++)
 				{
 					next = *(++ptr);
 					*ptr = prev;
@@ -726,7 +762,9 @@ namespace Forge {
 
 				ElementTypePtr ptr = this->m_mem_block + index;
 				
-				for (I32 i = 0, prev = *ptr; i < this->m_count - index; i++)
+				prev = *ptr;
+				
+				for (I32 i = 0;  i < this->m_count - index; i++)
 				{
 					next = *(++ptr);
 					*ptr = prev;
@@ -782,17 +820,18 @@ namespace Forge {
 			/**
 			 * @brief Removes all the elements from this collection.
 			 */
-			Void Clear(void) override
+			Void Clear(Void) override
 			{
 				if (!this->m_count)
 					return;
 
 				Memory::Destruct(this->m_mem_block, this->m_count);
 
-				this->m_count = 0;
-				this->m_version = 0;
+				this->m_count = this->m_version = 0;
 			}
 		};
+
+		FORGE_TYPEDEF_TEMPLATE_DECL(TDynamicArray)
 	}
 }
 

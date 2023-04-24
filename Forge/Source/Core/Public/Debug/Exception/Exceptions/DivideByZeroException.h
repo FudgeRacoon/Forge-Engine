@@ -1,7 +1,7 @@
 #ifndef DIVIDE_BY_ZERO_EXCEPTION_H
 #define DIVIDE_BY_ZERO_EXCEPTION_H
 
-#include "../Exception.h"
+#include <Core/Public/Debug/Exception/Exception.h>
 
 namespace Forge {
 	namespace Debug
@@ -9,10 +9,10 @@ namespace Forge {
 		class DivideByZeroException : public Exception
 		{
 		public:
-			DivideByZeroException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file)
-				: Exception(line, func, file, "Cannot divide by zero") {}
-			DivideByZeroException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file, ConstCharPtr add_info)
-				: Exception(line, func, file, "Cannot divide by zero", add_info) {}
+			DivideByZeroException(ConstCharPtr line, ConstCharPtr file, ConstCharPtr function)
+				: Exception(line, file, function, "Cannot divide by zero") {}
+			DivideByZeroException(ConstCharPtr line, ConstCharPtr file, ConstCharPtr function, ConstCharPtr add_info)
+				: Exception(line, file, function, "Cannot divide by zero", add_info) {}
 		};
 	}
 }

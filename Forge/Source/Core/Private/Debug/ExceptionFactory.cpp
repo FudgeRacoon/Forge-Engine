@@ -1,38 +1,34 @@
-#include "Core/Public/Debug/Exception/ExceptionFactory.h"
-
-#include "Core/Public/Types/SmartPointer.h"
+#include <Core/Public/Debug/Exception/ExceptionFactory.h>
 
 namespace Forge {
 	namespace Debug
 	{
-		Void ExceptionFactory::ThrowException(Exception::EXCEPTION_CODE code, ConstCharPtr line, ConstCharPtr func, ConstCharPtr file)
+		Void ExceptionFactory::ThrowException(ExceptionType type, ConstCharPtr line, ConstCharPtr file, ConstCharPtr function)
 		{
-			switch (code)
+			switch (type)
 			{
-				case Exception::ERR_IO_EXCEPTION:				    throw IOException(line, func, file);
-				case Exception::ERR_TIMEOUT_EXCEPTION:              throw TimeoutException(line, func, file);
-				case Exception::ERR_DIVIDE_BY_ZERO_EXCEPTION:       throw DivideByZeroException(line, func, file);
-				case Exception::ERR_FILE_NOT_FOUND_EXCEPTION:	    throw FileNotFoundException(line, func, file);
-				case Exception::ERR_BAD_ALLOCATION_EXCEPTION:       throw BadAllocationException(line, func, file);
-				case Exception::ERR_INDEX_OUT_RANGE_EXCEPTION:	    throw IndexOutOfRangeException(line, func, file);
-				case Exception::ERR_INVALID_OPERATION_EXCEPTION:    throw InvalidOperationException(line, func, file);
-				case Exception::ERR_MEMORY_OUT_OF_BOUNDS_EXCEPTION: throw MemoryOutOfBoundsException(line, func, file);
-				default:                                            throw Exception(line, func, file, "An exception has occured");
+			case ExceptionType::FORGE_IO:				    throw IOException(line, file, function);
+			case ExceptionType::FORGE_TIMEOUT:              throw TimeoutException(line, file, function);
+			case ExceptionType::FORGE_DIVIDE_BY_ZERO:       throw DivideByZeroException(line, file, function);
+			case ExceptionType::FORGE_FILE_NOT_FOUND:	    throw FileNotFoundException(line, file, function);
+			case ExceptionType::FORGE_BAD_ALLOCATION:       throw BadAllocationException(line, file, function);
+			case ExceptionType::FORGE_INDEX_OUT_RANGE:	    throw IndexOutOfRangeException(line, file, function);
+			case ExceptionType::FORGE_INVALID_OPERATION:    throw InvalidOperationException(line, file, function);
+			case ExceptionType::FORGE_MEMORY_OUT_OF_BOUNDS: throw MemoryOutOfBoundsException(line, file, function);
 			}
 		}
-		Void ExceptionFactory::ThrowException(Exception::EXCEPTION_CODE code, ConstCharPtr line, ConstCharPtr func, ConstCharPtr file, ConstCharPtr add_info)
+		Void ExceptionFactory::ThrowException(ExceptionType type, ConstCharPtr line, ConstCharPtr file, ConstCharPtr function, ConstCharPtr info)
 		{
-			switch (code)
+			switch (type)
 			{
-				case Exception::ERR_IO_EXCEPTION:				    throw IOException(line, func, file, add_info);
-				case Exception::ERR_TIMEOUT_EXCEPTION:              throw TimeoutException(line, func, file, add_info);
-				case Exception::ERR_DIVIDE_BY_ZERO_EXCEPTION:       throw DivideByZeroException(line, func, file, add_info);
-				case Exception::ERR_FILE_NOT_FOUND_EXCEPTION:	    throw FileNotFoundException(line, func, file, add_info);
-				case Exception::ERR_BAD_ALLOCATION_EXCEPTION:       throw BadAllocationException(line, func, file, add_info);
-				case Exception::ERR_INDEX_OUT_RANGE_EXCEPTION:	    throw IndexOutOfRangeException(line, func, file, add_info);
-				case Exception::ERR_INVALID_OPERATION_EXCEPTION:    throw InvalidOperationException(line, func, file, add_info);
-				case Exception::ERR_MEMORY_OUT_OF_BOUNDS_EXCEPTION: throw MemoryOutOfBoundsException(line, func, file, add_info);
-				default:                                            throw Exception(line, func, file, "An exception has occured", add_info);
+			case ExceptionType::FORGE_IO:				    throw IOException(line, file, function, info);
+			case ExceptionType::FORGE_TIMEOUT:              throw TimeoutException(line, file, function, info);
+			case ExceptionType::FORGE_DIVIDE_BY_ZERO:       throw DivideByZeroException(line, file, function, info);
+			case ExceptionType::FORGE_FILE_NOT_FOUND:	    throw FileNotFoundException(line, file, function, info);
+			case ExceptionType::FORGE_BAD_ALLOCATION:       throw BadAllocationException(line, file, function, info);
+			case ExceptionType::FORGE_INDEX_OUT_RANGE:	    throw IndexOutOfRangeException(line, file, function, info);
+			case ExceptionType::FORGE_INVALID_OPERATION:    throw InvalidOperationException(line, file, function, info);
+			case ExceptionType::FORGE_MEMORY_OUT_OF_BOUNDS: throw MemoryOutOfBoundsException(line, file, function, info);
 			}
 		}
 	}

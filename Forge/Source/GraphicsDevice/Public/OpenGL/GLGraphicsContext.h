@@ -5,11 +5,7 @@
 
 #include <Core/Public/Memory/MemoryUtilities.h>
 
-
-
 #include <GraphicsDevice/Public/Base/AbstractGraphicsContext.h>
-
-#if defined(FORGE_RENDER_API_OPENGL)
 
 using namespace Forge::Platform;
 
@@ -72,17 +68,17 @@ namespace Forge {
 			/**
 			 * @brief The opengl embedded system profile.
 			 */
-			FORGE_ENUM_DECL(FORGE_ES, 0x0)
+			FORGE_ENUM_DECL(FORGE_ES,     0)
 
 			/**
 			 * @brief The opengl core profile.
 			 */
-			FORGE_ENUM_DECL(FORGE_CORE, 0x1)
+			FORGE_ENUM_DECL(FORGE_CORE,   1)
 
 			/**
 			 * @brief The opengl compatibility profile.
 			 */
-			FORGE_ENUM_DECL(FORGE_COMPAT, 0x2)
+			FORGE_ENUM_DECL(FORGE_COMPAT, 2)
 
 			MAX
 		};
@@ -278,17 +274,16 @@ namespace Forge {
 			Bool SwapBuffers(I32 swap_interval = 0) override;
 		};
 
+		FORGE_TYPEDEF_DECL(GLGraphicsContext)
+
 		FORGE_FORCE_INLINE I32 GLGraphicsContext::GetMajorVersion(Void) { return m_major_version; }
 		FORGE_FORCE_INLINE I32 GLGraphicsContext::GetMinorVersion(Void) { return m_minor_version; }
 
-		FORGE_FORCE_INLINE ConstCharPtr GLGraphicsContext::GetVendor(Void)        { return m_context_vendor; }
-		FORGE_FORCE_INLINE ConstCharPtr GLGraphicsContext::GetRenderer(Void)      { return m_context_renderer; }
+		FORGE_FORCE_INLINE ConstCharPtr GLGraphicsContext::GetVendor(Void) { return m_context_vendor; }
+		FORGE_FORCE_INLINE ConstCharPtr GLGraphicsContext::GetRenderer(Void) { return m_context_renderer; }
 		FORGE_FORCE_INLINE ConstCharPtr GLGraphicsContext::GetShaderVersion(Void) { return m_context_shader_version; }
 
-		FORGE_TYPEDEF_DECL(GLGraphicsContext, GraphicsContext)
 	}
 }
-
-#endif
 
 #endif

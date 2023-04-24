@@ -4,6 +4,7 @@
 #include <Core/Public/Algorithm/GeneralUtilities.h>
 #include <Core/Public/Containers/AbstractCollection.h>
 
+using namespace Forge::Memory;
 using namespace Forge::Algorithm;
 
 namespace Forge {
@@ -14,25 +15,35 @@ namespace Forge {
 		{
 		public:
 			using ElementType         = InElementType;
-			using ElementTypeRef      = InElementType&;
 			using ElementTypePtr      = InElementType*;
+			using ElementTypeRef      = InElementType&;
+			using ElementTypeMoveRef  = InElementType&&;
 			using ConstElementType    = const InElementType;
 			using ConstElementTypeRef = const InElementType&;
 			using ConstElementTypePtr = const InElementType*;
 
 		private:
 			using SelfType         = AbstractList<ElementType>;
-			using SelfTypeRef      = AbstractList<ElementType>&;
 			using SelfTypePtr      = AbstractList<ElementType>*;
+			using SelfTypeRef      = AbstractList<ElementType>&;
+			using SelfTypeMoveRef  = AbstractList<ElementType>&&;
 			using ConstSelfType    = const AbstractList<ElementType>;
 			using ConstSelfTypeRef = const AbstractList<ElementType>&;
 			using ConstSelfTypePtr = const AbstractList<ElementType>*;
 
 		public:
+			/**
+			 * @brief Default constructor.
+			 */
 			AbstractList(Size count, Size max_capacity)
 				: AbstractCollection<ElementType>(count, max_capacity) {}
 
-			virtual ~AbstractList() = default;
+		public:
+			/**
+			 * @brief Default destructor.
+			 * 
+			 */
+			virtual ~AbstractList(Void) = default;
 
 		public:
 			/**
@@ -48,7 +59,7 @@ namespace Forge {
 			 * @throws InvalidOperationException if operation not supported by
 			 * this collection.
 			 */
-			virtual ConstElementTypePtr GetRawData(void) const = 0;
+			virtual ConstElementTypePtr GetRawData(Void) const = 0;
 
 			/**
 			 * @brief Retreives a reference to the element stored in the collection
@@ -86,15 +97,15 @@ namespace Forge {
 
 				I32 index = 0;
 
-				Bool return_value = true;
+				Bool return_value = FORGE_TRUE;
 
 				collection.ForEach([this, &index, &return_value](ElementTypeRef element) -> Void
 					{
 						ConstElementTypeRef other_element = this->GetByIndex(index++);
 
-						if (!Memory::MemoryCompare(&other_element, &element, sizeof(ElementType)))
+						if (!MemoryCompare(&other_element, &element, sizeof(ElementType)))
 						{
-							return_value = false;
+							return_value = FORGE_FALSE;
 							return;
 						}
 					}
@@ -140,7 +151,7 @@ namespace Forge {
 			 * @Throws InvalidOperationException if this collection is empty or not
 			 * supported by this collection.
 			 */
-			virtual ConstElementTypeRef PeekBack(void) const
+			virtual ConstElementTypeRef PeekBack(Void) const
 			{
 				return this->GetByIndex(this->m_count - 1);
 			}
@@ -154,7 +165,7 @@ namespace Forge {
 			 * @Throws InvalidOperationException if this collection is empty or not
 			 * supported by this collection.
 			 */
-			virtual ConstElementTypeRef PeekFront(void) const
+			virtual ConstElementTypeRef PeekFront(Void) const
 			{
 				return this->GetByIndex(0);
 			}
@@ -235,7 +246,7 @@ namespace Forge {
 			 * @Throws InvalidOperationException if this collection is empty or not
 			 * supported by this collection.
 			 */
-			virtual Void PopBack(void)
+			virtual Void PopBack(Void)
 			{
 				this->RemoveAt(this->m_count - 1);
 			}
@@ -247,7 +258,7 @@ namespace Forge {
 			 * @Throws InvalidOperationException if this collection is empty or not
 			 * supported by this collection.
 			 */
-			virtual Void PopFront(void)
+			virtual Void PopFront(Void)
 			{
 				this->RemoveAt(0);
 			}
@@ -274,10 +285,10 @@ namespace Forge {
 				if (index != -1)
 				{
 					this->RemoveAt(index);
-					return true;
+					return FORGE_TRUE;
 				}
 
-				return false;
+				return FORGE_FALSE;
 			}
 
 			/**
@@ -372,10 +383,10 @@ namespace Forge {
 			virtual Bool InsertAll(AbstractCollection<ElementType>& collection) override
 				{
 					if (collection.IsEmpty())
-						return false;
+						return FORGE_FALSE;
 
 					if (this->m_max_capacity - collection.GetMaxCapacity() < 0)
-						return false;
+						return FORGE_FALSE;
 
 					collection.ForEach([this](ElementTypeRef element) -> Void
 						{
@@ -383,7 +394,7 @@ namespace Forge {
 						}
 					);
 
-					return true;
+					return FORGE_TRUE;
 				}
 
 			/**

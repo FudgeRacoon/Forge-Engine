@@ -325,7 +325,8 @@ namespace Forge {
 			Void Sleep(I32 milliseconds) override;
 		};
 
-		FORGE_TYPEDEF_DECL(WindowsPlatform, Platform)
+		using Platform = WindowsPlatform;
+		FORGE_TYPEDEF_DECL(Platform)
 	}
 }
 

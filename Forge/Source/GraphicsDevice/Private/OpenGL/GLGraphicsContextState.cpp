@@ -1,15 +1,12 @@
-
-#if defined(FORGE_RENDER_API_OPENGL)
-
 #include <GL/glew.h>
 
+#include <GraphicsDevice/Public/OpenGL/GLUtilities.h>
 #include <GraphicsDevice/Public/OpenGL/GLGraphicsContextState.h>
-#include <GraphicsDevice/Public/OpenGL/GLTypeConversion.h>
 
 namespace Forge {
 	namespace Graphics
 	{
-		GLGraphicsContextState::GLGraphicsContextState(GraphicsContextPtr graphics_context)
+		GLGraphicsContextState::GLGraphicsContextState(GLGraphicsContextPtr graphics_context)
 			: AbstractGraphicsContextState(graphics_context)
 		{
 			glGetIntegerv(GL_MAX_DRAW_BUFFERS, &m_context_limits.max_draw_buffers);
@@ -424,7 +421,10 @@ namespace Forge {
 			m_rasterizer_state.color_write_mask[2] = 0xFF;
 			m_rasterizer_state.color_write_mask[3] = 0xFF;
 		}
+
+		Void GLGraphicsContextState::BindHardwareBuffer(AbstractHardwareBufferPtr hardware_buffer)
+		{
+
+		}
 	}
 }
-
-#endif

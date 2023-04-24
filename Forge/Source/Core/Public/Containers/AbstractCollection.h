@@ -4,6 +4,8 @@
 #include <Core/Public/Common/Common.h>
 #include <Core/Public/Types/TDelegate.h>
 
+using namespace Forge::Common;
+
 namespace Forge {
 	namespace Containers
 	{
@@ -12,16 +14,18 @@ namespace Forge {
 		{
 		public:
 			using ElementType         = InElementType;
-			using ElementTypeRef      = InElementType&;
 			using ElementTypePtr      = InElementType*;
+			using ElementTypeRef      = InElementType&;
+			using ElementTypeMoveRef  = InElementType&&;
 			using ConstElementType    = const InElementType;
 			using ConstElementTypeRef = const InElementType&;
 			using ConstElementTypePtr = const InElementType*;
 
 		private:
 			using SelfType         = AbstractCollection<ElementType>;
-			using SelfTypeRef      = AbstractCollection<ElementType>&;
 			using SelfTypePtr      = AbstractCollection<ElementType>*;
+			using SelfTypeRef      = AbstractCollection<ElementType>&;
+			using SelfTypeRef      = AbstractCollection<ElementType>&&;
 			using ConstSelfType    = const AbstractCollection<ElementType>;
 			using ConstSelfTypeRef = const AbstractCollection<ElementType>&;
 			using ConstSelfTypePtr = const AbstractCollection<ElementType>*;
@@ -31,9 +35,17 @@ namespace Forge {
 			Size m_max_capacity;
 
 		public:
+			/**
+			 * @brief Default constructor.
+			 */
 			AbstractCollection(Size count, Size max_capacity)
 				: m_count(count), m_max_capacity(max_capacity) {}
 
+		public:
+			/**
+			 * @brief Default destructor.
+			 * 
+			 */
 			virtual ~AbstractCollection() = default;
 
 		public:
@@ -42,7 +54,7 @@ namespace Forge {
 			 * 
 			 * @return Size storing the number of elements.
 			 */
-			virtual Size GetCount(void) const;
+			virtual Size GetCount(Void) const;
 
 			/**
 			 * @brief Gets the maximum number of elements that can be stored in
@@ -50,16 +62,16 @@ namespace Forge {
 			 *
 			 * @return Size storing the maximum number of elements.
 			 */
-			virtual Size GetMaxCapacity(void) const;
+			virtual Size GetMaxCapacity(Void) const;
 
 		public:
 			/**
 			 * @brief Checks whether this collection is full and is at maximum
 			 * capacity.
 			 *
-			 * @return True if this collection is full.
+			 * @return True if this collection is full, otherwise false.
 			 */
-			virtual Bool IsFull(void) const;
+			virtual Bool IsFull(Void) const;
 
 			/**
 			 * @brief Checks whether this collection is empty and not storing any
@@ -67,7 +79,7 @@ namespace Forge {
 			 * 
 			 * @return True if this collection is empty.
 			 */
-			virtual Bool IsEmpty(void) const;
+			virtual Bool IsEmpty(Void) const;
 
 			/**
 			 * @brief Checks whether this collection is equal to the specified
@@ -77,10 +89,10 @@ namespace Forge {
 			 * of the elements in the collection and the eqaulity of the elements
 			 * they store.
 			 * 
-			 * @param[in] collection The collection to be compared with this
-			 * collection.
+			 * @param[in] collection The collection to be compared with this collection.
 			 * 
-			 * @return True if the specified collection is equal to this collection. 
+			 * @return True if the specified collection is equal to this
+			 * collection, otherwise false. 
 			 */
 			virtual Bool IsEqual(AbstractCollection<ElementType>& collection) const = 0;
 
@@ -100,7 +112,7 @@ namespace Forge {
 			 * @throws InvalidOperationException if operation not supported by
 			 * this collection.
 			 */
-			virtual ElementTypePtr ToArray(void) const = 0;
+			virtual ElementTypePtr ToArray(Void) const = 0;
 
 			/**
 			 * @brief Returns an array containing all the elements returned by this
@@ -134,7 +146,21 @@ namespace Forge {
 			 * 
 			 * @throws InvalidOperationException if collection is empty.
 			 */
-			virtual Void ForEach(Common::TDelegate<Void(ElementTypeRef)> function) = 0;
+			virtual Void ForEach(TDelegate<Void(ElementTypeRef)> function) = 0;
+
+			/**
+			 * @brief Iterates through all the elements inside the collection and
+			 * performs the operation provided on each element.
+			 *
+			 * The operation is performed in the order of iteration, and is performed
+			 * until all elements have been processed or the operation throws an
+			 * exception.
+			 *
+			 * @param[in] function The function to perform on each element.
+			 *
+			 * @throws InvalidOperationException if collection is empty.
+			 */
+			virtual Void ForEach(TDelegate<Void(ConstElementTypeRef)> function) const = 0;
 
 		public:
 			/**
@@ -212,7 +238,7 @@ namespace Forge {
 			/**
 			 * @brief Removes all the elements from this collections.
 			 */
-			virtual Void Clear(void) = 0;
+			virtual Void Clear(Void) = 0;
 		};
 
 		template<typename T> FORGE_FORCE_INLINE Size AbstractCollection<T>::GetCount() const       { return this->m_count; }

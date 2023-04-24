@@ -222,7 +222,8 @@ namespace Forge {
 			Void Close(WindowClosingReason window_closing_reason) override;
 		};
 
-		FORGE_TYPEDEF_DECL(WindowsWindow, Window)
+		using Window = WindowsWindow;
+		FORGE_TYPEDEF_DECL(Window)
 	}
 }
 

@@ -4,6 +4,8 @@
 #include <Core/Public/Common/Common.h>
 #include <Core/Public/Algorithm/GeneralUtilities.h>
 
+using namespace Forge::Algorithm;
+
 namespace Forge {
 	namespace Common
 	{
@@ -45,21 +47,11 @@ namespace Forge {
 			 * @brief Default constructor.
 			 */
 			TMemoryRegion(Void)
-				: m_data(data), m_size(0), m_count(count) {}
-
-			/**
-			 * @brief Move data constructor.
-			 */
-			TMemoryRegion(TypeMoveRef data, Size count)
-				: m_data(data), m_size(count * sizeof(InType)), m_count(count)
-			{
-				data = nullptr;
-			}
-
+				: m_data(nullptr), m_size(0), m_count(0) {}
 			/**
 			 * @brief Copy data constructor.
 			 */
-			TMemoryRegion(ConstTypeRef data, Size count)
+			TMemoryRegion(TypePtr data, Size count)
 				: m_data(data), m_size(count * sizeof(InType)), m_count(count) {}
 			
 		public:
@@ -68,7 +60,7 @@ namespace Forge {
 			 */
 			TMemoryRegion(SelfTypeMoveRef other)
 			{
-				*this = Algorithm::Move(other);
+				*this = Move(other);
 			}
 
 			/**
@@ -84,7 +76,7 @@ namespace Forge {
 			/**
 			 * @brief Copy assignment.
 			 */
-			FORGE_FORCE_INLINE TypeRef operator =(SelfTypeMoveRef other)
+			FORGE_FORCE_INLINE SelfTypeRef operator =(SelfTypeMoveRef other)
 			{
 				m_data = other.m_data;
 				m_count = other.m_count;
@@ -97,7 +89,7 @@ namespace Forge {
 			/**
 			 * @brief Move assignment.
 			 */
-			FORGE_FORCE_INLINE TypeRef operator =(ConstSelfTypeRef other)
+			FORGE_FORCE_INLINE SelfTypeRef operator =(ConstSelfTypeRef other)
 			{
 				m_data = other.m_data;
 				m_count = other.m_count;
@@ -111,7 +103,7 @@ namespace Forge {
 			 */
 			FORGE_FORCE_INLINE TypeRef operator[](U32 index)
 			{
-				FORGE_ASSERT(index >= 0 && index < m_count);
+				FORGE_ASSERT(index >= 0 && index < m_count, "Index out of bounds")
 
 				return m_data[index];
 			}
@@ -121,7 +113,7 @@ namespace Forge {
 			 */
 			FORGE_FORCE_INLINE ConstTypeRef operator[](U32 index) const
 			{
-				FORGE_ASSERT(index >= 0 && index < m_count);
+				FORGE_ASSERT(index >= 0 && index < m_count, "Index out of bounds")
 
 				return m_data[index];
 			}
@@ -134,7 +126,7 @@ namespace Forge {
 			 */
 			FORGE_FORCE_INLINE Bool IsEmpty(Void) const
 			{
-				return m_count
+				return m_count;
 			}
 
 			/**
@@ -161,11 +153,11 @@ namespace Forge {
 
 		public:
 			/**
-			 * @brief Gets the total size of the memory region. in bytes.
+			 * @brief Gets the total size of the memory region in bytes.
 			 *
 			 * @returns Size storing the size of the memory region in bytes.
 			 */
-			FORGE_FORCE_INLINE Size GetSize(Void)
+			FORGE_FORCE_INLINE Size GetSize(Void) const
 			{
 				return m_size;
 			}
@@ -236,7 +228,7 @@ namespace Forge {
 			 */
 			FORGE_FORCE_INLINE SelfType GetSubMemory(Size offset, Size length)
 			{
-				return TMemoryRegion<Type>(m_ptr + offset, length);
+				return TMemoryRegion<Type>(m_data + offset, length);
 			}
 
 			/**
@@ -250,7 +242,7 @@ namespace Forge {
 			 */
 			FORGE_FORCE_INLINE ConstSelfType GetConstSubMemory(Size offset, Size length) const
 			{
-				return TMemoryRegion<Type>(m_ptr + offset, length);
+				return TMemoryRegion<Type>(m_data + offset, length);
 			}
 
 		public:
@@ -284,7 +276,25 @@ namespace Forge {
 				m_data = nullptr;
 				m_count = 0;
 			}
+
+			/**
+			 * @brief Invalidates the data pointer and resets the memory region
+			 * state.
+			 * 
+			 * This function deallocates the internal data pointer, and thus
+			 * should only be used if guranteed that the memory region ownes
+			 * this pointer.
+			 */
+			FORGE_FORCE_INLINE Void Reset(Void)
+			{
+				delete[] m_data;
+
+				m_data = nullptr;
+				m_count = 0;
+			}
 		};
+
+		FORGE_TYPEDEF_TEMPLATE_DECL(TMemoryRegion)
 	}
 }
 

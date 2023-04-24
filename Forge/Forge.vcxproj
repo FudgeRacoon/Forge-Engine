@@ -61,7 +61,7 @@
     <ClCompile>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>FORGE_EXPORT;FORGE_RENDER_API_OPENGL;FORGE_BUILD_DEBUG;_CONSOLE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>FORGE_EXPORT;FORGE_BUILD_DEBUG;_CONSOLE</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -155,11 +155,14 @@
     <ClInclude Include="Source\Core\Public\Types\Singleton.h" />
     <ClInclude Include="Source\GraphicsDevice\Public\Base\AbstractGraphicsContextState.h" />
     <ClInclude Include="Source\GraphicsDevice\Public\Base\AbstractHardwareBuffer.h" />
-    <ClInclude Include="Source\GraphicsDevice\Public\GraphicsContext.h" />
+    <ClInclude Include="Source\GraphicsDevice\Public\Base\AbstractVertexDecleration.h" />
     <ClInclude Include="Source\GraphicsDevice\Public\GraphicsTypes.h" />
     <ClInclude Include="Source\GraphicsDevice\Public\OpenGL\GLGraphicsContextState.h" />
     <ClInclude Include="Source\GraphicsDevice\Public\OpenGL\GLGraphicsContext.h" />
-    <ClInclude Include="Source\GraphicsDevice\Public\OpenGL\GLTypeConversion.h" />
+    <ClInclude Include="Source\GraphicsDevice\Public\OpenGL\GLHardwareIndexBuffer.h" />
+    <ClInclude Include="Source\GraphicsDevice\Public\OpenGL\GLHardwareVertexBuffer.h" />
+    <ClInclude Include="Source\GraphicsDevice\Public\OpenGL\GLUtilities.h" />
+    <ClInclude Include="Source\GraphicsDevice\Public\VertexElement.h" />
     <ClInclude Include="Source\Platform\Public\Base\AbstractPlatform.h" />
     <ClInclude Include="Source\Platform\Public\Base\AbstractWindow.h" />
     <ClInclude Include="Source\Platform\Public\Platform.h" />
@@ -184,9 +187,12 @@
     <ClCompile Include="Source\Core\Private\RTTI\TypeInfo.cpp" />
     <ClCompile Include="Source\Core\Private\Types\String\AbstractString.cpp" />
     <ClCompile Include="Source\Core\Public\Debug\Exception\Exceptions\MemoryOutOfBoundsException.h" />
+    <ClCompile Include="Source\GraphicsDevice\Private\Base\AbstractVertexDecleration.cpp" />
     <ClCompile Include="Source\GraphicsDevice\Private\OpenGL\GLGraphicsContextState.cpp" />
     <ClCompile Include="Source\GraphicsDevice\Private\OpenGL\GLGraphicsContext.cpp" />
+    <ClCompile Include="Source\GraphicsDevice\Private\OpenGL\GLHardwareBuffer.cpp" />
     <ClCompile Include="Source\GraphicsDevice\Public\Base\AbstractGraphicsContext.h" />
+    <ClCompile Include="Source\GraphicsDevice\Public\OpenGL\GLHardwareBuffer.h" />
     <ClCompile Include="Source\Platform\Private\Base\AbstractPlatform.cpp" />
     <ClCompile Include="Source\Platform\Private\Base\AbstractWindow.cpp" />
     <ClCompile Include="Source\Platform\Private\Windows\WindowsPlatform.cpp" />

@@ -1,7 +1,5 @@
-#include <Platform/Public/Platform.h>
+#include <Platform/Public/Windows/WindowsPlatform.h>
 #include <Platform/Public/Base/AbstractWindow.h>
-
-#include <GraphicsDevice/Public/GraphicsContext.h>
 
 namespace Forge {
 	namespace Platform

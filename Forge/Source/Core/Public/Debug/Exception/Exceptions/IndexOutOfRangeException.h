@@ -1,7 +1,7 @@
 #ifndef INDEX_OUT_OF_RANGE_EXCEPTION_H
 #define INDEX_OUT_OF_RANGE_EXCEPTION_H
 
-#include "../Exception.h"
+#include <Core/Public/Debug/Exception/Exception.h>
 
 namespace Forge {
 	namespace Debug
@@ -9,10 +9,10 @@ namespace Forge {
 		class IndexOutOfRangeException : public Exception
 		{
 		public:
-			IndexOutOfRangeException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file)
-				: Exception(line, func, file, "Index is out of range of the array") {}
-			IndexOutOfRangeException(ConstCharPtr line, ConstCharPtr func, ConstCharPtr file, ConstCharPtr add_info)
-				: Exception(line, func, file, "Index is out of range of the array", add_info) {}
+			IndexOutOfRangeException(ConstCharPtr line, ConstCharPtr file, ConstCharPtr function)
+				: Exception(line, file, function, "Index is out of range of the array") {}
+			IndexOutOfRangeException(ConstCharPtr line, ConstCharPtr file, ConstCharPtr function, ConstCharPtr add_info)
+				: Exception(line, file, function, "Index is out of range of the array", add_info) {}
 		};
 	}
 }

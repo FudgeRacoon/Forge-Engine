@@ -1,5 +1,5 @@
 #include <Platform/Public/Platform.h>
-#include <GraphicsDevice/Public/GraphicsContext.h>
+#include <GraphicsDevice/Public/OpenGL/GLGraphicsContext.h>
 #include <GraphicsDevice/Public/OpenGL/GLGraphicsContextState.h>
 
 #include "../ThirdParty/GL/glew.h"
@@ -15,7 +15,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
 	WindowPtr wnd = Platform::GetInstance().ConstructWindow("Forge Engine");
 
-	GraphicsContextPtr gc = new GraphicsContext(wnd, 3, 3, GLContextProfileMask::FORGE_CORE, GLContextFlags::FORGE_NONE);
+	GLGraphicsContextPtr gc = new GLGraphicsContext(wnd, 3, 3, GLContextProfileMask::FORGE_CORE, GLContextFlags::FORGE_NONE);
 	gc->Initialize();
 
 	GLGraphicsContextState gcs(gc);
