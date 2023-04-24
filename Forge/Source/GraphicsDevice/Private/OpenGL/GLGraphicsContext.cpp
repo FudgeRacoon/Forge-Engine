@@ -295,19 +295,14 @@ namespace Forge {
 					return FORGE_FALSE;
 				}
 
-				if (m_context_flags & GLContextFlags::FORGE_DEBUG)
-					attribute_flags |= WGL_CONTEXT_DEBUG_BIT_ARB;
-
-				if (m_context_flags & GLContextFlags::FORGE_FORWARD_COMPAT)
-					attribute_flags |= WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
-
 				if (m_context_supported_extensions.m_has_arb_create_context_profile)
 				{
 					if (m_context_profile == GLContextProfileMask::FORGE_CORE)
 						attribute_mask |= WGL_CONTEXT_CORE_PROFILE_BIT_ARB;
 					else if (m_context_profile == GLContextProfileMask::FORGE_COMPAT)
 						attribute_mask |= WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB;
-					else if (m_context_supported_extensions.m_has_ext_create_context_es2_profile)
+					else if (m_context_supported_extensions.m_has_ext_create_context_es2_profile &&
+						     m_context_profile == GLContextProfileMask::FORGE_ES)
 						attribute_mask |= WGL_CONTEXT_ES2_PROFILE_BIT_EXT;
 					else
 					{
@@ -321,40 +316,40 @@ namespace Forge {
 					return FORGE_FALSE;
 				}
 
-				if (m_context_supported_extensions.m_has_arb_create_context_no_error)
-				{
-					if (m_context_flags & GLContextFlags::FORGE_NO_ERROR)
+				if (m_context_supported_extensions.m_has_arb_create_context_no_error &&
+					m_context_flags & GLContextFlags::FORGE_NO_ERROR)
 						SET_ATTRIB(WGL_CONTEXT_OPENGL_NO_ERROR_ARB, FORGE_TRUE)
-				}
 				else
 				{
 					Platform::Platform::GetInstance().Error("WGL: OpenGL no error requested but WGL_ARB_create_context_no_error is unavailable");
 					return FORGE_FALSE;
 				}
 
-				if (m_context_supported_extensions.m_has_arb_create_context_robustness)
-				{
-					if (m_context_flags & GLContextFlags::FORGE_ROBUSTNESS)
+				if (m_context_supported_extensions.m_has_arb_create_context_robustness &&
+					m_context_flags & GLContextFlags::FORGE_ROBUSTNESS)
 						attribute_flags |= WGL_CONTEXT_ROBUST_ACCESS_BIT_ARB;
-				}
 				else
 				{
-					Platform::Platform::GetInstance().Error("WGL: OpenGL no error requested but WGL_ARB_create_context_robustness is unavailable");
+					Platform::Platform::GetInstance().Error("WGL: OpenGL context robustness requested but WGL_ARB_create_context_robustness is unavailable");
 					return FORGE_FALSE;
 				}
 
-				if (m_context_supported_extensions.m_has_arb_context_flush_control)
-				{
-					if (m_context_flags & GLContextFlags::FORGE_RELEASE_FLUSH)
+				if (m_context_supported_extensions.m_has_arb_context_flush_control &&
+					m_context_flags & GLContextFlags::FORGE_RELEASE_FLUSH)
 						SET_ATTRIB(WGL_CONTEXT_RELEASE_BEHAVIOR_ARB, WGL_CONTEXT_RELEASE_BEHAVIOR_FLUSH_ARB)
-					else
+				else if(m_context_supported_extensions.m_has_arb_context_flush_control)
 						SET_ATTRIB(WGL_CONTEXT_RELEASE_BEHAVIOR_ARB, WGL_CONTEXT_RELEASE_BEHAVIOR_NONE_ARB)
-				}
 				else
 				{
-					Platform::Platform::GetInstance().Error("WGL: OpenGL no error requested but WGL_ARB_context_flush_control is unavailable");
+					Platform::Platform::GetInstance().Error("WGL: OpenGL flush control requested but WGL_ARB_context_flush_control is unavailable");
 					return FORGE_FALSE;
 				}
+
+				if (m_context_flags & GLContextFlags::FORGE_DEBUG)
+					attribute_flags |= WGL_CONTEXT_DEBUG_BIT_ARB;
+
+				if (m_context_flags & GLContextFlags::FORGE_FORWARD_COMPAT)
+					attribute_flags |= WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
 
 				if (attribute_flags)
 					SET_ATTRIB(WGL_CONTEXT_FLAGS_ARB, attribute_flags)

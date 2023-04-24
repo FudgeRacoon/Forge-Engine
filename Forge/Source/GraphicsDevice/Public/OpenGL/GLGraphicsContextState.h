@@ -1,6 +1,7 @@
 #ifndef GL_GRAPHICS_CONTEXT_STATE_H
 #define GL_GRAPHICS_CONTEXT_STATE_H
 
+
 #include <GraphicsDevice/Public/OpenGL/GLGraphicsContext.h>
 #include <GraphicsDevice/Public/Base/AbstractGraphicsContextState.h>
 

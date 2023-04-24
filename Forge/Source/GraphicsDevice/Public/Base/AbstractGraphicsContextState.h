@@ -1,11 +1,24 @@
 #ifndef ABSTRACT_GRAPHICS_CONTEXT_STATE_H
 #define ABSTRACT_GRAPHICS_CONTEXT_STATE_H
 
+// Placeholder until I implement a Containers::HashTable.
+
+#include <utility>
+#include <unordered_map>
+
+#define HashTable(KeyType, ValueType) std::unordered_map<KeyType, ValueType>
+
+#define Insert(Key, Value) insert({Key, Value})
+
+
 #include <Core/Public/Common/Common.h>
+#include <Core/Public/Types/SmartPointer.h>
 
 #include <GraphicsDevice/Public/GraphicsTypes.h>
 #include <GraphicsDevice/Public/Base/AbstractHardwareBuffer.h>
 #include <GraphicsDevice/Public/Base/AbstractGraphicsContext.h>
+
+using namespace Forge::Common;
 
 namespace Forge {
 	namespace Graphics
@@ -132,20 +145,19 @@ namespace Forge {
 					BlendFuncMask dst_function;
 
 				} color_blending_state;
-			};
-
-		protected:
-			RasterizerState m_rasterizer_state;
+			} m_rasterizer_state;
 
 		protected:
 			AbstractGraphicsContextPtr m_graphics_context;
+
+		protected:
+			HashTable(U32, TWeakPtr<AbstractHardwareBuffer>) m_bound_buffers;
 
 		public:
 			/**
 			 * @brief Default Constructor.
 			 */
-			AbstractGraphicsContextState(AbstractGraphicsContextPtr graphics_context)
-				: m_graphics_context(graphics_context) {}
+			AbstractGraphicsContextState(AbstractGraphicsContextPtr graphics_context);
 
 			/**
 			 * @brief Destructor.
@@ -194,7 +206,7 @@ namespace Forge {
 			 * @brief Sets a mask to enable and disable writing in the depth
 			 * buffer.
 			 *
-			 * @param mask The mask to enable and disable writing in the depth
+			 * @param mask[in] The mask to enable and disable writing in the depth
 			 * buffer.
 			 * 
 			 * @returns True if enabled, otherwise false.
@@ -204,7 +216,7 @@ namespace Forge {
 			/**
 			 * @brief Sets a depth buffer comparison function.
 			 *
-			 * @param function The comparison function to use for depth testing.
+			 * @param function[in] The comparison function to use for depth testing.
 			 * 
 			 * @returns True if enabled, otherwise false.
 			 */
@@ -215,8 +227,7 @@ namespace Forge {
 			 * @brief Sets a bit mask to enable and disable writing of individual
 			 * bits in the stencil planes.
 			 *
-			 * @param mask The bit mask to enable and disable writing of
-			 * individual bits.
+			 * @param mask[in] The bit mask to enable and disable writing of individual bits.
 			 * 
 			 * @returns True if enabled, otherwise false.
 			 */
@@ -226,24 +237,23 @@ namespace Forge {
 			 * @brief Sets a stencil buffer comparison function and reference
 			 * value.
 			 *
-			 * @param function The comparison function to use for depth testing.
-			 * @param ref The reference value for the stencil test.
-			 * @param mask The mask that is ANDed with both the reference value
-			 * and the stored stencil value when the test is done. 
+			 * @param function[in]  The comparison function to use for stencil testing.
+			 * @param reference[in] The reference value for the stencil test.
+			 * @param mask[in]      The mask that is ANDed with both the reference value and the stored stencil value. 
 			 * 
 			 * @returns True if enabled, otherwise false.
 			 */
-			virtual Bool SetStencilComparisonFunction(ComparisonFuncMask function, I32 ref, U32 mask) = 0;
+			virtual Bool SetStencilComparisonFunction(ComparisonFuncMask function, I32 reference, U32 mask) = 0;
 
 		public:
 			/**
 			 * @brief Sets a scissor bounding region where fragments outside
 			 * will be discarded.
 			 *
-			 * @param x      The left corner of the bounding region.
-			 * @param y      The lower corner of the bounding region.
-			 * @param width  The width of the bounding region.
-			 * @param height The height of the bounding region.
+			 * @param x[in]      The left corner of the bounding region.
+			 * @param y[in]      The lower corner of the bounding region.
+			 * @param width[in]  The width of the bounding region.
+			 * @param height[in] The height of the bounding region.
 			 * 
 			 * @returns True if enabled, otherwise false.
 			 */
@@ -254,7 +264,7 @@ namespace Forge {
 			 * @brief Sets whether front or back facing polygons are candidates
 			 * for culling.
 			 *
-			 * @param FaceCullMask The face culling mode to use.
+			 * @param mode[in] The face culling mode to use.
 			 * 
 			 * @returns True if enabled, otherwise false.
 			 */
@@ -265,10 +275,10 @@ namespace Forge {
 			 * @brief Sets a constant blend color that is used when blending the
 			 * source and destination colors during the blending operation.
 			 *
-			 * @param red   The blend color red component.
-			 * @param green The blend color green component.
-			 * @param blue  The blend color blue component.
-			 * @param alpha The blend color alpha component.
+			 * @param red[in]   The blend color red component.
+			 * @param green[in] The blend color green component.
+			 * @param blue[in]  The blend color blue component.
+			 * @param alpha[in] The blend color alpha component.
 			 * 
 			 * @returns True if enabled, otherwise false.
 			 */
@@ -277,8 +287,8 @@ namespace Forge {
 			/**
 			 * @brief Sets a blend function used to calculate blending factor.
 			 *
-			 * @param src_function The source function to compute the blending factor.
-			 * @param dst_function The destination function to compute the blending factor.
+			 * @param src_function[in] The source function to compute the blending factor.
+			 * @param dst_function[in] The destination function to compute the blending factor.
 			 * 
 			 * @returns True if enabled, otherwise false.
 			 */
@@ -288,14 +298,14 @@ namespace Forge {
 			/**
 			 * @brief Sets the width of rasterized lines.
 			 *
-			 * @param width The width of the rasterized line.
+			 * @param width[in] The width of the rasterized line.
 			 */
 			virtual Void SetLineWidth(F32 width) = 0;
 
 			/**
 			 * @brief Sets a texture unit as active.
 			 * 
-			 * @param index The index of the texture unit to activate.
+			 * @param index[in] The index of the texture unit to activate.
 			 */
 			virtual Void SetActiveTexture(U32 index) = 0;
 
@@ -303,32 +313,32 @@ namespace Forge {
 			 * @brief Sets a fill rasterizaton mode, which specifies how polygons
 			 * will be rendered on screen.
 			 *
-			 * @param mode The fill rasterization mode.
+			 * @param mode[in] The fill rasterization mode.
 			 */
 			virtual Void SetFillMode(PolygonFillMask mode) = 0;
 
 			/**
 		     * @brief Sets the orientation of front facing polygons.
 		     *
-		     * @param front_face The front face orientation to use.
+		     * @param front_fac[in]e The front face orientation to use.
 		     */
 			virtual Void SetFrontFace(FrontFaceMask front_face) = 0;
 
 			/**
 			 * @brief Sets a pixel storage mode.
 			 *
-			 * @param mode  The pixel storage mode to be set.
-			 * @param value The value of the pixel storage mode.
+			 * @param mode[in]  The pixel storage mode to be set.
+			 * @param value[in] The value of the pixel storage mode.
 			 */
 			virtual Void SetPixelStorage(PixelStorageMask mode, I32 value) = 0;
 
 			/**
 			 * @brief Sets a  clear values for the color buffers.
 			 * 
-			 * @param red   The color buffer red component.
-			 * @param green The color buffer green component.
-			 * @param blue  The color buffer blue component.
-			 * @param alpha The color buffer alpha component.
+			 * @param red[in]   The color buffer red component.
+			 * @param green[in] The color buffer green component.
+			 * @param blue[in]  The color buffer blue component.
+			 * @param alpha[in] The color buffer alpha component.
 			 */
 			virtual Void SetColorClear(F32 red, F32 green, F32 blue, F32 alpha) = 0;
 			
@@ -336,10 +346,10 @@ namespace Forge {
 			 * @brief Sets a mask to enable and disable writing of individual 
 			 * components of the color buffer.
 			 * 
-			 * @param red   The color buffer red component.
-			 * @param green The color buffer green component.
-			 * @param blue  The color buffer blue component.
-			 * @param alpha The color buffer alpha component.
+			 * @param red[in]   The color buffer red component.
+			 * @param green[in] The color buffer green component.
+			 * @param blue[in]  The color buffer blue component.
+			 * @param alpha[in] The color buffer alpha component.
 			 */
 			virtual Void SetColorWriteMask(F32 red, F32 green, F32 blue, F32 alpha) = 0;
 
@@ -369,7 +379,10 @@ namespace Forge {
 		};
 
 		FORGE_TYPEDEF_DECL(AbstractGraphicsContextState)
+
+		FORGE_FORCE_INLINE AbstractGraphicsContextState::AbstractGraphicsContextState(AbstractGraphicsContextPtr graphics_context)
+			: m_graphics_context(graphics_context) {}
 	}
 }
 
-#endif
+#endif // ABSTRACT_GRAPHICS_CONTEXT_STATE_H

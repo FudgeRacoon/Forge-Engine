@@ -175,8 +175,8 @@ namespace Forge {
 		/**
 		 * @brief Swaps the content of two varibales.
 		 *
-		 * \param lhs The left-hand side variable to swap.
-		 * \param rhs The right-hand side variable to swap.
+		 * @param lhs The left-hand side variable to swap.
+		 * @param rhs The right-hand side variable to swap.
 		 */
 		template<typename InType>
 		FORGE_FORCE_INLINE auto Swap(InType& lhs, InType& rhs)
@@ -192,7 +192,7 @@ namespace Forge {
 		 * @param obj The object whose value to replace.
 		 * @param val The new value to assign to the object.
 		 *
-		 * @return InDataType storting the old value of the object.
+		 * @returns InDataType storing the old value of the object.
 		 */
 		template<typename InObjectType, typename InDataType = InObjectType>
 		FORGE_FORCE_INLINE auto Exchange(InObjectType& obj, InDataType&& val)

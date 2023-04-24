@@ -38,8 +38,7 @@ namespace Forge {
 			/**
 			 * @brief Default constructor.
 			 */
-			AbstractCollection(Size count, Size max_capacity)
-				: m_count(count), m_max_capacity(max_capacity) {}
+			AbstractCollection(Size count, Size max_capacity);
 
 		public:
 			/**
@@ -47,6 +46,38 @@ namespace Forge {
 			 * 
 			 */
 			virtual ~AbstractCollection() = default;
+
+		public:
+			/**
+			 * @brief Checks whether this collection is full and is at maximum
+			 * capacity.
+			 *
+			 * @return True if this collection is full, otherwise false.
+			 */
+			virtual Bool IsFull(Void) const;
+
+			/**
+			 * @brief Checks whether this collection is empty and not storing any
+			 * elements.
+			 *
+			 * @return True if this collection is empty.
+			 */
+			virtual Bool IsEmpty(Void) const;
+
+			/**
+			 * @brief Checks whether this collection is equal to the specified
+			 * collection.
+			 *
+			 * Equality between collections is governed by their size, the order
+			 * of the elements in the collection and the eqaulity of the elements
+			 * they store.
+			 *
+			 * @param[in] collection The collection to be compared with this collection.
+			 *
+			 * @return True if the specified collection is equal to this
+			 * collection, otherwise false.
+			 */
+			virtual Bool IsEqual(AbstractCollection<ElementType>& collection) const = 0;
 
 		public:
 			/**
@@ -63,38 +94,6 @@ namespace Forge {
 			 * @return Size storing the maximum number of elements.
 			 */
 			virtual Size GetMaxCapacity(Void) const;
-
-		public:
-			/**
-			 * @brief Checks whether this collection is full and is at maximum
-			 * capacity.
-			 *
-			 * @return True if this collection is full, otherwise false.
-			 */
-			virtual Bool IsFull(Void) const;
-
-			/**
-			 * @brief Checks whether this collection is empty and not storing any
-			 * elements.
-			 * 
-			 * @return True if this collection is empty.
-			 */
-			virtual Bool IsEmpty(Void) const;
-
-			/**
-			 * @brief Checks whether this collection is equal to the specified
-			 * collection.
-			 * 
-			 * Equality between collections is governed by their size, the order
-			 * of the elements in the collection and the eqaulity of the elements
-			 * they store.
-			 * 
-			 * @param[in] collection The collection to be compared with this collection.
-			 * 
-			 * @return True if the specified collection is equal to this
-			 * collection, otherwise false. 
-			 */
-			virtual Bool IsEqual(AbstractCollection<ElementType>& collection) const = 0;
 
 		public:
 			/**
@@ -241,10 +240,25 @@ namespace Forge {
 			virtual Void Clear(Void) = 0;
 		};
 
-		template<typename T> FORGE_FORCE_INLINE Size AbstractCollection<T>::GetCount() const       { return this->m_count; }
-		template<typename T> FORGE_FORCE_INLINE Size AbstractCollection<T>::GetMaxCapacity() const { return this->m_max_capacity; }
-		template<typename T> FORGE_FORCE_INLINE Bool AbstractCollection<T>::IsFull() const         { return this->m_count == this->m_max_capacity; }
-		template<typename T> FORGE_FORCE_INLINE Bool AbstractCollection<T>::IsEmpty() const        { return this->m_count == 0; }
+		template<typename T> FORGE_FORCE_INLINE AbstractCollection<T>::AbstractCollection(Size count, Size max_capacity)
+			: m_count(count), m_max_capacity(max_capacity) {}
+
+		template<typename T> FORGE_FORCE_INLINE Bool AbstractCollection<T>::IsFull() const 
+		{ 
+			return m_count == m_max_capacity; 
+		}
+		template<typename T> FORGE_FORCE_INLINE Bool AbstractCollection<T>::IsEmpty() const 
+		{ 
+			return >m_count == 0; 
+		}
+		template<typename T> FORGE_FORCE_INLINE Size AbstractCollection<T>::GetCount() const 
+		{ 
+			return m_count; 
+		}
+		template<typename T> FORGE_FORCE_INLINE Size AbstractCollection<T>::GetMaxCapacity() const 
+		{ 
+			return m_max_capacity; 
+		}
 	}
 }
 

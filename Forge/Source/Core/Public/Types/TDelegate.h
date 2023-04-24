@@ -1,13 +1,13 @@
 #ifndef T_DELEGATE_HPP
 #define T_DELEGATE_HPP
 
-#include "Core/Public/Common/Compiler.h"
-#include "Core/Public/Common/TypeDefinitions.h"
-#include "Core/Public/Common/PreprocessorUtilities.h"
+#include <Core/Public/Debug/Debug.h>
+#include <Core/Public/Common/Common.h>
+#include <Core/Public/Memory/MemoryUtilities.h>
+#include <Core/Public/Algorithm/GeneralUtilities.h>
 
-#include "Core/Public/Memory/MemoryUtilities.h"
-
-#include "Core/Public/Algorithm/GeneralUtilities.h"
+using namespace Forge::Debug;
+using namespace Forge::Algorithm;
 
 namespace Forge {
 	namespace Common
@@ -55,7 +55,7 @@ namespace Forge {
 		private:
 			union
 			{
-				VoidPtr      m_instance_ptr;
+				VoidPtr m_instance_ptr;
 				ConstVoidPtr m_const_instance_ptr;
 			};
 
@@ -155,7 +155,7 @@ namespace Forge {
 			 * 
 			 * Constructs an empty delegate object with the invokable to null.
 			 */
-			TDelegate(void)
+			TDelegate(Void)
 				: m_func_container_size(sizeof(InReturnType(*)(InParams...))), m_fptr_address(nullptr), m_invokable(nullptr) {}
 
 			/**
@@ -171,16 +171,16 @@ namespace Forge {
 				{
 					ConstSize function_size = sizeof(InFunction);
 
-					this->m_fptr_address = (BytePtr)malloc(function_size);
+					m_fptr_address = new Byte[function_size];
 					
 					if (function_size > 1 && function_size <= sizeof(InReturnType(*)(InParams...)))
-						Memory::MemoryCopy(this->m_fptr_address, &function, function_size);
+						Memory::MemoryCopy(m_fptr_address, &function, function_size);
 					else
-						Memory::MemorySet(this->m_fptr_address, 0, function_size);
+						Memory::MemorySet(m_fptr_address, 0, function_size);
 
-					this->m_instance_ptr = nullptr;
-					this->m_func_container_size = function_size;
-					this->m_invokable = reinterpret_cast<InvokableFunc>(&InvokeFunction<InFunction>);
+					m_instance_ptr = nullptr;
+					m_func_container_size = function_size;
+					m_invokable = reinterpret_cast<InvokableFunc>(&InvokeFunction<InFunction>);
 				}
 				else
 				{
@@ -243,7 +243,7 @@ namespace Forge {
 			TDelegate(SelfType&& other)
 				: m_func_container_size(sizeof(InReturnType(*)(InParams...))), m_fptr_address(nullptr), m_invokable(nullptr)
 			{
-				*this = Forge::Algorithm::Move(other);
+				*this = Move(other);
 			}
 
 			/**
@@ -257,11 +257,11 @@ namespace Forge {
 
 		public:
 			/**
-			 * @brief Destructor
+			 * @brief Default destructor
 			 */
-			~TDelegate()
+			~TDelegate(Void)
 			{
-				this->Invalidate();
+				Invalidate();
 			}
 
 		public:
@@ -270,14 +270,12 @@ namespace Forge {
 			 */
 			SelfTypeRef operator =(SelfType&& other)
 			{
-				this->Invalidate();
+				Invalidate();
 
 				Memory::MemoryCopy(this, &other, sizeof(SelfType));
 			
-				other.m_instance_ptr = nullptr;
 				other.m_func_container_size = 0;
-				other.m_fptr_address = nullptr;
-				other.m_invokable = nullptr;
+				other.m_instance_ptr = other.m_fptr_address = other.m_invokable = nullptr;
 
 				return *this;
 			}
@@ -287,15 +285,15 @@ namespace Forge {
 			 */
 			SelfTypeRef operator =(ConstSelfTypeRef other)
 			{
-				this->Invalidate();
+				Invalidate();
 
-				this->m_fptr_address = (BytePtr)malloc(other.m_func_container_size);
+				m_fptr_address = (BytePtr)malloc(other.m_func_container_size);
 
 				Memory::MemoryCopy(this->m_fptr_address, other.m_fptr_address, other.m_func_container_size);
 
-				this->m_instance_ptr = other.m_instance_ptr;
-				this->m_func_container_size = other.m_func_container_size;
-				this->m_invokable = other.m_invokable;
+				m_instance_ptr = other.m_instance_ptr;
+				m_func_container_size = other.m_func_container_size;
+				m_invokable = other.m_invokable;
 
 				return *this;
 			}
@@ -311,7 +309,7 @@ namespace Forge {
 			 */
 			Bool IsValid(void)
 			{
-				return this->m_invokable != nullptr;
+				return m_invokable != nullptr;
 			}
 			
 			/**
@@ -338,17 +336,14 @@ namespace Forge {
 			 */
 			Void Invalidate(void)
 			{
-				if (this->m_fptr_address)
+				if (m_fptr_address)
 				{
-					Memory::MemorySet(this->m_fptr_address, 0, this->m_func_container_size);
-
-					free(this->m_fptr_address);
+					Memory::MemorySet(m_fptr_address, 0, m_func_container_size);
+					delete m_fptr_address;
 				}
 
-				this->m_instance_ptr = nullptr;
-				this->m_func_container_size = 0;
-				this->m_fptr_address = nullptr;
-				this->m_invokable = nullptr;
+				m_func_container_size = 0;
+				m_instance_ptr = m_fptr_address = m_invokable = nullptr;
 			}
 
 			/**
@@ -362,12 +357,10 @@ namespace Forge {
 			 */
 			InReturnType Invoke(InParams... params)
 			{
-				if (!this->IsValid())
-				{
-					// Throw Exception
-				}
+				if (!IsValid())
+					FORGE_EXCEPT(ExceptionType::FORGE_INVALID_OPERATION)
 
-				return (this->m_invokable)(*this, params...);
+				return (m_invokable)(*this, params...);
 			}
 		};
 	}
